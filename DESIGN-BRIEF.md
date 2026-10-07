@@ -98,6 +98,7 @@ npm**. It binds only if a JavaScript package is ever published under that name.
 
 ## 6. Where the prior work lives
 
-`D7-spatial.md` (the canvas serialization findings), `DESIGN.md` (the overall
-verdict and the `.canvas` holes), and rowspec's `docs/rationale.md`, in the
-`working-git-backed-gws` design workspace.
+In [kindspec/research](https://github.com/kindspec/research):
+`design-findings/D7-spatial.md` (the canvas serialization findings) and
+`DESIGN.md` (the overall verdict and the `.canvas` holes). And rowspec's own
+`docs/rationale.md`. Cite them by path and commit.

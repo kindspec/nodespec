@@ -15,7 +15,7 @@ part of every one of them:
 | | unit | identity | status |
 |---|---|---|---|
 | [rowspec](https://github.com/kindspec/rowspec) | rows | opaque row ids | draft 0, published |
-| [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | not started |
+| [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | design pass |
 | **nodespec** | nodes | **named, not positional** | not started |
 
 ## The thing that makes this different from rowspec
