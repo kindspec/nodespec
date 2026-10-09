@@ -1,0 +1,61 @@
+=== probe
+bare {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-0"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-1"}],"edges":[{"id":"L_A_B_0","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":false}],"subgraphs":[]}
+implicit {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"Alpha","type":"square","classes":[],"domId":"flowchart-A-0"},{"k":"Ghost","id":"Ghost","text":"Ghost","classes":[],"domId":"flowchart-Ghost-2"}],"edges":[{"id":"L_A_Ghost_0","start":"A","end":"Ghost","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":false}],"subgraphs":[]}
+twice {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"Second","type":"square","classes":[],"domId":"flowchart-A-0"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-3"}],"edges":[{"id":"L_A_B_0","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":false}],"subgraphs":[]}
+twiceShape {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"Second","type":"round","classes":[],"domId":"flowchart-A-0"}],"edges":[],"subgraphs":[]}
+nested {"parse":"flowchart-v2","vertices":[{"k":"N","id":"N","text":"Node","type":"square","classes":[],"domId":"flowchart-N-0"}],"edges":[],"subgraphs":[{"id":"inner","title":"Inner","nodes":["N"]},{"id":"outer","title":"Outer","nodes":["inner"]}]}
+twoSub {"parse":"flowchart-v2","vertices":[{"k":"X","id":"X","text":"X","classes":[],"domId":"flowchart-X-0"}],"edges":[],"subgraphs":[{"id":"s1","title":"s1","nodes":["X"]},{"id":"s2","title":"s2","nodes":[]}]}
+twoSubRev {"parse":"flowchart-v2","vertices":[{"k":"X","id":"X","text":"X","classes":[],"domId":"flowchart-X-0"}],"edges":[],"subgraphs":[{"id":"s2","title":"s2","nodes":["X"]},{"id":"s1","title":"s1","nodes":[]}]}
+twoSubNested {"parse":"flowchart-v2","vertices":[{"k":"X","id":"X","text":"X","classes":[],"domId":"flowchart-X-0"}],"edges":[],"subgraphs":[{"id":"s2","title":"s2","nodes":["X"]},{"id":"s1","title":"s1","nodes":["s2"]}]}
+nodeEqEdgeId {"parse":"flowchart-v2","vertices":[{"k":"e1","id":"e1","text":"Node e1","type":"square","classes":[],"domId":"flowchart-e1-0"},{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-1"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-2"}],"edges":[{"id":"e1","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":true}],"subgraphs":[]}
+edgeIdThenNode {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-0"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-1"}],"edges":[{"id":"e1","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":true}],"subgraphs":[]}
+dupEdgeId {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-0"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-1"},{"k":"C","id":"C","text":"C","classes":[],"domId":"flowchart-C-2"},{"k":"D","id":"D","text":"D","classes":[],"domId":"flowchart-D-3"}],"edges":[{"id":"e1","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":true},{"id":"L_C_D_0","start":"C","end":"D","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":false}],"subgraphs":[]}
+subEqNode {"parse":"flowchart-v2","vertices":[{"k":"S","id":"S","text":"Node S","type":"square","classes":[],"domId":"flowchart-S-0"},{"k":"Q","id":"Q","text":"Q","classes":[],"domId":"flowchart-Q-1"}],"edges":[],"subgraphs":[{"id":"S","title":"Sub title","nodes":["Q"]}]}
+subEqNode2 {"parse":"flowchart-v2","vertices":[{"k":"Q","id":"Q","text":"Q","classes":[],"domId":"flowchart-Q-0"},{"k":"S","id":"S","text":"Node S","type":"square","classes":[],"domId":"flowchart-S-1"}],"edges":[],"subgraphs":[{"id":"S","title":"Sub title","nodes":["Q"]}]}
+edgeToSub {"parse":"flowchart-v2","vertices":[{"k":"Q","id":"Q","text":"Q","classes":[],"domId":"flowchart-Q-0"},{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-1"},{"k":"S","id":"S","text":"S","classes":[],"domId":"flowchart-S-2"}],"edges":[{"id":"L_A_S_0","start":"A","end":"S","type":"arrow_point","stroke":"normal","text":"","isUserDefinedId":false}],"subgraphs":[{"id":"S","title":"S","nodes":["Q"]}]}
+labelEdge {"parse":"flowchart-v2","vertices":[{"k":"A","id":"A","text":"A","classes":[],"domId":"flowchart-A-0"},{"k":"B","id":"B","text":"B","classes":[],"domId":"flowchart-B-1"}],"edges":[{"id":"L_A_B_0","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"hi &amp; there","isUserDefinedId":false},{"id":"L_A_B_2","start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"text","isUserDefinedId":false},{"id":"L_A_B_3","start":"A","end":"B","type":"arrow_point","stroke":"dotted","text":"","isUserDefinedId":false},{"id":"L_A_B_4","start":"A","end":"B","type":"arrow_poin
+big600 parsed, edges 600
+=== probe2
+syntaxErr ERR Error Error Parse error on line 3: | ...lowchart TD  A --> | ---------------------^ | Expecting 'AMP', 'COLON', 'PIPE', 'TESTSTR', 'DOWN', 'DEFAULT', 'NUM', 'COMMA', 'NODE_STRING
+labelled OK {"v":[["A","Alpha","square",[],[],null,null],["B","B",null,[],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,false]],"s":[],"cls":[]}
+big600 OK 600
+click OK {"v":[["A","Alpha","square",["clickable"],[],"https://example.com/","_blank"]],"e":[],"s":[],"cls":[]}
+linkStyle OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null],["C","C",null,[],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,false],["L_B_C_0","B","C","arrow_point","normal","",["stroke:#f00","fill:none"],false]],"s":[],"cls":[]}
+classes OK {"v":[["A","A",null,["foo"],["stroke:#0f0"],null,null],["B","B",null,["foo"],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,false]],"s":[],"cls":["foo"]}
+atShape OK {"v":[["A","Hi","rounded",[],[],null,null]],"e":[],"s":[],"cls":[]}
+mdString OK {"v":[["A","**bold**","square",[],[],null,null]],"e":[],"s":[],"cls":[]}
+subTitleBracket OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null]],"e":[],"s":[["one","Title One",["A"]],["subGraph1","Quoted only",["B"]]],"cls":[]}
+ampChain OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null],["C","C",null,[],[],null,null],["D","D",null,[],[],null,null]],"e":[["L_A_C_0","A","C","arrow_point","normal","",null,false],["L_A_D_0","A","D","arrow_point","normal","",null,false],["L_B_C_0","B","C","arrow_point","normal","",null,false],["L_B_D_0","B","D","arrow_point","normal","",null,false]],"s":[],"cls":[]}
+edgeIdUser OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,true],["L_A_B_2","A","B","arrow_point","normal","",null,false]],"s":[],"cls":[]}
+=== probe3
+spacedTitle {"v":["A","B"],"e":[],"s":[["subGraph0","Front End",["A"]],["subGraph1","Back End",["B"]]]}
+spacedTitleInserted {"v":["C","A","B"],"e":[],"s":[["subGraph0","New Group",["C"]],["subGraph1","Front End",["A"]],["subGraph2","Back End",["B"]]]}
+edgeFromEdgeIdNode {"v":["A","B","C"],"e":[["e1","A","B"],["L_e1_C_0","e1","C"]],"s":[]}
+=== probe4
+B [["subGraph0","Front End",["A"]],["subGraph1","Back End",["B"]]]
+O [["subGraph0","Back End",["B"]]]
+T [["subGraph0","Front End",["A"]],["subGraph1","Back End",["B","D"]]]
+M [["subGraph0","Back End",["B","D"]]]
+=== probe5
+Error true [ 'hash' ]
+suppress -> false
+ok
+suppress -> { diagramType: 'flowchart-v2', config: {} }
+Error true [ 'hash' ]
+suppress -> false
+TypeError false []
+suppress -> false
+=== probe2 DEFAULT_EDGES=1
+big600 ERR Error Error Edge limit exceeded. 500 edges found, but the limit is 500. |  | Initialize mermaid with maxEdges set to a higher number to allow more edges. | You cannot set this co
+=== probe2 NO_JSDOM=1
+syntaxErr ERR Error Error Parse error on line 3: | ...lowchart TD  A --> | ---------------------^ | Expecting 'AMP', 'COLON', 'PIPE', 'TESTSTR', 'DOWN', 'DEFAULT', 'NUM', 'COMMA', 'NODE_STRING
+labelled ERR TypeError TypeError DOMPurify.sanitize is not a function
+big600 OK 600
+click ERR TypeError TypeError DOMPurify.sanitize is not a function
+linkStyle OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null],["C","C",null,[],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,false],["L_B_C_0","B","C","arrow
+classes OK {"v":[["A","A",null,["foo"],["stroke:#0f0"],null,null],["B","B",null,["foo"],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,false]],"s":[],"cls":["foo"]}
+atShape OK {"v":[["A","Hi","rounded",[],[],null,null]],"e":[],"s":[],"cls":[]}
+mdString ERR TypeError TypeError DOMPurify.sanitize is not a function
+subTitleBracket ERR TypeError TypeError DOMPurify.sanitize is not a function
+ampChain OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null],["C","C",null,[],[],null,null],["D","D",null,[],[],null,null]],"e":[["L_A_C_0","A","C","arrow_point","normal","",null,fa
+edgeIdUser OK {"v":[["A","A",null,[],[],null,null],["B","B",null,[],[],null,null]],"e":[["L_A_B_0","A","B","arrow_point","normal","",null,true],["L_A_B_2","A","B","arrow_point","normal","",null,false]

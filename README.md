@@ -2,7 +2,8 @@
 
 **Status: not started.** This repository is a stub. It exists so the decisions
 already made are not lost, and so the design pass can begin from them rather
-than from a blank page.
+than from a blank page. A pre-registered spike, `spike/mermaid/`, asks whether
+stock git merges a Mermaid flowchart silently wrong; it has not run.
 
 nodespec is the **node kind** in [kindspec](https://github.com/kindspec) — a
 specification and conformance suite for canvases and diagrams that must survive

@@ -1,0 +1,16 @@
+deleteBox: E (conflict); records: none
+dupAdd: DUP-TITLE (merged state, listed, never decided); records: none
+hole2: E (conflict); records: none
+moveBetweenRetitled: clean; records: none
+moveIntoRetitled: clean; records: none
+moveIntoRetitledExplicit: clean; records: none
+moveRenameBothExplicit: clean; records: none
+moveRetitleBoth: clean; records: none
+posRef: clean; records: [('G2', ('X', 'title:Front End', 'arrow_point', 'normal', ''), 'decided=1 merged=None'), ('G2', ('X', 'title:New Group', 'arrow_point', 'normal', ''), 'present, decided absent')]
+renameExplicit: clean; records: none
+renameExplicitRef: clean; records: [('I1', 'fe', 'tier B (new L1)')]
+retitle: clean; records: none
+retitleBoth: E (conflict); records: none
+retitleMemberMention: clean; records: none
+unwrap: clean; records: none
+wordToTitle: clean; records: none

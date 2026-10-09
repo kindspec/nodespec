@@ -1,0 +1,5 @@
+moveRetitleBoth: clean; records: [('MC->G3', 'C', "legs=('title:Back Layer', 'title:Front End') merged='title:Frontend Layer'")]
+moveRenameBothExplicit: clean; records: [('MC->G3', 'C', "legs=('api', 'fe') merged='ui'")]
+moveBetweenRetitled: clean; records: none
+moveIntoRetitled: clean; records: none
+moveIntoRetitledExplicit: clean; records: none

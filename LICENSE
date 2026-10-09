@@ -5,6 +5,10 @@ deliberate, not an oversight.
   conformance/cases/        CC0-1.0
   conformance/*.py          MIT
   reference/, tests/        Apache-2.0 OR MIT
+  spike/*/*.md,
+  spike/*/census/README.md  CC-BY-4.0
+  spike/*/census/*          MIT
+  spike/*/census/v4/cases/  CC0-1.0
 
 Full texts are in LICENSES/.
 

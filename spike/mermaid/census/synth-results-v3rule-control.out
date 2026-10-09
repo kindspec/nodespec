@@ -1,0 +1,4 @@
+retitle: clean; records: [('I1', 'title:Front End', 'tier A'), ('G3', 'C', "decided='title:Front End' merged='title:Frontend Layer'")]
+renameExplicit: clean; records: [('I1', 'fe', 'tier A'), ('G3', 'C', "decided='fe' merged='ui'")]
+unwrap: clean; records: [('I1', 'title:Front End', 'tier A'), ('G3', 'C', "decided='title:Front End' merged=None")]
+wordToTitle: clean; records: [('I1', 'Frontend', 'tier A'), ('G3', 'C', "decided='Frontend' merged='title:Frontend Tier'")]

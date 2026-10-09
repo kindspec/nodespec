@@ -1,0 +1,20 @@
+{"parse":false,"hash":true,"cls":"Error","msg":"Parse error on line 3:"}
+  [syntax exit=0]
+{"parse":false,"hash":false,"canary":"ok","cls":"TypeError","msg":"Cannot set properties of undefined (setting 'style')"}
+  [linkStyleOOR exit=0]
+{"parse":false,"hash":false,"canary":"ok","cls":"Error","msg":"No such shape: notashape."}
+  [unknownShape exit=0]
+{"parse":false,"hash":false,"canary":"ok","cls":"UnknownDiagramError","msg":"No diagram type detected matching given configuration for text: Flowchart TD"}
+  [mixedCaseHeader exit=0]
+{"parse":false,"hash":false,"canary":"ok","cls":"UnknownDiagramError","msg":"No diagram type detected matching given configuration for text: GRAPH TD"}
+  [upperGraph exit=0]
+{"parse":false,"hash":false,"canary":"ok","cls":"Error","msg":"Edge limit exceeded. 500 edges found, but the limit is 500."}
+  [maxEdges600_limit500 exit=0]
+{"abort":true,"cls":"TypeError","msg":"DOMPurify.sanitize is not a function"}
+  [canaryLabelledNoDom exit=3]
+{"parse":true,"diagramType":"flowchart-elk","flowchart":true,"vertices":[{"id":"A","text":"A","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null},{"id":"B","text":"B","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null}],"edges":[{"id":"L_A_B_0","user":false,"start":"A","end":"B","type":"arrow_point","stroke":"normal","text":"","style":null}],"subgraphs":[]}
+  [elk exit=0]
+{"parse":true,"diagramType":"flowchart-v2","flowchart":true,"vertices":[{"id":"A","text":"A","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null},{"id":"B","text":"B","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null},{"id":"C","text":"C","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null}],"edges":[{"id":"e1","user":true,"start":"A","end":"B","type"
+  [edgeIdRef exit=0]
+{"parse":true,"diagramType":"flowchart-v2","flowchart":true,"vertices":[{"id":"A","text":"A","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null},{"id":"B","text":"B","type":null,"classes":[],"styles":[],"link":null,"linkTarget":null}],"edges":[],"subgraphs":[{"id":"subGraph0","title":"T","nodes":["A"]},{"id":"subGraph1","title":"Other Box","nodes":["B"]}]}
+  [explicitSubGraphN exit=0]

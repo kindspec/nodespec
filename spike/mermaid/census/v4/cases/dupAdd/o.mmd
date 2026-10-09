@@ -1,0 +1,6 @@
+flowchart TD
+  subgraph Cache Layer
+    R[Redis]
+  end
+  A[App] --> B[Api]
+  B --> D[(DB)]
