@@ -1,0 +1,6 @@
+flowchart TD
+  A[App] --> B[Api]
+  B --> D[(DB)]
+  subgraph Cache Layer
+    M[Memcached]
+  end
