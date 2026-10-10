@@ -1,0 +1,51 @@
+# v0, 2026-10-10T16:18:42Z
+# nodespec HEAD: 8a9b8e7c60753efb77206fcbf734c0725368f194
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+== install
+  PASS  npm ci --ignore-scripts installs from the committed lockfile
+  lockfile sha256 c57c6d9b23e102cab67ef669621dab4bd5a5eff713df22feaec0cc4af7a365b4
+  PASS  the lockfile pins mermaid 12.1.0 and jsdom 26.1.0 with integrity hashes
+  PASS  every one of the lockfile's 154 packages is installed at its version
+  node v24.20.0
+  PASS  H's lexer table (ms/flowlex.py) was transcribed from the installed flowchart lexer
+  PASS  R's calls run with the network off: only the loopback interface exists
+  PASS  a labelled chart parses with the jsdom globals set
+== configuration (§4.4)
+  PASS  mermaid.initialize gets §4.4's configuration
+  PASS  versions: mermaid 12.1.0 under node v24.20.0
+  PASS  the wrapper sets globalThis.window and document before it imports mermaid
+  PASS  the wrapper never passes suppressErrors
+== behaviours Appendix A relies on
+  PASS  an edge to an undeclared id creates that node, its id as label, no shape (probe implicit)
+  PASS  a node declared twice keeps the last label and the last shape (twice, twiceShape)
+  PASS  a node in two subgraphs belongs to the first to close (twoSub)
+  PASS  a node in two subgraphs belongs to the first to close (twoSubRev)
+  PASS  a node in two subgraphs belongs to the first to close (twoSubNested)
+  PASS  an edge id e1 used before a node statement e1[...] swallows the node (edgeIdThenNode)
+  PASS  a node e1 declared first coexists with an edge id e1 (nodeEqEdgeId)
+  PASS  a duplicate user-defined edge id falls back to an automatic id (dupEdgeId)
+  PASS  an edge to a subgraph's id creates a vertex with that id and no shape (edgeToSub)
+  PASS  untitled subgraphs get subGraphN by position, and renumber when one is inserted earlier (probe3)
+  PASS  keyed by title, the renumbering changes no key
+  PASS  edge text is not entity-decoded (labelEdge)
+  PASS  a click URL is normalized and adds the class clickable (probe2 click)
+  PASS  a chart of 600 edges parses under §4.4's maxEdges
+  PASS  ... and fails under the default, without hash, the canary parsing (Edge limit exceeded)
+  PASS  a syntax error throws an error with hash: the text does not parse
+  PASS  without hash, canary parses, text does not parse: linkStyle out of range
+  PASS  without hash, canary parses, text does not parse: an unknown shape
+  PASS  without hash, canary parses, text does not parse: a Flowchart TD header
+  PASS  without hash, canary parses, text does not parse: a GRAPH TD header
+  PASS  a labelled chart without the jsdom globals: TypeError without hash, the canary fails, R exits non-zero
+  PASS  the test seams are refused without SPIKE_R_TEST=1
+  PASS  an edge end naming an earlier edge id yields start e1 with no vertex e1 (edgeFromEdgeIdNode)
+  PASS  ... and H refuses it
+  PASS  an explicit subgraph subGraphN after an untitled one merges into R's numbered subgraph
+  PASS  ... and H refuses it
+== batch mode
+  PASS  batch mode gives single-shot mode's result for every text, a directive's config not carried over
+
+V0: PASS
+# exit status 0

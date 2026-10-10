@@ -1,0 +1,9 @@
+# v2, 2026-10-10T16:18:55Z
+# nodespec HEAD: 8a9b8e7c60753efb77206fcbf734c0725368f194
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+
+V2: 60 histories, 480 replays, 0 failed
+V2: PASS
+# exit status 0

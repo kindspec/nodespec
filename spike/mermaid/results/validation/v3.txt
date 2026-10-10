@@ -1,0 +1,286 @@
+# v3, 2026-10-10T16:18:55Z
+# nodespec HEAD: 8a9b8e7c60753efb77206fcbf734c0725368f194
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+== s_holes: Both canonical holes, both styles, both strata (V3).
+  PASS  F: hole #2 bare style is clean I1 at tier A
+  PASS  F: hole #2 bare style is exposed
+  PASS  F: hole #2's ghost is no G1: G1 is outside I1-I4
+  PASS  F: hole #2 with a declared label is I1 at tier B through L1
+  PASS  F: hole #3 with differing labels is I2 at tier B through L2
+  PASS  F: hole #3 differing only in style is I2 at tier A
+  PASS  F: hole #3 is exposed
+  PASS  D: hole #2 bare style is clean I1 at tier A
+  PASS  D: hole #2 bare style is exposed
+  PASS  D: hole #2's ghost is no G1: G1 is outside I1-I4
+  PASS  D: hole #2 with a declared label is I1 at tier B through L1
+  PASS  D: hole #3 with differing labels is I2 at tier B through L2
+  PASS  D: hole #3 differing only in style is I2 at tier A
+  PASS  D: hole #3 is exposed
+== s_census_cases: census/synth-results.out's synthetic cases, each a plant (V3).
+  PASS  census case deleteBox: E
+  PASS  census case dupAdd: DUP-TITLE
+  PASS  census case hole2: E
+  PASS  census case moveBetweenRetitled: clean, no record, no MC
+  PASS  census case moveIntoRetitled: clean, no record, no MC
+  PASS  census case moveIntoRetitledExplicit: clean, no record, no MC
+  PASS  census case moveRenameBothExplicit: clean, no record, no MC
+  PASS  census case moveRetitleBoth: clean, no record, no MC
+  PASS  census case posRef: G2, one edge lost and one extra
+  PASS  census case renameExplicit: clean, no record, no MC
+  PASS  census case renameExplicitRef: clean, I1 on fe, tier B by a new L1
+  PASS  census case retitle: clean, no record, no MC
+  PASS  census case retitleBoth: E
+  PASS  census case retitleMemberMention: clean, no record, no MC
+  PASS  census case unwrap: clean, no record, no MC
+  PASS  census case wordToTitle: clean, no record, no MC
+== s_conflicts: Model conflicts, delete/modify, and holders that are not references.
+  PASS  a label both legs change is a model conflict; merged to a leg's value it is ineligible MC
+  PASS  delete/modify: one leg deletes c, the other restyles it: I3 on c
+  PASS  a holder is not a reference: retitling a box while the other leg adds a member is not exposed
+  PASS  membership: a node mentioned in two subgraphs is held by the first to close
+== s_positional: 
+  PASS  probe4: deleting one untitled subgraph and adding to another yields no I record
+== s_edge_to_subgraph: 
+  PASS  an edge end naming a subgraph is a reference, not a node
+  PASS  an edge to a subgraph is not I4
+== s_i4: 
+  PASS  I4 is relative: a node-versus-edge-id clash present in the base is no record
+  PASS  I4: a clash the merge introduces is I4
+== s_exposure: 
+  PASS  exposure is computed from inputs alone: changing the merged file does not change it
+  PASS  exposure's signature takes B, O and T only
+  PASS  a case no refusal precondition touches is not exposed
+== s_per_path_e: 
+  PASS  per-path E: a D file whose prose conflicts and whose fence merges wrong is E
+== s_fences: 
+  PASS  fence opener '```mermaid' is recognised
+  PASS  fence opener '```MERMAID' is recognised
+  PASS  fence opener '~~~mermaid-example' is recognised
+  PASS  fence opener '````Mermaid' is recognised
+  PASS  a flowchart-elk header is a flowchart
+  PASS  a Flowchart header is not (Mermaid is case-sensitive)
+  PASS  a graph header after front matter and a comment is a flowchart
+  PASS  a D input with two fences excludes the case
+  PASS  a merged file with two fences is G0, tier B
+  PASS  G0 is not decided
+== s_generated: 
+  PASS  a path under testdata/ is excluded
+  PASS  a file declaring auto-generated is excluded
+  PASS  graph.mmd beside a graph.dot changing in every commit is excluded
+  PASS  graph.mmd beside a graph.dot changing in fewer than half its commits is selected
+  PASS  graph.mmd beside only graph.svg is selected
+  PASS  an ordinary flowchart is selected
+== s_mpr: 
+  PASS  M-PR: a planted rebase merge of three commits takes c~3
+  PASS  M-PR: a planted ten-commit squash merge takes c^
+  PASS  M-PR: a commit matching neither rule is excluded and counted
+  PASS  M-PR: a pull request of 251 commits is excluded and counted
+  PASS  M-PR: a pull request of 120 commits is read across two pages of the API
+== s_p_ancestry: A step whose first-parent blob matches but whose predecessor is not an
+  PASS  plant: m on main and S on side are consecutive versions
+  PASS  P: a pair whose first-parent blob matches but whose predecessor is not an ancestor is dropped
+== s_p: 
+  PASS  P: a non-ancestral pair drops its cases
+  PASS  P: a step whose first-parent blob differs from its predecessor drops the case
+  PASS  P: the predecessor rule still keeps the linear tail
+  PASS  P: a replay that cannot place an edit is non-commuting
+  PASS  P: a replay whose anchor is not unique is non-commuting
+  PASS  P: replay reproduces V[i+a+b] when applied to V[i+a]
+  PASS  P: a record equal to the truth is not a P record
+  PASS  P: a record on a unit neither leg touched, where the truth differs, is UNRELIABLE
+  PASS  P: a record on a unit only leg T touched is a P record, not UNRELIABLE
+== s_authors: 
+  PASS  authors: two identities sharing an email are one author
+  PASS  authors: two identities sharing a case-folded name are one author
+  PASS  authors: distinct people stay distinct
+  PASS  authors: a noreply address maps to its login
+  PASS  bots: an author whose name or email contains bot is a bot
+== s_hermetic: 
+  PASS  hermetic merge: a ~/.gitconfig and ~/.config/git/attributes setting merge=union change no result
+  PASS  hermetic merge: a .gitattributes in the corpus's tree setting merge=union changes no result
+== s_redaction: 
+  PASS  redaction plant: the read-only corpus yields an M case
+  PASS  redaction plant: the in individual corpus yields an M case
+  PASS  redaction: no planted read-only label, individual owner or individual commit sha in output
+  PASS  redaction: the same check on the unredacted table finds them
+  PASS  redaction: a 7-character prefix of an individual commit is caught by the scan
+== s_xfail: 
+  PASS  X failure: an X that crashes makes its case a disagreement
+  PASS  X failure: an X that prints nothing makes its case a disagreement
+  PASS  X failure: an X that prints no JSON makes its case a disagreement
+  PASS  X agreement: equal records and exposure agree
+  PASS  X disagreement: equal records, differing exposure
+  PASS  X failure: a timeout is a disagreement
+== s_verdicts: 
+  PASS  verdict: identity FOUND (M-merge)
+  PASS  verdict: identity FOUND (M-PR)
+  PASS  verdict: structure FOUND (P)
+  PASS  verdict: identity with 0 exposed cases is NO VERDICT (not exposed)
+  PASS  verdict: one exposed case merged OUT-OF-SUBSET is NO VERDICT (1 exposed, none silent)
+  PASS  verdict: one exposed case merged DUP-TITLE is NO VERDICT (1 exposed, none silent)
+  PASS  verdict: 60 exposed cases, some E and some B, is NO VERDICT (60 exposed, none silent), never NOT FOUND
+  PASS  verdict: identity with a disputed sealed fixture is NO VERDICT naming it
+  PASS  verdict: identity VOID turns a FOUND into found in a voided group
+  PASS  verdict: identity VOID with no FOUND is NO VERDICT (VOID)
+  PASS  verdict: structure NOT FOUND at 60 decided cases of which some are E
+  PASS  verdict: 59 decided cases is NO VERDICT
+  PASS  verdict: 60 cases with 31 from one corpus is NO VERDICT (cap 30)
+  PASS  verdict: 60 cases with 31 from one author is NO VERDICT (cap 30)
+  PASS  verdict: P supplying 31 of 60 is NOT FOUND stated as a bound on replayed edits
+  PASS  verdict: 97.9% agreement or less is NO VERDICT
+  PASS  verdict: 58 of 60 agreeing (96.7%) is NO VERDICT on agreement
+  PASS  verdict: 59 of 60 agreeing (98.3%) passes the agreement bar
+  PASS  verdict: agreement over zero cases is NO VERDICT
+  PASS  verdict: a structure tier-A record from H only is NO VERDICT, never NOT FOUND
+  PASS  verdict: an H-only structure record is a blocked record (F7)
+  PASS  verdict: a structure tier-A record from X only is NO VERDICT
+  PASS  verdict: one blocked structure record among the decided cases is NO VERDICT
+  PASS  verdict: one blocked identity record does not touch the structure verdict
+  PASS  verdict: a disputed structure fixture on the A line is NO VERDICT for NOT FOUND and leaves FOUND
+  PASS  verdict: a disputed structure fixture on the B line is NO VERDICT for NOT FOUND and leaves FOUND
+  PASS  verdict: a structure VOID group turns a FOUND into found in a voided group
+  PASS  verdict: a stratum at 89.9% coverage adds nothing to the floor, and its FOUND still counts
+  PASS  verdict: P cases never count toward identity; a P identity record is a P anomaly, never FOUND
+  PASS  verdict: the P anomaly's case, otherwise decided, counts toward the structure floor
+  PASS  verdict: row 4 (a): with no real FOUND the identity verdict is a NO VERDICT label, never MECHANISM SHOWN
+  PASS  verdict: row 4 (c): a non-zero X-confirmed S rate gives MECHANISM SHOWN, frequency unmeasured
+  PASS  verdict: row 4 (c): S identity records X does not confirm give MECHANISM NOT SHOWN
+  PASS  verdict: row 4 (c): a zero S rate gives MECHANISM NOT SHOWN
+  PASS  verdict: row 4 (c): a VOID identity group gives NO VERDICT (VOID) in place of MECHANISM SHOWN
+  PASS  verdict: row 4 (c): a disputed identity fixture gives NO VERDICT (disputed)
+  PASS  verdict: row 4 (c): a real FOUND gives FOUND (arm), not MECHANISM SHOWN
+  PASS  units: a duplicated triple counts once
+  PASS  units: a copied file with the same diffs counts once
+  PASS  units: P contributes at most one case per (path, i)
+  PASS  units: an UNRELIABLE record's case does not count toward the floor
+  PASS  the aggregator refuses empty input
+== s_subset_refusals: V1's refusal half: H refuses each out-of-subset construct Appendix A
+  PASS  V1 refusal: H refuses markdown-string label
+  PASS  V1 refusal: H refuses icon node
+  PASS  V1 refusal: H refuses image node
+  PASS  V1 refusal: H refuses @{ } key other than shape and label
+  PASS  V1 refusal: H refuses two untitled subgraphs sharing a title
+  PASS  V1 refusal: H refuses explicit subgraph id subGraphN
+  PASS  V1 refusal: H refuses edge end naming a user-defined edge id
+  PASS  V1 refusal: H refuses statement H does not parse (ellipse shape)
+  PASS  V1 refusal: two untitled subgraphs of one title are DUP-TITLE
+  PASS  V1: a plain chart is in the subset
+  PASS  subset: a text whose H model differs from R's is out of the subset
+  PASS  V1: H on empty input is refused
+== s_fuzz: H's development check, kept as a V3 check: H's model equals R's on
+  PASS  fuzz: H's model equals R's wherever both accept (200 random charts)
+  PASS  fuzz: H accepts most charts R parses
+== s_blind: 
+  PASS  blind: the committed X spec is a fresh cut of the document
+  PASS  blind: X's spec holds §4, §5, Appendices A and C and Appendix D's extractor contract, and not §6, Appendix B or E
+  PASS  blind: X's spec leaves out Appendix D's fixture contract (§10.3)
+  PASS  blind: the Mermaid document is mermaid@12.1.0's docs/syntax/flowchart.md
+  PASS  blind: Appendix E's prompts are cut verbatim
+== s_binding: The binding (ms/binding.py) on a planted copy of the spike.
+  PASS  binding: no VALIDATION is not bound
+  PASS  binding: a validation commit adding VALIDATION only is bound
+  PASS  binding: an uncommitted file under results/ is refused
+  PASS  binding: an arm's marker in the work tree refuses that arm
+  PASS  binding: a marker deleted later still refuses the arm (history)
+  PASS  binding: another arm is still bound
+  PASS  binding: an uncommitted harness edit is refused
+  PASS  binding: a commit after validation touching the harness is refused
+  PASS  binding: a later edit and its revert, the tree back to the validation commit's, is still refused
+  PASS  reverify: fails when a later commit touches the harness
+  PASS  binding: a validation commit that also edits the harness is refused
+  PASS  reverify: fails when the validation commit edits the harness
+  PASS  reverify: passes on a clean validation history
+  PASS  binding: VALIDATION changed after it was added is refused
+  PASS  binding: VALIDATION's sealed hash must equal the one LOG.md records (commit 2)
+  PASS  binding: no bundle is read while the derivation reports a reason
+  PASS  binding: LOG.md recording the sealed hash twice is refused
+  PASS  binding: a malformed bundle entry in VALIDATION is refused
+  PASS  reverify: fails when VALIDATION changed
+== s_cli_arms: Arm 0, M, P, S on fixture corpora through the CLI, unbound.
+  PASS  Arm 0 runs on a fixture corpus
+  PASS  arms M, P and S run on a fixture corpus
+  PASS  the reproduction script regenerates a case byte for byte
+  PASS  arm0 exits non-zero on an empty corpus
+  PASS  arms exits non-zero on an empty corpus
+  PASS  arm0 exits non-zero on a pin absent from the corpus
+  PASS  arms exits non-zero on a pin absent from the corpus
+  PASS  an abbreviated option is refused
+  PASS  a repeated option is refused
+  PASS  the harness refuses to run without python3 -I -S
+  PASS  the aggregator exits non-zero on empty input
+  PASS  an unbound run may not write under results/
+  PASS  every invocation wrote a transcript, refused ones included
+== s_oracle_units: Categories, tiers and refusal cases on hand-built models.
+  PASS  G4: a subgraph title merged wrong is G4
+  PASS  G4: a click target merged wrong is G4
+  PASS  G3: a membership merged wrong is G3, tier A
+  PASS  MC: an eligible text conflict is MC in group G4, tier A
+  PASS  collision: both legs add k with differing kinds and nothing else
+  PASS  R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)
+  PASS  G4: a user-id edge's label merged wrong is G4
+== s_l5: R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
+  PASS  L5: the same edge added on both legs is G2 at tier B, through L5 on its ends
+== s_p_x: §10.5 with §8.3: X never sees the truth, so it is compared with H's
+  PASS  P: H's unfiltered records hold the S-ORDER X reports
+  PASS  P: X agrees with H's records before the truth filter
+  PASS  P: the truth filter still removes the record from H's P records
+== s_aggregate_scope: §9.1 and §10.5 over every decided real-arm case; F8 needs a
+  PASS  scope: an X-only tier-A record in a decided case over the corpus cap is NO VERDICT
+  PASS  scope: an X-only tier-A record in a decided duplicate-diff case is NO VERDICT
+  PASS  F3: a tier-A record in a case that is not JUDGED is not FOUND
+  PASS  a tier-B record is never blocked
+  PASS  S: a tier-A record from S is never FOUND, is listed blocked (F1), and S never counts toward the floor
+  PASS  k: an exposed case whose inputs are not all in the subset does not count
+  PASS  k: two exposed cases with one pair of model diffs count once (§7.5)
+  PASS  agreement: exactly 98% passes
+  PASS  P: a decided (1,1) case dropped as a duplicate is not replaced by its (1,3) case
+  PASS  P: rank (1,1) is preferred over (1,3) for a (path, i)
+== s_bound_aggregate: H4, R31, R33: the bound aggregate's input.
+  PASS  bound aggregate: row 4 is (a)
+  PASS  bound aggregate: a real-arm tier-A record with no reproduction is listed as missing
+  PASS  bound aggregate: a case with no reproduction result does not reproduce
+  PASS  bound aggregate: refuses, naming the missing repro keys, before it marks itself executed
+  PASS  bound aggregate: a reproduced record is not missing
+== s_sealed: H5: R-tiers; a malformed sealed fixture is logged, the rest still run.
+  PASS  sealed: a well-formed tar runs, and F's lines come from its tiers
+  PASS  sealed: H's and X's lines are computed (bare-style hole #2: A, not B)
+  PASS  sealed: a fixture whose tiers the parser cannot read is logged as malformed, not refused (LOG §3, §4)
+  PASS  sealed: the other fixtures are still lined
+  PASS  sealed: a malformed sealed fixture is listed in the verdict
+  PASS  sealed: an X tier outside the vocabulary gives x = None
+  PASS  sealed: H differing from F with X malformed is disputed, not VOID
+== s_archive_leak: H6: a failed archive names no corpus.
+archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
+  PASS  archive: a failure is reported
+  PASS  archive: a failed archive's transcript names neither the owner nor the repository
+  PASS  archive: a private file inside the repository is refused
+  PASS  archive: a run without --transcript-dir outside the repository is refused
+== s_history_more: R14, R24, R26, R27, R29, R30 plants.
+  PASS  delete/modify with the legs swapped: I3 on c
+  PASS  hole #2 with the legs swapped is exposed and I1
+  PASS  M-PR: a pull request's commits landed in another order are not a rebase merge
+  PASS  plant: versions V0, V1, S, V3 in order
+  PASS  P: a triple whose last step fails the predecessor rule is dropped
+  PASS  M: a path both sides changed to the same blob is convergent, not a case
+  PASS  authors: a case's authors are the last changers of the path on each leg
+  PASS  P: ranks are (1,1) 0, (1,3) 1, (3,1) 2
+  PASS  decided: a case with an UNRELIABLE record is not decided
+== s_rereview: The unfiltered tier-A set under P, salted bundle names, archive's
+  PASS  plant: the P case has an unfiltered tier-A structure record that the truth filter removes
+  PASS  a perfect X on a P case whose tier-A record the truth filter removes leaves NOT FOUND standing
+  PASS  archive: bundle file names cannot be computed from the corpus name without the salt
+  PASS  archive: a failure outside a subprocess is raised as ArchiveFailed, scrubbed
+  PASS  archive: a private file anywhere in the repository, outside spike/mermaid too, is refused
+  PASS  L5: a user edge id both legs add gives a G2 at tier B through L5 on the edge's ends
+  PASS  scope: an X-only tier-A record in a stratum below the coverage bar is NO VERDICT
+  PASS  sealed: a missing X answer gives x = None on both lines
+  PASS  authors: a leg's last changer is never a merge commit
+  PASS  authors: identities from every ref join before any lookup
+  PASS  R-select: a D path with two fences is not selected, even when one is a flowchart (§3)
+  PASS  V3 wrote nothing under results/
+
+244 checks, 0 failed
+V3: PASS
+# exit status 0

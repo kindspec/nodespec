@@ -1,0 +1,69 @@
+# red-first: V3's verdict checks (s_verdicts) run against a naive §9 aggregator
+# harness: nodespec 92aca1b8f21a0503fc199919524ea0fc48ee2bf3, with ms/aggregate.py's verdict() replaced by the function below
+# 2026-10-10T03:29:48Z
+
+#   # A plausible first draft of §9's aggregator, written to be wrong in the ways
+#   # a reader of §9.1 might be: any tier-A record from real history is FOUND; no
+#   # floor caps, no X conditions, no sealed fixtures, no coverage bar; identity
+#   # NOT FOUND when nothing is found.
+#   def verdict(summary):
+#       cases = summary["cases"]
+#       real = [c for c in cases if c["arm"] in ("M-merge", "M-PR", "P")]
+#       idf = [r for c in real for r in c.get("records", []) if r["category"].startswith("I") and r["tier"] == "A"]
+#       stf = [r for c in real for r in c.get("records", []) if r["category"].startswith("G") and r["tier"] == "A"]
+#       n = sum(1 for c in real if c.get("decided"))
+#       lists = {"blocked": {"identity": [], "structure": []}, "p_anomalies": [], "found_in_voided_group":
+#                {"identity": [], "structure": []}}
+#       return {"identity": {"verdict": "FOUND" if idf else "NOT FOUND", "arms": sorted({c["arm"] for c in real}),
+#                            "reason": ""},
+#               "structure": {"verdict": "FOUND" if stf else ("NOT FOUND" if n >= 60 else "NO VERDICT"),
+#                             "arms": sorted({c["arm"] for c in real}), "n": n, "reason": "", "bounds": ""},
+#               "lists": lists}
+
+== s_verdicts: 
+  PASS  verdict: identity FOUND (M-merge)
+  FAIL  verdict: identity FOUND (M-PR)
+  FAIL  verdict: structure FOUND (P)
+  FAIL  verdict: identity with 0 exposed cases is NO VERDICT (not exposed)
+  FAIL  verdict: one exposed case merged OUT-OF-SUBSET is NO VERDICT (1 exposed, none silent)
+  FAIL  verdict: one exposed case merged DUP-TITLE is NO VERDICT (1 exposed, none silent)
+  FAIL  verdict: 60 exposed cases, some E and some B, is NO VERDICT (60 exposed, none silent), never NOT FOUND
+  FAIL  verdict: identity with a disputed sealed fixture is NO VERDICT naming it
+  FAIL  verdict: identity VOID turns a FOUND into found in a voided group
+  FAIL  verdict: identity VOID with no FOUND is NO VERDICT (VOID)
+  PASS  verdict: structure NOT FOUND at 60 decided cases of which some are E
+  FAIL  verdict: 59 decided cases is NO VERDICT
+  FAIL  verdict: 60 cases with 31 from one corpus is NO VERDICT (cap 30)
+  FAIL  verdict: 60 cases with 31 from one author is NO VERDICT (cap 30)
+  FAIL  verdict: P supplying 31 of 60 is NOT FOUND stated as a bound on replayed edits
+  FAIL  verdict: 97.9% agreement or less is NO VERDICT  [{'verdict': 'NOT FOUND', 'arms': ['M-merge'], 'n': 100, 'reason': '', 'bounds': ''}]
+  FAIL  verdict: 58 of 60 agreeing (96.7%) is NO VERDICT on agreement  [{'verdict': 'NOT FOUND', 'arms': ['M-merge'], 'n': 90, 'reason': '', 'bounds': ''}]
+  PASS  verdict: 59 of 60 agreeing (98.3%) passes the agreement bar
+  FAIL  verdict: agreement over zero cases is NO VERDICT
+  FAIL  verdict: a structure tier-A record from H only is NO VERDICT, never NOT FOUND  [{'verdict': 'FOUND', 'arms': ['M-merge'], 'n': 60, 'reason': '', 'bounds': ''}]
+  FAIL  verdict: an H-only structure record is a blocked record (F7)
+  FAIL  verdict: a structure tier-A record from X only is NO VERDICT
+  FAIL  verdict: one blocked structure record among the decided cases is NO VERDICT
+  FAIL  verdict: one blocked identity record does not touch the structure verdict
+  FAIL  verdict: a disputed structure fixture on the A line is NO VERDICT for NOT FOUND and leaves FOUND
+  FAIL  verdict: a disputed structure fixture on the B line is NO VERDICT for NOT FOUND and leaves FOUND
+  FAIL  verdict: a structure VOID group turns a FOUND into found in a voided group
+  PASS  verdict: a stratum at 89.9% coverage adds nothing to the floor, and its FOUND still counts
+  FAIL  verdict: P cases never count toward identity; a P identity record is a P anomaly, never FOUND
+  PASS  verdict: the P anomaly's case, otherwise decided, counts toward the structure floor
+  FAIL  verdict: row 4 (a): with no real FOUND the identity verdict is a NO VERDICT label, never MECHANISM SHOWN
+  FAIL  verdict: row 4 (c): a non-zero X-confirmed S rate gives MECHANISM SHOWN, frequency unmeasured
+  FAIL  verdict: row 4 (c): S identity records X does not confirm give MECHANISM NOT SHOWN
+  FAIL  verdict: row 4 (c): a zero S rate gives MECHANISM NOT SHOWN
+  FAIL  verdict: row 4 (c): a VOID identity group gives NO VERDICT (VOID) in place of MECHANISM SHOWN
+  FAIL  verdict: row 4 (c): a disputed identity fixture gives NO VERDICT (disputed)
+  PASS  verdict: row 4 (c): a real FOUND gives FOUND (arm), not MECHANISM SHOWN
+  PASS  units: a duplicated triple counts once
+  PASS  units: a copied file with the same diffs counts once
+  PASS  units: P contributes at most one case per (path, i)
+  PASS  units: an UNRELIABLE record's case does not count toward the floor
+  FAIL  the aggregator refuses empty input
+
+42 checks, 32 failed
+V3: FAIL
+# exit status 1
