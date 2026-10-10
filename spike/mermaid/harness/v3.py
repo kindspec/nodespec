@@ -936,7 +936,7 @@ def s_blind():
           open(os.path.join(SPIKE, "blind", "x", "SPEC.md"), encoding="utf-8").read() == BL.x_spec())
     spec = BL.x_spec()
     check("blind: X's spec holds §4, §5, Appendices A and C and Appendix D's extractor contract, and not §6, "
-          "Appendix B or E", all(h in spec for h in BL.SECTIONS) and "## 6. FOUND" not in spec and
+          "Appendix B or E", all(h in spec for h in BL.SECTIONS + [BL.APPENDIX_D]) and "## 6. FOUND" not in spec and
           "## Appendix B" not in spec and "## Appendix E" not in spec and "**Extractor.**" in spec)
     check("blind: X's spec leaves out Appendix D's fixture contract (§10.3)", "**Fixtures.**" not in spec
           and "expect.json" not in spec)

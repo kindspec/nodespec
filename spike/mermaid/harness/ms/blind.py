@@ -30,7 +30,8 @@ MERMAID_DOC_BLOB = "934bd13efcc6261d55dcdfa950aebd52022d5dac"  # mermaid@12.1.0 
 X_SPEC = "spike/mermaid/blind/x/SPEC.md"
 F_PATHS = ["spike/mermaid/PRE-REGISTRATION.md", MERMAID_DOC]
 X_PATHS = [X_SPEC, MERMAID_DOC]
-SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C", "## Appendix D"]
+SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C"]
+APPENDIX_D = "## Appendix D"
 EXTRACTOR_PARAGRAPH = "**Extractor.**"
 X_HEADER = ("<!-- SPDX-License-Identifier: CC-BY-4.0 -->\n"
             "<!-- Cut byte for byte from spike/mermaid/PRE-REGISTRATION.md by harness/ms/blind.py:\n"
@@ -52,8 +53,7 @@ def _extractor_contract(section):
 
 def x_spec(doc_text=None):
     doc = doc_text if doc_text is not None else open(DOC, encoding="utf-8").read()
-    parts = [_section(doc, h) for h in SECTIONS]
-    parts[-1] = _extractor_contract(parts[-1])
+    parts = [_section(doc, h) for h in SECTIONS] + [_extractor_contract(_section(doc, APPENDIX_D))]
     return X_HEADER + "\n".join(parts)
 
 

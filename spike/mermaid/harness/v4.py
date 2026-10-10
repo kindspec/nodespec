@@ -192,10 +192,9 @@ M = [
      'g diff --quiet "$V^" "$V" -- "${bound[@]}"', "true", "v3"),
     ("reverify: VALIDATION may change", "harness/reverify.sh",
      '[ "$(g log --full-history --format=%H -- results/VALIDATION | wc -l)" -eq 1 ]', "true", "v3"),
-    ("blind: X's spec drops Appendix D", "harness/ms/blind.py",
-     'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C", "## Appendix D"]',
-     'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C"]', "v3"),
-    # ---- R1-R33: verdict, oracle, history and CLI rules
+    ("blind: X's spec drops Appendix C", "harness/ms/blind.py",
+     'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C"]',
+     'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A"]', "v3"),
     ("R1 identity: a disputed identity fixture ignored", "harness/ms/aggregate.py",
      '    elif disputed["identity"]:\n        ident.update(', '    elif False:\n        ident.update(', "v3"),
     ("R2 fixtures: VOID when X agrees with H", "harness/ms/aggregate.py",
@@ -341,7 +340,7 @@ M = [
     ("RR2b bundle files named from the corpus name", "harness/ms/corpus.py",
      '    tag = hashlib.sha256(label.encode()).hexdigest()[:16]', '    tag = hashlib.sha256(name.encode()).hexdigest()[:16]', "v3"),
     ("RR3 X's spec carries Appendix D's fixture contract", "harness/ms/blind.py",
-     '    parts[-1] = _extractor_contract(parts[-1])', '    pass', "v3"),
+     '[_extractor_contract(_section(doc, APPENDIX_D))]', '[_section(doc, APPENDIX_D)]', "v3"),
     ("RR4b a malformed sealed fixture stops the run", "harness/mermaid_spike.py",
      '            malformed.append({"name": os.path.basename(fx), "reason": str(e)})', '            raise SystemExit(f"refusing: {e}")', "v3"),
     # ---- R (§4.4), checked by V0
