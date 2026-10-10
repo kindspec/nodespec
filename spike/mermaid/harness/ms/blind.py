@@ -5,8 +5,10 @@
   docs/syntax/flowchart.md, and Appendix D's fixture contract (inside the
   document).
 - X gets §4, §5, Appendices A and C, the same Mermaid document, and Appendix
-  D whole (the owner's decision of 2026-10-09: X mirrors expect.json's
-  fields). Not the harness, not R, not the fixtures.
+  D whole. §10.3's letter is "Appendix D's extractor contract"; giving the
+  fixture contract too, a format with no answers, so X mirrors
+  expect.json's fields, is the coordinator's implementation choice (LOG
+  §2). Not the harness, not R, not the fixtures.
 
 X's excerpt is spike/mermaid/blind/x/SPEC.md, cut byte for byte from the
 document by `x_spec()`; V3 checks the committed file equals a fresh cut. An

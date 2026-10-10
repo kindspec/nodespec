@@ -47,19 +47,80 @@ validation commit (commit 3) is the implementation.
   archive (§7.6) has not fetched any corpus; where bundles live is the
   owner's call.
 
-### Open for the owner, before the validation commit
+### Open items at the time
 
-1. **Appendix D defines no layout for a fixture's history**, so V2 ("on
-   every V-fixture with a history") has nothing to read unless F supplies
-   one. `vfix.py v2` reads `history/v0.<ext>, v1.<ext>, ...` if present.
-2. **Where the sealed hash is committed.** §10.4 says H commits it "in the
-   validation commit"; §11.3 lists it in commit 2. The harness reads it from
-   `results/VALIDATION` (commit 3) and puts nothing in commit 2's way.
-3. **Bundle storage** (§7.6), and running `mermaid_spike.py archive` for
-   each corpus, which fetches every corpus and its merged pull-request list
-   over the network.
-4. **R-L5** (README, Readings): the reading that cannot hide a finding makes
-   lint L5 never demote a record. Confirm, or rule the other reading.
+§1's four open items are settled in §2.
+
+## 2026-10-10 — §2. Review of nodespec#3, and implementation readings
+
+An independent review reproduced every V claim in §1, and found six HIGH,
+two MEDIUM and six LOW items. Each is fixed in a new commit; nothing was
+force-pushed, merged or run against a corpus.
+
+**A correction to §1 and to the first README.** The guidance used for
+§1's readings, "prefer the reading that cannot hide a finding", came from
+the coordinator. It is not in the frozen text. The frozen text wins wherever
+it decides a question; a reading applies only where the text is silent. On
+that basis:
+
+- R-L5 was a misreading and is reversed. §5.3 makes G2's objects "the
+  edge's two ends and its edge id if any". §5.4 demotes a record "one of
+  whose objects newly fails a lint". So L5 fails on those ends and id. Under
+  §1's reading, a duplicate edge from both legs was a false tier-A G2.
+- R-select is reversed: §3 decides "exactly one Mermaid fence".
+- Every other reading was re-checked against the text and restated in the
+  README with its words.
+
+**What the review found, and the change for each.**
+
+- **H1, L5.** Fixed as above. V3 now checks that the same edge added on both
+  legs is G2 at tier B.
+- **H2.** X is compared with H's records before P's truth filter. Appendix
+  D gives X no truth, so X can only report the unfiltered set.
+- **H3.** The tier-A disagreement check covers every decided real-arm case,
+  including one over a cap or with a duplicate diff, not only the counted
+  ones.
+- **H4.** A bound `aggregate` refuses, listing the case keys, while any
+  real-arm tier-A record has no reproduction result. It refuses before it
+  marks itself executed.
+- **H5.** The encoding of `tiers` and X's tier vocabulary are defined (README
+  R-tiers). A malformed sealed tar is refused before the run marks itself
+  executed. `vfix.py v3` checks the same lines on the V-fixtures.
+- **H6.** `archive` captures every subprocess's output and scrubs the
+  corpus's name and URL from failures. Its transcript must be outside the
+  repository. Private files inside the repository are refused.
+- **M1.** The review's 33 mutants are in V4's list, with V3 checks that kill
+  them, plus one mutant per fix. V4 also runs `vfix.py v3` once V-fixtures
+  exist.
+- **M2.** See "X gets Appendix D whole" below.
+- **LOW.**
+  - `k` is deduplicated by pair of model diffs.
+  - P picks each (path, i)'s case before deduplication.
+  - G2 on a user-id edge is no longer suppressed (R-ident).
+  - S tier-A records are listed as blocked (F1).
+  - Authors are built from every commit before any lookup, and a merge
+    commit is never a leg's author.
+  - Where the bundles' hashes sit is R-bundles.
+
+**Implementation readings, decided by the coordinator, not owner rows:**
+
+- **X gets Appendix D whole.** §10.3 gives X "Appendix D's extractor
+  contract". The export gives the whole of Appendix D: the fixture contract
+  as well. This deviates from §10.3's letter. The reason: the fixture
+  contract is a format only, and holds no answers. It fixes the shape of X's
+  output (`exposed`, `records` of `{category, objects}`), which §10.5's
+  comparison needs and the extractor paragraph does not give. The README
+  said this was the owner's decision; it was the coordinator's.
+- **Bundle storage.** Bundles are held by the owner, with a local copy
+  outside the repository, following blockspec's precedent. No committed file
+  names the private store. Their sha256s are bound in `results/VALIDATION`
+  at the validation commit (R-bundles).
+- **The sealed hash.** Commit 2 records it in this LOG, as a line
+  `- sealed fixtures sha256: <64 hex>`. `results/VALIDATION` repeats it, and
+  the binding refuses unless the two are equal (R-sealed-hash).
+- **V2's histories.** F's prompt is frozen verbatim and asks for no history,
+  so F is not asked for one. V2 runs over histories H builds (`v2.py`,
+  R-v2).
 
 ## Blind roles
 

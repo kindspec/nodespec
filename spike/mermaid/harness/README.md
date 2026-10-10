@@ -43,7 +43,9 @@ who did not run the arms. (Owner direction, 2026-10-09.)
 | `ms/blind.py` | the exports for F and X (§10.3), and Appendix E's prompts |
 | `ms/binding.py`, `ms/transcript.py` | the validation commit, execution markers, transcripts (§11.1) |
 | `ms/corpus.py` | the corpora table, the private mapping, bundles, PR lists, redaction scan |
-| `v0.py`, `v3.py`, `v4.py` | V0, V3, V4 |
+| `v0.py`, `v2.py`, `v3.py`, `v4.py` | V0, V2 (over histories H builds), V3, V4 |
+| `vfix.py` | V1, V3's V-fixture half and V5, once F's fixtures and X are committed |
+| `validate.sh` | runs V0, V2, V3 and V4 into `results/validation/` |
 | `reverify.sh` | the review step, in a fresh clone |
 
 Run everything as `python3 -I -S -B harness/<script>`. The CLI refuses
@@ -53,8 +55,10 @@ for every invocation before parsing its arguments.
 ## Binding, as built (§11.1, §11.3)
 
 - **The validation commit is derived**: the one commit that adds
-  `results/VALIDATION`, which holds the sealed fixtures' hash and the
-  lockfile's sha256. It must change no bound path; no later commit may. Bound
+  `results/VALIDATION`, which holds the sealed fixtures' hash, the lockfile's
+  sha256 and every bundle's and pull-request list's sha256. The sealed hash
+  must equal the one LOG.md records (commit 2). The validation commit must
+  change no bound path, and no later commit may. Bound
   paths: `harness/`, `r/` (tracked files), `x/`, `v-fixtures/`,
   `PRE-REGISTRATION.md`.
 - **The first execution binds.** `arm0`, `arms` (M, P and S, §11.3's commit
@@ -67,8 +71,9 @@ for every invocation before parsing its arguments.
   bound path.
 - A bound run takes every path from its fixed place. The owner's private files
   (`--private-map`, `--private-table`), the bundles (`--bundle-dir`) and the
-  work directory (`--work-dir`) are arguments, outside the repository, never
-  read from a committed path. Every `u:` label and `h:` pin is recomputed
+  work directory (`--work-dir`) are arguments. They must be outside the
+  repository; the harness refuses otherwise and never reads them from a
+  committed path. Every `u:` label and `h:` pin is recomputed
   from them and must match `census/corpora-public.tsv`, whose sha256 is
   checked against §7.1.
 
@@ -86,46 +91,54 @@ the unredacted table.
 
 ## Readings
 
-§5, §7 and §8 leave some details unsettled. Each reading below is what the
-code does; each is to be checked in review. "Direction" says what the
-reading does to a finding: **cannot hide** means it can only add records or
-cases, never remove a finding; **narrows** means it can remove records, with
-the reason it cannot remove a real defect.
+**The frozen text wins wherever it decides a question.** A reading below is
+recorded only where the text is silent, or to show which words decide it.
+Each is to be checked in review. "Effect" says what the reading does to
+records and cases. It is a description, not a reason: the reason column
+carries the reason.
 
-| id | section | reading | reason | direction |
+| id | section | reading | reason | effect |
 |---|---|---|---|---|
-| R-delmod | §5.2 | "changes a unit keyed by it" is an add or a change on the other leg: that leg holds the unit with a value other than the base's. A removal on the other leg is not a change. | A removal agrees with the delete: the decided model drops the unit, so the decided model is consistent and the merge can be right about it. Counting it would call correct merges I3. `census/v4/synth_oracle.py` reads it the same way. | narrows I3; cannot remove a merge that is wrong about the decided model |
-| R-ident | §5.3 | Only G1 is excluded for a key that is an identity record's subject ("G1 … outside I1–I4"). G2, G3, G4, C, D and MC records on the same units stand. | The letter excludes G1 only. A hole-#2 case can therefore carry structure records too (bare style: I1 and a G4 on the ghost's label). | cannot hide |
-| R-subgraph | §5.3 | A subgraph present or absent against its decided value has no record of its own; it shows as G4 on its title and G3 on its members. | G1 is "Node". A subgraph's title unit always exists with it. | cannot hide (the title unit carries it) |
-| R-edge-id | §5.3 | A user-id edge present or absent against its decided value is G2 (lost or extra); a changed end of one is G2. | §4.1 keys such an edge by its id; G2 is "an edge key's count". | cannot hide |
-| R-marker | §5.3 | "Holds a conflict marker": a line opening with seven `<`, `>` or `|` that no input already holds. `=======` alone is not a marker. | git writes `<<<<<<<` and `>>>>>>>` with every conflict (and `ls-files -u` is checked too); Markdown's setext headings use `=======`. | narrows E: more cases are judged; E is never a finding |
-| R-G0 | §5.3, §7.5 | E is checked first, then G0 (fence count or flowchart test of the merged file), then R's parse. A G0 case is not decided. | §7.5: decided needs E or a merged state in the subset; a G0 merged state is not. G0 is tier B regardless. | cannot hide a FOUND; pushes toward NO VERDICT |
-| R-L3 | App. C | "Mentioned inside two different subgraph blocks": mentioned directly (in that block's own statements) in two blocks. | A member of a nested block is not mentioned in the outer block. | narrows lints, so fewer demotions: cannot hide |
-| R-L5 | App. C | A duplicate edge's failing object is the edge key, not its ends. | The guidance is to prefer the reading that cannot hide a finding. With this reading L5 never demotes a G2 record (whose objects are ends). **Flagged:** this makes L5 inert for tier B; the other reading (ends) would demote G2 records on duplicated edges. | cannot hide |
-| R-L4 | App. C | "An id used as two kinds" includes a node statement Mermaid dropped because an edge already has that id. | The source uses the id as both. | widens lints; only affects I4-adjacent records |
-| R-fence | §3 | A closing line holds only the run (no indentation or trailing space, a `\r` aside); an opener never closed runs to the end of the file; the body is the bytes between. | "the next line holding only a run". | neutral |
-| R-flowchart | §3 | The first diagram line may have leading whitespace; front matter leads only when `---` is the first non-blank line. | Mermaid's detector allows both. | neutral |
-| R-select | §3, §7.4 | A path's stratum test, the declaration rule and the sibling rule read its last version (the census's rule for F). A D path is selected when its last version holds a Mermaid fence that is a flowchart; each case's inputs are then held to the one-fence rule. | "Paths … holding exactly one fence" applied per input, not per path, so a path whose fence count changed over time is still examined. | cannot hide |
-| R-undecodable | §8 | A case any of whose input or merged texts is not UTF-8 is excluded and counted (`undecodable`). | R takes text; blockspec LOG §15 rules the same. | narrows; counted, never silent |
-| R-attributes | F2 | A corpus that commits `.gitattributes` is merged with every merge-relevant attribute unset in `$GIT_DIR/info/attributes`; the commits are not changed. | "no .gitattributes"; a built-in `merge=union` needs no config. | neutral |
-| R-merge-order | F2 | O is checked out and T merged in: M-merge O = first parent; M-PR O = target leg, T = head; P and S O = leg O. | git's output depends on it only through conflict-marker order. | neutral |
-| R-p-units | §8.3 | A record is a P record if any unit it lists differs between merged and truth; UNRELIABLE if any unit it lists is untouched by both legs and the truth differs from the decided value. | §8.3 speaks of "that unit". | neutral |
-| R-k | §9.1 | `k` counts distinct case keys of exposed M-merge and M-PR cases with all three inputs in the subset, whatever their outcome. | §9.1 as written; P never counts. | neutral |
-| R-units | §7.5 | Case key: sha256 of the three diagram texts, each UTF-8 and NUL-terminated. "Identical pairs of model diffs": the sorted (unit, base value, leg value) lists of O and of T. Floors take cases in (P rank, key) order under the caps. | Deterministic. | neutral |
-| R-coverage | §8.1 | Coverage per stratum is in-subset distinct blobs at the pins over all distinct blobs at the pins, summed over corpora. | "A stratum with fewer than 90% of its distinct blobs". | neutral |
-| R-x | §10.5 | X's output is read as expect.json's shape: `exposed` and `records` of `{category, objects}` (owner, 2026-10-09). Compared categories: I1–I4, G0–G4, MC, C, D, S-LINKSTYLE, S-ORDER. Case outcomes (E, OUT-OF-SUBSET, DUP-TITLE) are not records; H's ineligible MC is reported only. | §10.5 compares (category, objects). | neutral; a mismatch is a disagreement, never an agreement |
-| R-sealed | §10.4 | A sealed fixture's group is identity if F's expected records include an I category, else structure. Its A and B lines are read from F's `tiers`; H's and X's from whether they report a record of that group at tier A, or at tier B. | §10.4 states the lines, not the encoding. | neutral |
-| R-s | §8.4, B.2 | S's bases are every version of every selected path. B.2's operations have the forms written in `ms/sgen.py`; an op that does not apply is redrawn up to 20 times, then the pair is a generator failure, counted. Arm 0's mix classifies a node removed and added with one label as a rename, and an edge removed and added sharing one end as a retarget. | B.2 names operations, not text. | S never yields FOUND |
-| R-redact | §7.3, header | Commits of an individually owned corpus are `h:` + sha256(salt:commit:sha); its paths and record content are hashed like a read-only corpus's; authors are never published. | §7.1 gives the pin rule only. | neutral |
-| R-arms | §11.1 | "Each arm" binds as one invocation: `arm0`; `arms` (M, P and S together, §11.3's commit 5); `sealed`; `aggregate`. | §11.3 lands M, P and S in one commit. | neutral |
+| R-L5 | App. C, §5.3, §5.4 | A duplicate edge's failing objects are its two ends, and its id when it has one. | §5.3: G2's objects are "the edge's two ends and its edge id if any"; §5.4: a record is tier B if "one of whose objects newly fails a lint". The text decides it. (The earlier reading, the edge key as the object, made L5 match nothing.) | a duplicate edge from both legs is G2 at tier B |
+| R-delmod | §5.2 | "Changes a unit keyed by it": the other leg holds the unit with a value other than the base's (an add or a change). A removal there is not a change. | §5.2 introduces its refusal cases as "decided models [that] cannot be rendered correctly by any merge". When the other leg also removes the unit, the decided model drops it and is consistent. `census/v4/synth_oracle.py` reads it the same way. | fewer I3 records than the wider reading |
+| R-ident | §5.3 | Only G1 is excluded for a key that is an identity record's subject. G2 (a user-id edge included), G3, G4, C, D and MC records on the same units stand. | §5.3: "G1 Node … outside I1–I4"; no other category carries the clause. The text decides it. | a hole-#2 case can also carry structure records |
+| R-subgraph | §5.3 | A subgraph present or absent against its decided value has no record of its own. It shows as G4 on its title and G3 on its members. | G1 is "Node"; no category names a subgraph's existence. | none lost: the title unit always exists with it |
+| R-edge-id | §4.1, §5.3 | A user-id edge present or absent against its decided value is G2 (lost or extra); a changed end of one is G2. | §4.1 keys such an edge by its id; G2 is "an edge key's count". | — |
+| R-marker | §5.3 | "Holds a conflict marker": a line opening with seven `<`, `>` or `|` that no input already holds. `=======` alone is not one. | The text does not define the marker. git writes `<<<<<<<` and `>>>>>>>` with every conflict (and `ls-files -u` is checked as well); Markdown's setext headings use `=======`. | fewer E outcomes than counting `=======` |
+| R-G0 | §5.3, §7.5 | E is checked first, then G0, then R's parse. A G0 case is not decided. | §7.5: decided needs "E or a merged state in the subset"; a G0 merged state is not. | G0 adds nothing to the floor; it is tier B anyway |
+| R-L3 | App. C | "Mentioned inside two different subgraph blocks": mentioned in the block's own statements, in two blocks. | Otherwise every member of a nested block would be inside two blocks and fail L3. | — |
+| R-L4 | App. C | "An id used as two kinds" includes a node statement Mermaid dropped because an edge already has that id. | The source uses the id as both kinds. | — |
+| R-fence | §3 | A closing line holds only the run (a `\r` aside); an opener never closed runs to the end of the file; the body is the bytes between. | "the next line holding only a run of the same character". | — |
+| R-flowchart | §3 | The first diagram line may have leading whitespace; front matter leads only when `---` is the first non-blank line. | Mermaid's detector allows both; the text names the line, not its indentation. | — |
+| R-select | §3, §7.4 | The stratum test (F: a flowchart; D: exactly one Mermaid fence, a flowchart), the declaration rule and the sibling rule read the path's last version. | §3 decides the test itself. It is silent on which version; the census read the last. | — |
+| R-undecodable | §8 | A case any of whose input or merged texts is not UTF-8 is excluded and counted (`undecodable`). | R takes text. blockspec LOG §15 rules the same. | counted, never silent |
+| R-attributes | F2 | A corpus that commits `.gitattributes` is merged with every merge-relevant attribute unset in `$GIT_DIR/info/attributes`; the commits are not changed. | "no .gitattributes"; a built-in `merge=union` needs no configuration. | — |
+| R-merge-order | F2 | O is checked out and T merged in: M-merge O = first parent; M-PR O = target leg, T = head; P and S O = leg O. | Not stated. git's output depends on it only through conflict-marker order. | — |
+| R-p-units | §8.3 | A record is a P record if any unit it lists differs between merged and truth. It is UNRELIABLE if any unit it lists is untouched by all three of B, O and T and the truth differs from the decided value. | §8.3 says "that unit"; "neither leg touched" means equal in B, O and T. | — |
+| R-x-filter | §8.3, §10.5, App. D | X is compared with H's records before P's truth filter; the filter is then applied to H's P records. | Appendix D gives X no truth, so X can only report the unfiltered set. | — |
+| R-k | §9.1, §7.5 | `k` counts exposed M-merge and M-PR cases with all three inputs in the subset, whatever their outcome: one per key and one per pair of model diffs. | §9.1 counts "distinct exposed M cases"; §7.5 makes identical pairs of model diffs one case. | — |
+| R-units | §7.5, §8.3 | Case key: sha256 of the three diagram texts, each UTF-8 and NUL-terminated. Model diffs: the sorted (unit, base value, leg value) lists of O and of T. Each P (path, i) first picks its (1,1) case if decided, else (1,3), else (3,1); deduplication and caps then apply, in key order. | §8.3: "a (path, i) contributes its (1,1) case if decided, else …". | — |
+| R-coverage | §8.1 | Coverage per stratum: in-subset distinct blobs at the pins over all distinct blobs at the pins, summed over corpora. | "A stratum with fewer than 90% of its distinct blobs in the subset". | — |
+| R-x | §10.3, §10.5 | X's output is read as expect.json's shape: `exposed` and `records` of `{category, objects, tier}`. Compared: (category, objects) for I1–I4, G0–G4, MC, C, D, S-LINKSTYLE, S-ORDER, and exposure. Case outcomes are not records; H's ineligible MC is reported only. | §10.5 compares "(category, objects)" and exposure. Giving X Appendix D whole, so it knows the shape, is the coordinator's implementation choice (LOG §2). | a mismatch is a disagreement, never an agreement |
+| R-tiers | §10.4, App. D | expect.json's `tiers` is a JSON list of §5.4's tier letters, "A" to "E", one per tier the fixture's records fall in; `[]` for a clean fixture. X's tier vocabulary: "A" to "E", "-" or "—". A sealed tar whose tiers are anything else is refused before the run marks itself executed. | Appendix D names `tiers` but not its encoding. | — |
+| R-sealed | §10.4 | A sealed fixture's group is identity if F's records include an I category, else structure. The A and B lines are read from F's `tiers`, and from whether H or X reports a record of that group at tier A, at tier B. When X's answer is missing or malformed, X agrees with neither: a fixture where H differs from F is then **disputed**. | §10.4 defines VOID (X agrees with F) and disputed (X agrees with H) only. | a broken X can block NOT FOUND, never void a group |
+| R-v2 | §11.2 | V2 runs over histories H builds (`v2.py`). | F's prompt (Appendix E) is frozen and asks for no history, and Appendix D defines none (LOG §2). | — |
+| R-bundles | §7.6, §11.3 | The bundles' and pull-request lists' sha256s are in `results/VALIDATION`, added by the validation commit. | §7.6: "committed at validation". `harness/` is bound, and the validation commit may not change a bound path. | — |
+| R-sealed-hash | §10.4, §11.3 | The sealed hash is recorded in LOG.md in commit 2; VALIDATION repeats it, and the binding requires the two equal. | §11.3 lists it in commit 2; §10.4 says H commits it in the validation commit (LOG §2). | — |
+| R-authors | §7.5 | Authors are built from every commit identity before any lookup. A leg's author is its last non-merge commit that changed the path, else its last non-merge commit. | §7.5: "the last commit on each leg that changed the path"; a merge commit has no author of the edit. | — |
+| R-s | §8.4, B.2 | S's bases are every version of every selected path. B.2's operations have the forms in `ms/sgen.py`; an op that does not apply is redrawn up to 20 times, then the pair is a counted generator failure. S tier-A records are listed as blocked (F1). | B.2 names operations, not text; §6: "S never yields FOUND". | S never qualifies |
+| R-redact | §7.3, header | Commits of an individually owned corpus are `h:` + sha256(salt:commit:sha); its paths and record content are hashed like a read-only corpus's; authors are never published. | §7.1 gives the pin rule only. | — |
+| R-arms | §11.1 | "Each arm" binds as one invocation: `arm0`; `arms` (M, P and S together, §11.3's commit 5); `sealed`; `aggregate`. | §11.3 lands M, P and S in one commit. | — |
 
 ## What is not built here
 
-- The **archive** (§7.6) has a command (`archive`), tested only on its pull
-  request pagination. It has not fetched any corpus. Where the bundles live is
-  the owner's call; `harness/bundles.json` (each bundle's and list's sha256,
-  committed at validation) does not exist yet, so a bound `arm0` today makes
-  every corpus NO VERDICT and exits 3.
-- **V1, V2 and V5** need F's V-fixtures and X. V1's refusal half and the H/R
-  fuzz run inside V3. `fixtures --dir v-fixtures --extractor x/extract2.py`
-  runs H and X over F's fixtures for V1, V3's "each category fires" and V5.
+- The **archive** (§7.6) is the `archive` command: fetch, bundle, and the
+  merged pull-request list. Its failures never name the corpus, and its
+  transcript and outputs live outside the repository. It has not fetched any
+  corpus. The bundles are held by the owner (LOG §2). Their sha256s enter
+  `results/VALIDATION` at the validation commit (R-bundles), so until then a
+  bound `arm0` makes every corpus NO VERDICT and exits 3.
+- **V1, V3's V-fixture half and V5** need F's V-fixtures and X:
+  `vfix.py v1|v3|v5` runs them, and V4 runs `vfix.py v3` on every mutant
+  once `v-fixtures/` holds fixtures. **V2** runs now, over histories H builds
+  (R-v2).

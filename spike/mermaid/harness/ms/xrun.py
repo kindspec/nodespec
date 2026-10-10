@@ -5,7 +5,7 @@ X's contract (Appendix D): `python3 -I extract2.py <stratum> <base> <o> <t>
 <merged>` prints one JSON object: the decided values, the exposure, and every
 record with its category, objects and tier. X is given Appendix D whole, so
 it mirrors expect.json's fields: "exposed" (a boolean) and "records", a list
-of {"category", "objects"} (owner's decision, 2026-10-09).
+of {"category", "objects"} (the coordinator's implementation choice; LOG §2).
 
 H and X agree on a case if they report equal sets of (category, objects) and
 the same exposure. A crash, a timeout, or an empty or unreadable output from

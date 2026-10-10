@@ -1,0 +1,11 @@
+# mermaid-spike archive
+# argv: mermaid_spike.py archive --corpus x --out /home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/tmp/v3.8mx942js/o.dtn6lup7 --private-map /home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/tmp/v3.8mx942js/p.so309dnz/m --private-table /home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/tmp/v3.8mx942js/p.icq03zjg/t
+# start: 2026-10-10T06:26:46Z
+# nodespec HEAD: a67b681bb6d88150f07d0ce288bfc59d313207e4
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+refusing: archive writes its transcript outside the repository (--transcript-dir)
+
+# end: 2026-10-10T06:26:46Z
+# aborted: exit status 2
