@@ -102,6 +102,31 @@ that basis:
     commit is never a leg's author.
   - Where the bundles' hashes sit is R-bundles.
 
+**V results after the fixes**, at `8b1e6ec`, transcripts in
+`results/validation/`:
+
+- V0: PASS.
+- V2: PASS, over 60 histories H builds and 480 replays.
+- V3: `228 checks, 0 failed`.
+- V4: `138 mutants: 138 killed, 0 survived, 0 BROKEN`. This includes the
+  review's 33 mutants, rewritten where the fixes changed the code they
+  target, and one mutant per fix.
+
+The review's own `mymut.py`, run unchanged (`review-mymut.txt`), gives 27
+killed, 0 survived and 6 BROKEN. The 6 (R2, R6, R8, R9, R28, R33) are BROKEN
+because the fixes rewrote the lines their patterns name. V4's rewritten
+versions of all six are killed.
+
+The review's probes, run unchanged, are in `review-probes.txt`:
+
+- probe1's duplicate edge is now G2 at tier B.
+- `aggprobe` cases 1 and 2 are now NO VERDICT on the tier-A disagreement.
+  Its case 3 shows F8 blocking in the pure aggregator; the bound command
+  now refuses before that point (H4).
+- `archleak` still reports a match. The match is the probe's own source
+  line, quoted in its own traceback. The harness's exception message is
+  scrubbed (V3 `s_archive_leak`).
+
 **Implementation readings, decided by the coordinator, not owner rows:**
 
 - **X gets Appendix D whole.** §10.3 gives X "Appendix D's extractor

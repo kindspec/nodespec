@@ -1,5 +1,5 @@
-# v3, 2026-10-10T04:25:56Z
-# nodespec HEAD: 4153d094bfeb6c3b5923b207231d6d7976d0aa85
+# v3, 2026-10-10T06:59:11Z
+# nodespec HEAD: 8b1e6ec17edf5b0c4a165850675593cb651b2928
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -90,6 +90,7 @@
   PASS  P: replay reproduces V[i+a+b] when applied to V[i+a]
   PASS  P: a record equal to the truth is not a P record
   PASS  P: a record on a unit neither leg touched, where the truth differs, is UNRELIABLE
+  PASS  P: a record on a unit only leg T touched is a P record, not UNRELIABLE
 == s_authors: 
   PASS  authors: two identities sharing an email are one author
   PASS  authors: two identities sharing a case-folded name are one author
@@ -191,6 +192,8 @@
   PASS  reverify: fails when the validation commit edits the harness
   PASS  reverify: passes on a clean validation history
   PASS  binding: VALIDATION changed after it was added is refused
+  PASS  binding: VALIDATION's sealed hash must equal the one LOG.md records (commit 2)
+  PASS  binding: a malformed bundle entry in VALIDATION is refused
   PASS  reverify: fails when VALIDATION changed
 == s_cli_arms: Arm 0, M, P, S on fixture corpora through the CLI, unbound.
   PASS  Arm 0 runs on a fixture corpus
@@ -206,7 +209,61 @@
   PASS  the aggregator exits non-zero on empty input
   PASS  an unbound run may not write under results/
   PASS  every invocation wrote a transcript, refused ones included
+== s_oracle_units: Categories, tiers and refusal cases on hand-built models.
+  PASS  G4: a subgraph title merged wrong is G4
+  PASS  G4: a click target merged wrong is G4
+  PASS  G3: a membership merged wrong is G3, tier A
+  PASS  MC: an eligible text conflict is MC in group G4, tier A
+  PASS  collision: both legs add k with differing kinds and nothing else
+  PASS  R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)
+  PASS  G4: a user-id edge's label merged wrong is G4
+== s_l5: R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
+  PASS  L5: the same edge added on both legs is G2 at tier B, through L5 on its ends
+== s_p_x: §10.5 with §8.3: X never sees the truth, so it is compared with H's
+  PASS  P: H's unfiltered records hold the S-ORDER X reports
+  PASS  P: X agrees with H's records before the truth filter
+  PASS  P: the truth filter still removes the record from H's P records
+== s_aggregate_scope: §9.1 and §10.5 over every decided real-arm case; F8 needs a
+  PASS  scope: an X-only tier-A record in a decided case over the corpus cap is NO VERDICT
+  PASS  scope: an X-only tier-A record in a decided duplicate-diff case is NO VERDICT
+  PASS  F3: a tier-A record in a case that is not JUDGED is not FOUND
+  PASS  a tier-B record is never blocked
+  PASS  S: a tier-A record from S is never FOUND, is listed blocked (F1), and S never counts toward the floor
+  PASS  k: an exposed case whose inputs are not all in the subset does not count
+  PASS  k: two exposed cases with one pair of model diffs count once (§7.5)
+  PASS  agreement: exactly 98% passes
+  PASS  P: a decided (1,1) case dropped as a duplicate is not replaced by its (1,3) case
+  PASS  P: rank (1,1) is preferred over (1,3) for a (path, i)
+== s_bound_aggregate: H4, R31, R33: the bound aggregate's input.
+  PASS  bound aggregate: row 4 is (a)
+  PASS  bound aggregate: a real-arm tier-A record with no reproduction is listed as missing
+  PASS  bound aggregate: a case with no reproduction result does not reproduce
+  PASS  bound aggregate: refuses, naming the missing repro keys, before it marks itself executed
+  PASS  bound aggregate: a reproduced record is not missing
+== s_sealed: H5: R-tiers, checked before the sealed run marks itself executed.
+  PASS  sealed: a well-formed tar runs, and F's lines come from its tiers
+  PASS  sealed: H's and X's lines are computed (bare-style hole #2: A, not B)
+  PASS  sealed: malformed tiers are refused before the run marks itself executed
+  PASS  sealed: an X tier outside the vocabulary gives x = None
+  PASS  sealed: H differing from F with X malformed is disputed, not VOID
+== s_archive_leak: H6: a failed archive names no corpus.
+archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
+  PASS  archive: a failure is reported
+  PASS  archive: a failed archive's transcript names neither the owner nor the repository
+  PASS  archive: a private file inside the repository is refused
+  PASS  archive: a run without --transcript-dir outside the repository is refused
+== s_history_more: R14, R24, R26, R27, R29, R30 plants.
+  PASS  delete/modify with the legs swapped: I3 on c
+  PASS  hole #2 with the legs swapped is exposed and I1
+  PASS  M-PR: a pull request's commits landed in another order are not a rebase merge
+  PASS  plant: versions V0, V1, S, V3 in order
+  PASS  P: a triple whose last step fails the predecessor rule is dropped
+  PASS  M: a path both sides changed to the same blob is convergent, not a case
+  PASS  authors: a case's authors are the last changers of the path on each leg
+  PASS  P: ranks are (1,1) 0, (1,3) 1, (3,1) 2
+  PASS  decided: a case with an UNRELIABLE record is not decided
+  PASS  V3 wrote nothing under results/
 
-180 checks, 0 failed
+228 checks, 0 failed
 V3: PASS
 # exit status 0
