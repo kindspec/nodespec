@@ -66,8 +66,9 @@ M = [
      "        if False:\n            continue", "v3"),
     ("model: untitled subgraphs keyed by Mermaid's positional id", "harness/ms/model.py",
      '            skey[s["id"]] = "title:" + s["title"]', '            skey[s["id"]] = s["id"]', "v3"),
-    ("model: membership goes to the last subgraph to close", "harness/ms/model.py",
-     "                holder.setdefault(k, skey[s[\"id\"]])", "                holder[k] = skey[s[\"id\"]]", "v3"),
+    # Not a mutant: "membership goes to the last subgraph to close" (setdefault
+    # -> assignment in model.py) is equivalent, because Mermaid's makeUniq
+    # already keeps every node in one subgraph's list (V4 run of 2026-10-10).
     ("model: a repeated untitled title is not DUP-TITLE", "harness/ms/model.py",
      "        if all(k.startswith(\"title:\") for k in dup):", "        if False:", "v3"),
     ("subset: H's model need not equal R's", "harness/ms/subset.py", "    if mh != mr:", "    if False:", "v3"),

@@ -528,9 +528,9 @@ def s_redaction():
     me = ("Alice Privatesson", "alice@private.example")
     pi.commit({"private/secretname.mmd": b}, "b", author=me)
     pi.g("checkout", "-q", "-b", "side")
-    pi.commit({"private/secretname.mmd": b + "  worker --> db\n"}, "t", author=me)
+    pi.commit({"private/secretname.mmd": b + "  worker --> zebranode\n"}, "t", author=me)
     pi.g("checkout", "-q", "main")
-    pi.commit({"private/secretname.mmd": b.replace("db", "pg")}, "o", author=me)
+    pi.commit({"private/secretname.mmd": b.replace("zebranode", "pg")}, "o", author=me)
     pi.g("merge", "-q", "--no-edit", "side", check=False)
     pi.g("add", "-A")
     pi.g("commit", "-q", "-m", "m", "--allow-empty", check=False)
@@ -540,6 +540,8 @@ def s_redaction():
     for repo, pin, status, ind in ((pl.path, ro_pin, "read-only", False), (pi.path, in_pin, "in", True)):
         ctx = AR.Ctx("u:000000000000" if ind else "ro/corpus", None, repo, pin, status, ind, salt, TMP)
         cs, _ = AR.arm_m(ctx, R, None)
+        check(f"redaction plant: the {status}{' individual' if ind else ''} corpus yields an M case",
+              any(c.get("key") for c in cs))
         raw += cs
         red += [AR.redact(c, (status, ind, salt)) for c in cs]
         red.append(AR.redact_arm0(AR.arm0(ctx, R), (status, ind, salt)))
