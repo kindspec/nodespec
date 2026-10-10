@@ -4,7 +4,9 @@ first execution of each arm binds". Checked before every bound run.
 
 THE VALIDATION COMMIT IS DERIVED, never named: it is the one commit in HEAD's
 history that adds spike/mermaid/results/VALIDATION (blockspec LOG §18, H2).
-VALIDATION holds the sealed fixtures' hash and the lockfile's sha256.
+VALIDATION holds the sealed fixtures' hash, the lockfile's sha256 and every
+corpus's bundle and pull-request-list sha256; LOG.md at the validation commit
+must record the same sealed hash (commit 2 records it; §11.3).
 
 A bound run is refused unless:
 - exactly one commit added VALIDATION, and it never changed after;
@@ -57,11 +59,41 @@ def derive(spike=SPIKE):
     _, raw, _ = _git(spike, "show", f"{vc}:{rel}")
     try:
         v = json.loads(raw)
-        assert set(v) == {"sealed_sha256", "lockfile_sha256"}
-        assert all(HEX64.match(v[k]) for k in v)
-    except (ValueError, AssertionError, TypeError):
-        return vc, None, [f"{VALIDATION_REL} must hold exactly sealed_sha256 and lockfile_sha256, 64 hex each"]
+        validate_content(v)
+    except (ValueError, AssertionError, TypeError, AttributeError) as e:
+        return vc, None, [f"{VALIDATION_REL} is malformed: {e}"]
+    rel_log = os.path.relpath(os.path.join(spike, "LOG.md"), top.strip())
+    _, log, _ = _git(spike, "show", f"{vc}:{rel_log}")
+    rec = sealed_in_log(log)
+    if rec != [v["sealed_sha256"]]:
+        return vc, None, [f"LOG.md at the validation commit records the sealed hash {rec or 'nowhere'}; "
+                          f"VALIDATION holds {v['sealed_sha256']} (they must be one and equal)"]
     return vc, v, []
+
+
+SEALED_LINE = re.compile(r"^- sealed fixtures sha256: ([0-9a-f]{64})$", re.MULTILINE)
+
+
+def sealed_in_log(text):
+    """The sealed hash(es) commit 2 records in LOG.md (§11.3)."""
+    return SEALED_LINE.findall(text or "")
+
+
+def validate_content(v):
+    """VALIDATION: the sealed fixtures' hash (§10.4), the lockfile's sha256,
+    and every corpus's bundle and pull-request-list sha256 (§7.6, "committed
+    at validation"). Raises ValueError."""
+    if not isinstance(v, dict) or set(v) != {"sealed_sha256", "lockfile_sha256", "bundles"}:
+        raise ValueError("keys must be exactly sealed_sha256, lockfile_sha256 and bundles")
+    for k in ("sealed_sha256", "lockfile_sha256"):
+        if not isinstance(v[k], str) or not HEX64.match(v[k]):
+            raise ValueError(f"{k} must be 64 lower-case hex digits")
+    if not isinstance(v["bundles"], dict):
+        raise ValueError("bundles must be an object")
+    for lab, b in v["bundles"].items():
+        if set(b) != {"file", "sha256", "prs_file", "prs_sha256"} or not all(
+                HEX64.match(b[k]) for k in ("sha256", "prs_sha256")) or "/" in b["file"] + b["prs_file"]:
+            raise ValueError(f"bundle entry for {lab} is malformed")
 
 
 def marker_rel(arm):

@@ -121,6 +121,9 @@ def outcome(prep, inputs, merge, R, path="", truth=None):
     recs, dec, mc = OR.judge(B, O, T, ms.model, lint_new)
     res["outcome"] = "JUDGED"
     res["lint_new"] = sorted(f"{a}:{b}" for a, b in lint_new)
+    # H's records before §8.3's truth filter: what X, which never sees the
+    # truth (Appendix D), is compared with (§10.5).
+    res["records_unfiltered"] = [dict(r) for r in recs]
     if truth is not None:
         recs = p_filter(recs, prep, ms.model, truth, R, dec)
     res["records"] = recs

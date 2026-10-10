@@ -166,14 +166,21 @@ def lint_failures(model, db, stratum=None, fence_ok=True, path=None):
             out.add(("L4", u[1]))
     for i in db.swallowed:
         out.add(("L4", i))
-    # R-L5: a duplicate edge's failing object is the edge itself (its key),
-    # the reading that cannot demote a G2 record (whose objects are its ends).
+    # R-L5: §5.3 makes a G2 record's objects "the edge's two ends and its
+    # edge id if any", and §5.4 demotes a record "one of whose objects newly
+    # fails a lint"; so a duplicate edge's failing objects are its two ends,
+    # and its id when it has one.
     for u, v in model.items():
         if u[0] == "ecount" and v > 1:
-            out.add(("L5", "edge:" + repr(u[1])))
+            out.add(("L5", u[1][0]))
+            out.add(("L5", u[1][1]))
     for eid, n in db.edge_id_attempts.items():
         if n > 1:
-            out.add(("L5", "edge:" + eid))
+            out.add(("L5", eid))
+            for e in db.edges:
+                if e["want_id"] == eid:
+                    out.add(("L5", e["start"]))
+                    out.add(("L5", e["end"]))
     return out
 
 
@@ -235,11 +242,10 @@ def judge(B, O, T, M, lint_new):
         if p == "order":
             recs.append(_rec("S-ORDER", set(), "-", [u], "statement order"))
             continue
-        if p == "exist" and (related(u, d) or related(u, m)):
-            continue  # §5.3: G1 is "outside I1-I4" (R-ident: only G1 is excluded)
         if p == "exist":
             kinds = set(d or ()) | set(m or ())
-            if "node" in kinds and "node" in set(d or ()) ^ set(m or ()):
+            g1_outside = not (related(u, d) or related(u, m))  # §5.3: G1 is "outside I1-I4" (R-ident)
+            if g1_outside and "node" in kinds and "node" in set(d or ()) ^ set(m or ()):
                 recs.append(_rec("G1", {u[1]}, "A", [u], f"decided {d}, merged {m}"))
             if "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):
                 ref = ("eref", u[1])

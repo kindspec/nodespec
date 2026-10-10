@@ -102,6 +102,7 @@ def parser():
         p.add_argument("--extractor")
     p = sp("validation")
     p.add_argument("--sealed-sha256", required=True)
+    p.add_argument("--bundles", required=True)
     corpus(sp("arm0"))
     corpus(sp("arms"))
     p = sp("repro")
@@ -217,14 +218,26 @@ def ctx_meta(ctx):
 # ----------------------------------------------------------------- commands
 
 def cmd_validation(a, tr, bound):
+    """Writes results/VALIDATION for the validation commit: the sealed hash,
+    which LOG.md must already record once (commit 2, §11.3), the lockfile's
+    sha256, and the bundles' and pull-request lists' sha256s (§7.6)."""
     vp = os.path.join(SPIKE, BD.VALIDATION_REL)
     if os.path.exists(vp) or BD.derive(SPIKE)[0]:
         raise SystemExit("refusing: VALIDATION exists; the validation commit adds it once")
-    if not BD.HEX64.match(a.sealed_sha256):
-        raise SystemExit("refusing: --sealed-sha256 must be 64 lower-case hex digits")
+    rec = BD.sealed_in_log(open(os.path.join(SPIKE, "LOG.md"), encoding="utf-8").read())
+    if rec != [a.sealed_sha256]:
+        raise SystemExit(f"refusing: LOG.md records the sealed hash {rec or 'nowhere'}; it must record "
+                         f"--sealed-sha256 exactly once, in commit 2")
+    if inside(a.bundles, os.path.dirname(SPIKE)):
+        raise SystemExit("refusing: --bundles is the owner's file, outside the repository")
     lock = K.sha256_file(os.path.join(SPIKE, "r", "package-lock.json"))
-    jdump({"sealed_sha256": a.sealed_sha256, "lockfile_sha256": lock}, vp)
-    print(f"wrote {BD.VALIDATION_REL}: sealed {a.sealed_sha256}, lockfile {lock}")
+    v = {"sealed_sha256": a.sealed_sha256, "lockfile_sha256": lock, "bundles": json.load(open(a.bundles))}
+    try:
+        BD.validate_content(v)
+    except ValueError as e:
+        raise SystemExit(f"refusing: {e}")
+    jdump(v, vp)
+    print(f"wrote {BD.VALIDATION_REL}: sealed {a.sealed_sha256}, lockfile {lock}, {len(v['bundles'])} bundles")
     print("commit it in the validation commit, with nothing under a bound path")
     return 0
 
@@ -373,15 +386,63 @@ def cmd_fixtures(a, tr, bound):
     return 0
 
 
-def h_tier_lines(records, group):
+TIER_LETTERS = ("A", "B", "C", "D", "E")
+X_TIERS = TIER_LETTERS + ("-", "\u2014")
+
+
+class Malformed(Exception):
+    pass
+
+
+def expect_tiers(exp):
+    """R-tiers: expect.json's "tiers" is a JSON list of §5.4's tier letters,
+    "A" to "E", one per tier the fixture's records fall in; [] for a clean
+    fixture. Anything else is malformed."""
+    t = exp.get("tiers")
+    if not isinstance(t, list) or not all(isinstance(x, str) and x in TIER_LETTERS for x in t):
+        raise Malformed(f"tiers must be a list of {', '.join(TIER_LETTERS)}; got {t!r}")
+    if not isinstance(exp.get("records"), list) or not all(
+            isinstance(r, dict) and isinstance(r.get("category"), str) for r in exp["records"]):
+        raise Malformed("records must be a list of {category, objects}")
+    return t
+
+
+def fixture_group(exp):
+    return "identity" if any(r["category"] in AG.IDENTITY for r in exp["records"]) else "structure"
+
+
+def lines_of(records, group):
+    """Whether a run put the fixture on the qualifying side of the A and B
+    lines (§10.4): a record of the group at tier A, at tier B. None for an
+    answer whose tiers are not in the vocabulary."""
     cats = AG.IDENTITY if group == "identity" else AG.STRUCTURE | {"MC"}
-    rs = [r for r in records if r["category"] in cats]
-    return {"A": any(r["tier"] == "A" for r in rs), "B": any(r["tier"] == "B" for r in rs)}
+    rs = [r for r in records if r.get("category") in cats]
+    if any(r.get("tier") not in X_TIERS for r in rs):
+        return None
+    return {"A": any(r.get("tier") == "A" for r in rs), "B": any(r.get("tier") == "B" for r in rs)}
+
+
+def sealed_lines(results):
+    """[{name, group, line, f, h, x}] from run_fixture_dir results. x is
+    None when X's answer is malformed or missing: §10.4's rules then read it
+    as agreeing with neither, and aggregate.fixtures treats a fixture where
+    H differs from F and X is None as disputed (R-sealed)."""
+    out = []
+    for r in results:
+        exp = r["expect"]
+        tiers, group = expect_tiers(exp), fixture_group(exp)
+        hl = lines_of(r["records"], group)
+        xl = lines_of((r.get("x") or {}).get("records", []), group) if r.get("x") else None
+        for line in ("A", "B"):
+            out.append({"name": r["fixture"], "group": group, "line": line, "f": line in tiers,
+                        "h": hl[line], "x": None if xl is None else xl[line]})
+    return out
 
 
 def cmd_sealed(a, tr, bound):
-    """§10.4, at commit 6: check sha256(nonce + tar) against VALIDATION, then
-    run H and X on every sealed fixture."""
+    """§10.4, at commit 6: check sha256(nonce + tar) against VALIDATION, check
+    every fixture's expect.json, and only then mark the run executed and run
+    H and X on every sealed fixture."""
     import tarfile
     import tempfile
     want = tr_state(tr)["validation"]["sealed_sha256"] if bound else a.sealed_sha256
@@ -390,44 +451,55 @@ def cmd_sealed(a, tr, bound):
     got = hashlib.sha256(nonce + data).hexdigest()
     if got != want:
         raise SystemExit(f"refusing: sha256(nonce + tar) is {got}, VALIDATION holds {want}")
-    tr.mark_executed()
-    if bound:
-        BD.mark_executed(SPIKE, "sealed", tr.path)
     tmp = tempfile.mkdtemp(prefix="sealed.")
     with tarfile.open(a.tar) as tf:
         tf.extractall(tmp, filter="data")
+    fxs = sorted(os.path.dirname(p) for p in glob.glob(os.path.join(tmp, "**", "expect.json"), recursive=True))
+    if not fxs:
+        raise SystemExit("refusing: the sealed tar holds no fixture")
+    for fx in fxs:
+        try:
+            expect_tiers(json.load(open(os.path.join(fx, "expect.json"))))
+        except (Malformed, ValueError) as e:
+            raise SystemExit(f"refusing: sealed fixture {os.path.basename(fx)}: {e}")
+    tr.mark_executed()
+    if bound:
+        BD.mark_executed(SPIKE, "sealed", tr.path)
     R = RB.RCache()
     ext = EXTRACTOR if bound else a.extractor
-    out = []
-    for fx in sorted(glob.glob(os.path.join(tmp, "**", "expect.json"), recursive=True)):
-        r = run_fixture_dir(os.path.dirname(fx), R, ext)
-        exp = r["expect"]
-        group = "identity" if any(x["category"] in AG.IDENTITY for x in exp.get("records", [])) else "structure"
-        tiers = exp.get("tiers") or []
-        tiers = tiers if isinstance(tiers, list) else [tiers]
-        hl = h_tier_lines(r["records"], group)
-        xl = h_tier_lines([{"category": x.get("category"), "tier": x.get("tier")} for x in
-                           (r.get("x") or {}).get("records", [])], group)
-        for line in ("A", "B"):
-            out.append({"name": r["fixture"], "group": group, "line": line, "f": line in tiers,
-                        "h": hl[line], "x": xl[line]})
+    out = sealed_lines([run_fixture_dir(fx, R, ext) for fx in fxs])
     d = outdir(a, bound, RESULTS)
     jdump({"sealed": out}, os.path.join(d, "sealed.json"))
     print(json.dumps(out, sort_keys=True, indent=1))
     return 0
 
 
+def bound_summary(results):
+    """The bound aggregate's input, from results/: (summary, missing), where
+    missing lists the keys of real-arm cases holding a tier-A record with no
+    reproduction result (F8). Row 4 is (a), the owner's choice (§0.1)."""
+    arms = json.load(open(os.path.join(results, "arms.json")))
+    a0 = json.load(open(os.path.join(results, "arm0.json")))
+    sealed = json.load(open(os.path.join(results, "sealed.json")))["sealed"]
+    repro = {}
+    for p in glob.glob(os.path.join(results, "repro", "*.json")):
+        o = json.load(open(p))
+        repro[o["case"]] = o["reproduces"]
+    missing = sorted({c["key"] for c in arms["cases"] if c["arm"] in AG.REAL and c.get("key") not in repro
+                      and any(r.get("tier") == "A" and AG.group_of(r) for r in c.get("records", []))})
+    for c in arms["cases"]:
+        c["reproduces"] = repro.get(c.get("key"), False)
+    summary = {"row4": "a", "cases": arms["cases"], "coverage": a0["coverage"], "sealed": sealed,
+               "s_rates": arms["s_rates"]}
+    return summary, missing
+
+
 def cmd_aggregate(a, tr, bound):
     if bound:
-        arms = json.load(open(os.path.join(RESULTS, "arms.json")))
-        a0 = json.load(open(os.path.join(RESULTS, "arm0.json")))
-        sealed = json.load(open(os.path.join(RESULTS, "sealed.json")))["sealed"]
-        repro = {json.load(open(p))["case"]: json.load(open(p))["reproduces"]
-                 for p in glob.glob(os.path.join(RESULTS, "repro", "*.json"))}
-        for c in arms["cases"]:
-            c["reproduces"] = repro.get(c.get("key"), False)
-        summary = {"row4": "a", "cases": arms["cases"], "coverage": a0["coverage"], "sealed": sealed,
-                   "s_rates": arms["s_rates"]}
+        summary, missing = bound_summary(RESULTS)
+        if missing:
+            raise SystemExit("refusing: run `repro` first for every real-arm case with a tier-A record; "
+                             "missing: " + ", ".join(missing))
         out = os.path.join(RESULTS, "verdict.json")
     else:
         if not a.out or inside(a.out, RESULTS):
@@ -460,6 +532,9 @@ def cmd_export(a, tr, bound):
 
 
 def cmd_archive(a, tr, bound):
+    """§7.6, run by the owner. Its transcript lives outside the repository
+    (--transcript-dir), and a failure is reported without the corpus's
+    name (H6)."""
     public = K.load_public()
     salt, ident = K.load_private(a.private_map, a.private_table, public)
     rows = [r for r in public if r["corpus"] == a.corpus]
@@ -468,7 +543,10 @@ def cmd_archive(a, tr, bound):
     name = ident[(rows[0]["stratum"], a.corpus)]["name"]
     if inside(a.out, os.path.dirname(SPIKE)):
         raise SystemExit("refusing: archives live outside the repository")
-    res = K.archive(name, a.out)
+    try:
+        res = K.archive(name, a.out)
+    except K.ArchiveFailed as e:
+        raise SystemExit(f"archive of {a.corpus} failed: {e}")
     print(json.dumps({a.corpus: res}, sort_keys=True))
     return 0
 
@@ -487,7 +565,7 @@ def main(argv=None):
     # An abbreviation of an unbound option still reads as unbound here, so its
     # transcript goes where it names; the parser then refuses it.
     unbound_pre = any(x.startswith(f) for x in argv for f in ("--fixture-m", "--summ", "--sealed-s"))
-    if cmd in ("fixtures", "export"):
+    if cmd in ("fixtures", "export", "archive"):
         unbound_pre = True
     if cmd == "validation":
         unbound_pre = True
@@ -509,7 +587,14 @@ def main(argv=None):
             tr.binding({"bound": False, "reasons": ["usage error"]})
             raise
         unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive")
-        if unbound != (unbound_pre or a.cmd == "archive"):
+        for opt in ("private_map", "private_table", "bundles"):
+            v = getattr(a, opt, None)
+            if v and inside(v, os.path.dirname(SPIKE)):
+                raise SystemExit(f"refusing: --{opt.replace('_', '-')} is the owner's private file; "
+                                 "it must be outside the repository")
+        if a.cmd == "archive" and (not tdir or inside(tdir, os.path.dirname(SPIKE))):
+            raise SystemExit("refusing: archive writes its transcript outside the repository (--transcript-dir)")
+        if unbound != unbound_pre:
             raise SystemExit("refusing: the options parse differently from how they read")
         if unbound:
             state = {"bound": False, "reasons": [f"{a.cmd}: unbound run"]}

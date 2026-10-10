@@ -32,21 +32,31 @@ class Ctx:
         self.walked = HI.walk(self.repo, pin)
         self.sel = HI.select(self.repo, pin, self.walked)
         self.selected = self.sel["selected"]
+        # §7.5's authors are built from every commit identity in the
+        # corpus (merges and pull-request heads included) before any case
+        # asks for one, so a later identity cannot re-join an earlier answer.
         self.authors = HI.Authors()
-        self.cmeta = {c["sha"]: c for c in self.walked[0]}
-        for c in self.walked[0]:
-            self.authors.add(c["name"], c["email"])
+        for ln in self.repo.out("log", "--all", "--format=%an%x09%ae").splitlines():
+            n, _, e = ln.partition("\t")
+            self.authors.add(n, e)
 
     def author(self, sha):
-        c = self.cmeta.get(sha)
-        if c is None:
-            out = self.repo.out("log", "-1", "--format=%an%x09%ae", sha).strip().split("\t")
-            c = {"name": out[0], "email": out[1] if len(out) > 1 else ""}
-        return self.authors.of(c["name"], c["email"]), HI.is_bot(c["name"], c["email"])
+        """(author, is a bot) of a commit, or (None, False) for no commit."""
+        if sha is None:
+            return None, False
+        out = self.repo.out("log", "-1", "--format=%an%x09%ae", sha).strip().split("\t")
+        n, e = out[0], out[1] if len(out) > 1 else ""
+        return self.authors.of(n, e), HI.is_bot(n, e)
 
     def last_changer(self, base, leg, path):
-        out = self.repo.out("log", "-1", "--format=%H", "--full-history", f"{base}..{leg}", "--", path).strip()
-        return out or leg
+        """§7.5: the last commit on the leg that changed the path. Never a
+        merge commit: the last non-merge commit that changed it, else the
+        leg's last non-merge commit, else none."""
+        out = self.repo.out("log", "-1", "--no-merges", "--format=%H", "--full-history", f"{base}..{leg}",
+                            "--", path).strip()
+        if not out:
+            out = self.repo.out("log", "-1", "--no-merges", "--format=%H", f"{base}..{leg}").strip()
+        return out or None
 
     def text(self, commit, path):
         b = self.repo.blob_at(commit, path)
@@ -79,15 +89,23 @@ def evaluate(ctx, spec, stratum, texts, merge_fn, R, extractor, truth=None):
     m = merge_fn()
     res = C.outcome(prep, texts, m, R, path=spec["path"], truth=truth)
     case.update(outcome=res["outcome"], why=res.get("why"), records=res["records"], merge_argv=m.argv)
-    case["decided"] = (not case.get("excluded") and res["outcome"] in ("E", "JUDGED")
-                       and not any(r.get("unreliable") for r in res["records"]))
+    case["decided"] = decided_of(case.get("excluded"), res["outcome"], res["records"])
     if res["outcome"] is not None and extractor:
         merged = C.decode(m.merged) if m.merged is not None else ""
         xo, xf = XR.run_x(extractor, stratum, list(texts) + [merged or ""])
-        agree, detail = XR.compare(res["records"], case["exposed"], xo, xf)
+        # X is compared with H's records before P's truth filter (§10.5, §8.3).
+        agree, detail = XR.compare(res.get("records_unfiltered", res["records"]), case["exposed"], xo, xf)
         case.update(x_agree=agree, x_detail=detail, x_records=(xo or {}).get("records", []),
                     x_tier_a=sorted(XR.x_tier_a_structure(xo)))
     return case
+
+
+def decided_of(excluded, outcome, records):
+    """§7.5: inputs in the subset and both legs changing the model (not
+    excluded), an outcome of E or a merged state in the subset, and no
+    UNRELIABLE record."""
+    return (not excluded and outcome in ("E", "JUDGED")
+            and not any(r.get("unreliable") for r in records))
 
 
 # --------------------------------------------------------------------- arm M
@@ -109,7 +127,8 @@ def arm_m(ctx, R, extractor, prs=None, which=("M-merge", "M-PR")):
         authors, bots = [], 0
         for leg in ("o", "t"):
             a, bot = ctx.author(ctx.last_changer(sp["base"], sp[leg], path))
-            authors.append(a)
+            if a is not None:
+                authors.append(a)
             bots += bot
         sp = dict(sp, authors=sorted(set(authors)), bots=bots)
 

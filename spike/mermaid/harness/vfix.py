@@ -5,7 +5,6 @@
     python3 -I -S -B harness/vfix.py v1 [--dir v-fixtures]
     python3 -I -S -B harness/vfix.py v3 [--dir v-fixtures]
     python3 -I -S -B harness/vfix.py v5 [--dir v-fixtures] [--extractor x/extract2.py]
-    python3 -I -S -B harness/vfix.py v2 [--dir v-fixtures]
 
 - V1: H's model equals R's on every V-fixture state, the merged one included,
   under Appendix A's mapping. A state R does not parse is reported, not
@@ -13,11 +12,12 @@
 - V3 (its V-fixture half): each category fires on its V-fixtures and stays
   silent on clean ones: H's set of (category, objects) equals the fixture's
   expect.json "records", and H's exposure equals "exposed".
+  Its expect.json must use R-tiers' encoding, and H must fall on the same
+  side of the A and B lines as "tiers" says: the line computation the sealed
+  run uses (mermaid_spike.sealed_lines).
 - V5: X agrees with H on every V-fixture (§10.5's rule).
-- V2: on every fixture with a history, Appendix B.1's replay applied to
-  V[i+a] reproduces V[i+a+b]. Appendix D defines no layout for a history;
-  this reads `history/` holding v0.<ext>, v1.<ext>, ... if F supplies one,
-  and reports how many fixtures had one.
+
+V2 does not read fixtures: it runs over histories H builds (v2.py, R-v2).
 
 Exit 1 if any fixture fails, or if there is none: a step over zero fixtures
 does not pass.
@@ -36,7 +36,6 @@ SPIKE = os.path.dirname(HERE)
 from ms import fence as FN  # noqa: E402
 from ms import model as MD  # noqa: E402
 from ms import rbridge as RB  # noqa: E402
-from ms import replay as RP  # noqa: E402
 from ms import xrun as XR  # noqa: E402
 import mermaid_spike as CLI  # noqa: E402
 
@@ -47,7 +46,7 @@ def fixtures(d):
 
 def main():
     ap = argparse.ArgumentParser(allow_abbrev=False)
-    ap.add_argument("step", choices=("v1", "v2", "v3", "v5"))
+    ap.add_argument("step", choices=("v1", "v3", "v5"))
     ap.add_argument("--dir", default=os.path.join(SPIKE, "v-fixtures"))
     ap.add_argument("--extractor", default=os.path.join(SPIKE, "x", "extract2.py"))
     a = ap.parse_args()
@@ -62,24 +61,6 @@ def main():
         exp = json.load(open(os.path.join(f, "expect.json")))
         st = exp["stratum"]
         ext = "md" if st == "D" else "mmd"
-        if a.step == "v2":
-            hist = sorted(glob.glob(os.path.join(f, "history", f"v*.{ext}")),
-                          key=lambda p: int(os.path.basename(p)[1:].split(".")[0]))
-            if len(hist) < 3:
-                continue
-            V = [open(p, encoding="utf-8").read() for p in hist]
-            for i in range(len(V)):
-                for aa, bb in ((1, 1), (1, 3), (3, 1)):
-                    if i + aa + bb < len(V):
-                        n += 1
-                        try:
-                            ok = RP.replay(V[i + aa], V[i + aa], V[i + aa + bb]) == V[i + aa + bb]
-                        except RP.NonCommuting as e:
-                            ok = False
-                            print(f"  {name} i={i} ({aa},{bb}): non-commuting: {e}")
-                        if not ok:
-                            fails.append(f"{name} i={i} ({aa},{bb})")
-            continue
         r = CLI.run_fixture_dir(f, R, a.extractor if a.step == "v5" else None)
         n += 1
         if a.step == "v1":
@@ -105,6 +86,13 @@ def main():
             if want != got or bool(exp.get("exposed")) != r["exposed"]:
                 fails.append(f"{name}: H {sorted(got)} exposed {r['exposed']}; expected {sorted(want)} "
                              f"exposed {exp.get('exposed')}")
+            try:
+                for ln in CLI.sealed_lines([r]):
+                    if ln["h"] != ln["f"]:
+                        fails.append(f"{name}: line {ln['line']}: H {'qualifies' if ln['h'] else 'does not'}, "
+                                     f"tiers {exp.get('tiers')}")
+            except CLI.Malformed as e:
+                fails.append(f"{name}: expect.json: {e}")
         elif a.step == "v5":
             if not r.get("x_agree"):
                 fails.append(f"{name}: {r.get('x_detail')}")

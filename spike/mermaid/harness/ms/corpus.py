@@ -25,7 +25,6 @@ from .transcript import SPIKE
 
 PUBLIC = os.path.join(SPIKE, "census", "corpora-public.tsv")
 PUBLIC_SHA256 = "2bc5e099c71f231cd5c4c9e3430038660af616e13182082f1e63cfdc9caaf22f"
-BUNDLES = os.path.join(SPIKE, "harness", "bundles.json")
 
 
 class NoVerdict(Exception):
@@ -100,14 +99,17 @@ def load_private(map_path, table_path, public):
 # ------------------------------------------------------------------ archive
 
 def bundles():
-    if not os.path.exists(BUNDLES):
-        return {}
-    return json.load(open(BUNDLES))
+    """§7.6: each bundle's and pull-request list's sha256, as the validation
+    commit's results/VALIDATION records them (R-bundles). Empty before
+    validation, so a bound arm makes every corpus NO VERDICT."""
+    from . import binding as BD
+    _, v, rs = BD.derive(SPIKE)
+    return v["bundles"] if v and not rs else {}
 
 
 def open_corpus(label, bundle_dir, work_dir, pin, want=None):
     """Clone the corpus's bundle into work_dir/<hash of label>, after checking
-    its sha256 against bundles.json. A pin absent from the bundle is NO
+    its sha256 against VALIDATION's record. A pin absent from the bundle is NO
     VERDICT (§7.6)."""
     want = want or bundles().get(label)
     if not want:
@@ -164,21 +166,42 @@ def gh_api(path):
     return json.loads(r.stdout)
 
 
+class ArchiveFailed(Exception):
+    """An archive step failed. Its message never names the corpus: a
+    corpus may belong to a private individual (H6)."""
+
+
 def archive(name, out_dir, api=gh_api, url=None):
     """Fetch a corpus with its refs/pull/*/head refs, bundle it, and save its
     merged pull-request list. Returns {"file", "sha256", "prs_file",
-    "prs_sha256"}. Run by the owner before validation; never by a bound arm."""
+    "prs_sha256"}. Run by the owner before validation; never by a bound arm.
+    Every subprocess's output is captured, and a failure is re-raised with
+    the corpus's name and URL removed."""
     os.makedirs(out_dir, exist_ok=True)
     tag = hashlib.sha256(name.encode()).hexdigest()[:16]
     mirror = os.path.join(out_dir, tag + ".mirror.git")
     e = G.env(os.devnull)
     url = url or f"https://github.com/{name}.git"
-    subprocess.run(["git", "clone", "-q", "--mirror", url, mirror], check=True, env=e)
-    subprocess.run(["git", "-C", mirror, "fetch", "-q", "origin", "+refs/pull/*/head:refs/pull/*/head"],
-                   check=False, env=e)
-    bundle = os.path.join(out_dir, tag + ".bundle")
-    subprocess.run(["git", "-C", mirror, "bundle", "create", "-q", bundle, "--all"], check=True, env=e)
-    prs = fetch_pr_list(name, api)
+
+    def scrub(x):
+        return str(x).replace(url, "<url>").replace(name, "<corpus>").replace(name.split("/")[0], "<owner>")
+
+    def run(argv, check=True):
+        r = subprocess.run(argv, capture_output=True, env=e)
+        if check and r.returncode != 0:
+            raise ArchiveFailed(f"{scrub(' '.join(argv[:3]))}: exit {r.returncode}: "
+                                f"{scrub(r.stderr.decode('utf-8', 'replace').strip()[-300:])}")
+        return r
+    try:
+        run(["git", "clone", "-q", "--mirror", url, mirror])
+        run(["git", "-C", mirror, "fetch", "-q", "origin", "+refs/pull/*/head:refs/pull/*/head"], check=False)
+        bundle = os.path.join(out_dir, tag + ".bundle")
+        run(["git", "-C", mirror, "bundle", "create", "-q", bundle, "--all"])
+        prs = fetch_pr_list(name, api)
+    except ArchiveFailed:
+        raise
+    except Exception as x:  # noqa: BLE001 -- any failure is reported scrubbed
+        raise ArchiveFailed(f"{x.__class__.__name__}: {scrub(x)}") from None
     pf = os.path.join(out_dir, tag + ".prs.json")
     with open(pf, "w") as f:
         f.write(json.dumps(prs, sort_keys=True, indent=1) + "\n")

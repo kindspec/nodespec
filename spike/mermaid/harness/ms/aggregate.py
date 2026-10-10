@@ -39,7 +39,11 @@ def fixtures(sealed):
     void, disputed = {"identity": False, "structure": False}, {"identity": [], "structure": []}
     for fx in sealed:
         if fx["h"] != fx["f"]:
-            if fx["x"] == fx["f"]:
+            if fx["x"] is None:
+                # R-sealed: X's answer missing or malformed agrees with neither;
+                # it is read as disputed, which blocks only NOT FOUND.
+                disputed[fx["group"]].append(fx)
+            elif fx["x"] == fx["f"]:
                 void[fx["group"]] = True
             elif fx["x"] == fx["h"]:
                 disputed[fx["group"]].append(fx)
@@ -67,30 +71,37 @@ def conditions(case, r, void):
     return None
 
 
+def decided_real(cases):
+    """Every decided case from a real arm, before strata, caps or
+    deduplication (§9.1's agreement scope; §10.5)."""
+    return [c for c in cases if c["arm"] in REAL and c.get("decided")
+            and not any(r.get("unreliable") for r in c.get("records", []))]
+
+
 def counted(cases, coverage):
     """§7.5, §8.3, §9.1: the structure group's decided cases under the caps:
-    from M and P, from strata that pass the coverage bar, distinct by key and
-    by pair of model diffs, one per P (path, i), at most 30 per corpus and per
-    author. Deterministic: taken in key order."""
-    seen_k, seen_d, seen_pi = set(), set(), set()
-    per_c, per_a, out = {}, {}, []
-    pool = [c for c in cases if c["arm"] in REAL and c.get("decided")
-            and coverage.get(c["stratum"], 0) >= COVERAGE_BAR
-            and not any(r.get("unreliable") for r in c.get("records", []))]
-    pool.sort(key=lambda c: (c.get("rank", 0), c["key"]))
+    from M and P, from strata that pass the coverage bar, one per P (path, i)
+    -- its (1,1) case if decided, else its (1,3), else its (3,1), chosen
+    before any other rule -- distinct by key and by pair of model diffs, at
+    most 30 per corpus and per author. Deterministic: taken in key order."""
+    pool = [c for c in decided_real(cases) if coverage.get(c["stratum"], 0) >= COVERAGE_BAR]
+    chosen = {}
+    for c in pool:
+        if c["arm"] == "P":
+            k = tuple(c["path_i"])
+            if k not in chosen or (c.get("rank", 0), c["key"]) < (chosen[k].get("rank", 0), chosen[k]["key"]):
+                chosen[k] = c
+    pool = [c for c in pool if c["arm"] != "P" or chosen.get(tuple(c["path_i"])) is c]
+    pool.sort(key=lambda c: c["key"])
+    seen_k, seen_d, per_c, per_a, out = set(), set(), {}, {}, []
     for c in pool:
         if c["key"] in seen_k or c.get("diff_key") in seen_d:
             continue
-        if c["arm"] == "P":
-            if tuple(c["path_i"]) in seen_pi:
-                continue
         if per_c.get(c["corpus"], 0) >= CAP or any(per_a.get(a, 0) >= CAP for a in c["authors"]):
             continue
         seen_k.add(c["key"])
         if c.get("diff_key"):
             seen_d.add(c["diff_key"])
-        if c["arm"] == "P":
-            seen_pi.add(tuple(c["path_i"]))
         per_c[c["corpus"]] = per_c.get(c["corpus"], 0) + 1
         for a in c["authors"]:
             per_a[a] = per_a.get(a, 0) + 1
@@ -115,7 +126,7 @@ def verdict(summary):
                 refusals.append(_robj(c, r))
             if r["tier"] == "C":
                 near.append(_robj(c, r))
-            if g is None or r["tier"] != "A" or c["arm"] == "S":
+            if g is None or r["tier"] != "A":
                 continue
             if g == "identity" and c["arm"] == "P":
                 anomalies.append(_robj(c, r))  # §6: listed, never FOUND, no verdict
@@ -135,8 +146,15 @@ def verdict(summary):
                      "s_generator_rates": summary.get("s_rates", {})}}
 
     # ---- identity
-    exposed = {c["key"]: c for c in cases if c["arm"] in ("M-merge", "M-PR") and c.get("exposed")
-               and c.get("inputs_in_subset")}
+    exposed = {}
+    seen_d = set()
+    for c in sorted(cases, key=lambda c: c["key"]):
+        if c["arm"] in ("M-merge", "M-PR") and c.get("exposed") and c.get("inputs_in_subset"):
+            if c["key"] in exposed or (c.get("diff_key") and c["diff_key"] in seen_d):
+                continue  # §7.5: one case per key and per pair of model diffs
+            exposed[c["key"]] = c
+            if c.get("diff_key"):
+                seen_d.add(c["diff_key"])
     k = len(exposed)
     ident = {"k": k, "exposed_cases": sorted(({"corpus": c["corpus"], "arm": c["arm"], "outcome": c["outcome"]}
                                               for c in exposed.values()), key=lambda x: repr(x))}
@@ -174,7 +192,7 @@ def verdict(summary):
             reasons.append(f"floor: {n} decided cases under the caps, below {FLOOR}")
         if not n or agree / n < AGREEMENT:
             reasons.append(f"agreement {agree}/{n} below {AGREEMENT:.0%}" if n else "agreement over zero cases")
-        if any(_x_tier_a(c) != _h_tier_a(c) for c in cnt):
+        if any(_x_tier_a(c) != _h_tier_a(c) for c in decided_real(cases)):
             reasons.append("a tier-A structure disagreement between H and X")
         cnt_keys = {c["key"] for c in cnt}
         if any(b["case"] in cnt_keys for b in blocked["structure"]):

@@ -458,6 +458,9 @@ def s_p():
     check("P: a record equal to the truth is not a P record", [r["objects"] for r in out] == [["c"]], out)
     check("P: a record on a unit neither leg touched, where the truth differs, is UNRELIABLE",
           out and out[0].get("unreliable"))
+    out2 = C.p_filter([dict(rec[0])], prep, M, "flowchart TD\n  a[Q] --> b[B]\n  c[C]\n  d[D]\n", R, dec)
+    check("P: a record on a unit only leg T touched is a P record, not UNRELIABLE",
+          len(out2) == 1 and not out2[0].get("unreliable"), out2)
 
 
 def s_authors():
@@ -943,6 +946,11 @@ def s_blind():
           BL.prompt("F").startswith("You are writing test cases"))
 
 
+VAL_A = {"sealed_sha256": "a" * 64, "lockfile_sha256": "b" * 64,
+         "bundles": {"org/corpus": {"file": "x.bundle", "sha256": "d" * 64, "prs_file": "x.prs.json",
+                                    "prs_sha256": "e" * 64}}}
+
+
 def s_binding():
     """The binding (ms/binding.py) on a planted copy of the spike."""
     root = tmpdir("bind")
@@ -952,6 +960,8 @@ def s_binding():
         shutil.copytree(os.path.join(SPIKE, d), os.path.join(sp, d),
                         ignore=shutil.ignore_patterns("node_modules", "__pycache__"))
     shutil.copy(os.path.join(SPIKE, "PRE-REGISTRATION.md"), sp)
+    with open(os.path.join(sp, "LOG.md"), "w") as f:
+        f.write("# log\n\n- sealed fixtures sha256: " + "a" * 64 + "\n")
     e = G.env(tmpdir("h"))
 
     def g(*a):
@@ -963,7 +973,7 @@ def s_binding():
     check("binding: no VALIDATION is not bound", not st["bound"])
     os.makedirs(os.path.join(sp, "results"))
     with open(os.path.join(sp, "results", "VALIDATION"), "w") as f:
-        json.dump({"sealed_sha256": "a" * 64, "lockfile_sha256": "b" * 64}, f)
+        json.dump(VAL_A, f)
     g("add", "-A")
     g("commit", "-q", "-m", "validation")
     st = BD.check(sp, "arm0")
@@ -1006,7 +1016,7 @@ def s_binding():
     g2("commit", "-q", "-m", "harness")
     os.makedirs(os.path.join(sp2, "results"))
     with open(os.path.join(sp2, "results", "VALIDATION"), "w") as f:
-        json.dump({"sealed_sha256": "a" * 64, "lockfile_sha256": "b" * 64}, f)
+        json.dump(VAL_A, f)
     with open(os.path.join(sp2, "harness", "ms", "aggregate.py"), "a") as f:
         f.write("FLOOR = 1\n")
     g2("add", "-A")
@@ -1026,23 +1036,425 @@ def s_binding():
     g3("commit", "-q", "-m", "harness")
     os.makedirs(os.path.join(sp3, "results"))
     with open(os.path.join(sp3, "results", "VALIDATION"), "w") as f:
-        json.dump({"sealed_sha256": "a" * 64, "lockfile_sha256": "b" * 64}, f)
+        json.dump(VAL_A, f)
     g3("add", "-A")
     g3("commit", "-q", "-m", "validation")
     rv = subprocess.run(["bash", os.path.join(HERE, "reverify.sh"), sp3], capture_output=True, text=True)
     check("reverify: passes on a clean validation history", rv.returncode == 0 and "reverify: PASS" in rv.stdout,
           rv.stdout[-300:])
     with open(os.path.join(sp3, "results", "VALIDATION"), "w") as f:
-        json.dump({"sealed_sha256": "c" * 64, "lockfile_sha256": "b" * 64}, f)
+        json.dump(dict(VAL_A, sealed_sha256="c" * 64), f)
     g3("commit", "-q", "-am", "VALIDATION changed")
     check("binding: VALIDATION changed after it was added is refused", not BD.check(sp3, "arm0")["bound"])
+    root4 = tmpdir("bind4")
+    sp4 = os.path.join(root4, "spike", "mermaid")
+    shutil.copytree(sp2, sp4)
+    shutil.rmtree(os.path.join(sp4, "results"))
+    with open(os.path.join(sp4, "harness", "ms", "aggregate.py"), "w") as f:
+        f.write(open(os.path.join(SPIKE, "harness", "ms", "aggregate.py")).read())
+    with open(os.path.join(sp4, "LOG.md"), "w") as f:
+        f.write("# log\n\n- sealed fixtures sha256: " + "f" * 64 + "\n")
+
+    def g4(*a):
+        return subprocess.run(["git", "-C", root4, *a], capture_output=True, text=True, env=e)
+    g4("init", "-q", "-b", "main")
+    g4("add", "-A")
+    g4("commit", "-q", "-m", "harness and commit 2's sealed hash")
+    os.makedirs(os.path.join(sp4, "results"))
+    with open(os.path.join(sp4, "results", "VALIDATION"), "w") as f:
+        json.dump(VAL_A, f)
+    g4("add", "-A")
+    g4("commit", "-q", "-m", "validation")
+    st = BD.check(sp4, "arm0")
+    check("binding: VALIDATION's sealed hash must equal the one LOG.md records (commit 2)",
+          not st["bound"] and any("LOG.md" in r for r in st["reasons"]), st["reasons"])
+    try:
+        BD.validate_content(dict(VAL_A, bundles={"x": {"file": "a/b", "sha256": "d" * 64, "prs_file": "p",
+                                                        "prs_sha256": "e" * 64}}))
+        bad = False
+    except ValueError:
+        bad = True
+    check("binding: a malformed bundle entry in VALIDATION is refused", bad)
     rv = subprocess.run(["bash", os.path.join(HERE, "reverify.sh"), sp3], capture_output=True, text=True)
     check("reverify: fails when VALIDATION changed", rv.returncode != 0)
 
 
+
+# ------------------------------------------------- oracle units, directly
+
+def upd(M, changes):
+    out = dict(M)
+    out.update(changes)
+    return out
+
+
+def s_oracle_units():
+    """Categories, tiers and refusal cases on hand-built models."""
+    base = {("exist", "a"): ("node",), ("exist", "b"): ("node",), ("ntext", "a"): "A", ("ntext", "b"): "B",
+            ("shape", "a"): "square", ("shape", "b"): "square", ("nhold", "a"): "", ("nhold", "b"): "",
+            ("exist", "s"): ("subgraph",), ("stitle", "s"): "Box", ("shold", "s"): "",
+            ("link", "a"): ("https://x.org/", None)}
+    B = dict(base)
+
+    def recs(O, T, M):
+        return OR.judge(B, O, T, M, set())[0]
+    O = upd(B, {("stitle", "s"): "New box"})
+    M = upd(B, {("stitle", "s"): "Other"})
+    r = recs(O, B, M)
+    check("G4: a subgraph title merged wrong is G4", any(x["category"] == "G4" and x["objects"] == ["s"] for x in r), r)
+    O = upd(B, {("link", "a"): ("https://y.org/", None)})
+    M = upd(B, {("link", "a"): ("https://z.org/", None)})
+    check("G4: a click target merged wrong is G4", any(x["category"] == "G4" for x in recs(O, B, M)))
+    O = upd(B, {("nhold", "a"): "s"})
+    M = dict(B)
+    r = recs(O, B, M)
+    check("G3: a membership merged wrong is G3, tier A", any(x["category"] == "G3" and x["tier"] == "A" for x in r), r)
+    O = upd(B, {("ntext", "a"): "From O"})
+    T = upd(B, {("ntext", "a"): "From T"})
+    M = upd(B, {("ntext", "a"): "Neither"})
+    r = recs(O, T, M)
+    check("MC: an eligible text conflict is MC in group G4, tier A",
+          any(x["category"] == "MC" and x.get("group") == "G4" and x["tier"] == "A" for x in r), r)
+    O = upd(B, {("exist", "k"): ("node",)})
+    T = upd(B, {("exist", "k"): ("edge",)})
+    check("collision: both legs add k with differing kinds and nothing else", any(
+        kind == "collision" and k == "k" for kind, k, _ in OR.refusals(B, O, T, *OR.decide(B, O, T)[:2])))
+    e = {("exist", "e"): ("edge",), ("eref", "e"): ("a", "b", "solid:none>arrow")}
+    O = upd(upd(B, e), {("etext", "e"): "x"})
+    T = upd(upd(B, e), {("etext", "e"): "y"})
+    r = recs(O, T, dict(B))
+    check("R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)",
+          any(x["category"] == "I2" for x in r) and any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
+    O = upd(upd(B, {("etext", "e"): "x"}), e)
+    M = upd(upd(B, e), {("etext", "e"): "q"})
+    check("G4: a user-id edge's label merged wrong is G4", any(x["category"] == "G4" and x["objects"] == ["e"]
+                                                              for x in recs(upd(B, e), O, M)))
+
+
+def s_l5():
+    """R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
+    §5.4)."""
+    base = "flowchart TD\n  A[Alpha] --> B[Beta]\n  C[Gamma]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n  D[Delta]\n"
+    o = base.replace("  C[Gamma]\n", "  A --> C\n  C[Gamma]\n")
+    t = base.replace("  D[Delta]\n", "  D[Delta]\n  A --> C\n")
+    p, r = run_case("F", base, o, t)
+    check("L5: the same edge added on both legs is G2 at tier B, through L5 on its ends",
+          has(r, "G2", "B") and not has(r, "G2", "A") and "L5:A" in r.get("lint_new", []), cats(r))
+
+
+class _Ctx:
+    label = "plant/p"
+
+
+def s_p_x():
+    """§10.5 with §8.3: X never sees the truth, so it is compared with H's
+    records before P's truth filter."""
+    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n"
+    v1 = v0 + "  C[Gamma]\n"
+    v2 = "flowchart TD\n  A[Alpha]\n  D[Delta]\n  B[Beta]\n  C[Gamma]\n"
+    t = RP.replay(v0, v1, v2)
+    d = tmpdir("xp")
+    x = os.path.join(d, "x.py")
+    with open(x, "w") as f:
+        f.write("import json\nprint(json.dumps({'exposed': False, 'records': [{'category': 'S-ORDER', "
+                "'objects': []}]}))\n")
+    c = AR.evaluate(_Ctx(), {"arm": "P", "path": "c.mmd"}, "F", [v0, v1, t],
+                    lambda: G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R, x, truth=v2)
+    check("P: H's unfiltered records hold the S-ORDER X reports", any(
+        r["category"] == "S-ORDER" for r in c.get("x_records", [])) and c["outcome"] == "JUDGED")
+    check("P: X agrees with H's records before the truth filter", c.get("x_agree") is True, c.get("x_detail"))
+    check("P: the truth filter still removes the record from H's P records",
+          not any(r["category"] == "S-ORDER" for r in c["records"]), c["records"])
+
+
+def s_aggregate_scope():
+    """§9.1 and §10.5 over every decided real-arm case; F8 needs a
+    reproduction; S never qualifies; k and P's fallback follow §7.5 and §8.3."""
+    V = AG.verdict
+    cs = [_case(i, corpus="c%d" % (i % 3)) for i in range(30)] + [_case(100 + i, corpus="cx") for i in range(30)]
+    v = V(_sum(cs + [_case(999, corpus="cx", x_tier_a=[["G2", ["a", "b"]]], agree=False)]))
+    check("scope: an X-only tier-A record in a decided case over the corpus cap is NO VERDICT",
+          v["structure"]["verdict"] == "NO VERDICT" and "tier-A" in v["structure"]["reason"], v["structure"])
+    v = V(_sum(cs + [_case(998, corpus="c0", x_tier_a=[["G2", ["a", "b"]]], agree=False, diff="d00000")]))
+    check("scope: an X-only tier-A record in a decided duplicate-diff case is NO VERDICT",
+          v["structure"]["verdict"] == "NO VERDICT" and "tier-A" in v["structure"]["reason"], v["structure"])
+    cs = _base()
+    cs[0] = _case(0, outcome="E", records=[G2])
+    check("F3: a tier-A record in a case that is not JUDGED is not FOUND", V(_sum(cs))["structure"]["verdict"] != "FOUND")
+    cs = _base()
+    cs[0] = _case(0, records=[dict(G2, tier="B")])
+    v = V(_sum(cs))
+    check("a tier-B record is never blocked", not v["lists"]["blocked"]["structure"] and v["lists"]["with_refusals"])
+    cs = _base()
+    cs.append(_case(600, arm="S", records=[G2]))
+    v = V(_sum(cs))
+    check("S: a tier-A record from S is never FOUND, is listed blocked (F1), and S never counts toward the floor",
+          v["structure"]["verdict"] == "NOT FOUND" and any(b["failed"] == "F1" and b["arm"] == "S"
+                                                            for b in v["lists"]["blocked"]["structure"])
+          and all(c["arm"] != "S" for c in AG.counted(cs, {"F": 1})))
+    cs = _base()
+    cs[0] = dict(_case(0, exposed=True), inputs_in_subset=False)
+    check("k: an exposed case whose inputs are not all in the subset does not count",
+          V(_sum(cs))["identity"]["reason"] == "not exposed")
+    cs = _base()
+    cs[0] = _case(0, exposed=True)
+    cs[1] = _case(1, exposed=True, diff="d00000")
+    check("k: two exposed cases with one pair of model diffs count once (§7.5)",
+          V(_sum(cs))["identity"]["reason"] == "1 exposed, none silent")
+    cs = [dict(_case(i, corpus=f"c{i % 4}", agree=i >= 2)) for i in range(100)]
+    v = V(_sum(cs))
+    check("agreement: exactly 98% passes", v["structure"]["n"] == 100 and v["structure"]["verdict"] == "NOT FOUND",
+          v["structure"])
+    p11 = dict(_case(1, arm="P", path_i=["p", 0, 0], diff="d00000"), rank=0)
+    p13 = dict(_case(2, arm="P", path_i=["p", 0, 0]), rank=1)
+    cnt = AG.counted([_case(0), p11, p13], {"F": 1})
+    check("P: a decided (1,1) case dropped as a duplicate is not replaced by its (1,3) case",
+          sorted(c["key"] for c in cnt) == ["k00000"], [c["key"] for c in cnt])
+    cnt = AG.counted([p13, dict(p11, diff_key="dzzz")], {"F": 1})
+    check("P: rank (1,1) is preferred over (1,3) for a (path, i)", [c["key"] for c in cnt] == ["k00001"])
+
+
+def _results_dir(cases, sealed=None, repro=None):
+    d = tmpdir("results")
+    with open(os.path.join(d, "arms.json"), "w") as f:
+        json.dump({"cases": cases, "s_rates": {}}, f)
+    with open(os.path.join(d, "arm0.json"), "w") as f:
+        json.dump({"coverage": {"F": 1.0}}, f)
+    with open(os.path.join(d, "sealed.json"), "w") as f:
+        json.dump({"sealed": sealed or []}, f)
+    os.makedirs(os.path.join(d, "repro"))
+    for k, ok in (repro or {}).items():
+        with open(os.path.join(d, "repro", k + ".json"), "w") as f:
+            json.dump({"case": k, "reproduces": ok}, f)
+    return d
+
+
+class _Tr:
+    def __init__(self):
+        self.marked = False
+        self.path = "t.txt"
+
+    def mark_executed(self):
+        self.marked = True
+
+
+def s_bound_aggregate():
+    """H4, R31, R33: the bound aggregate's input."""
+    import mermaid_spike as CLI
+    cs = _base(3)
+    cs[0] = _case(0, records=[G2])
+    d = _results_dir(cs)
+    summary, missing = CLI.bound_summary(d)
+    check("bound aggregate: row 4 is (a)", summary["row4"] == "a")
+    check("bound aggregate: a real-arm tier-A record with no reproduction is listed as missing", missing == ["k00000"])
+    check("bound aggregate: a case with no reproduction result does not reproduce",
+          summary["cases"][0]["reproduces"] is False)
+    old = CLI.RESULTS
+    CLI.RESULTS = d
+    tr = _Tr()
+    try:
+        CLI.cmd_aggregate(argparse.Namespace(), tr, True)
+        refused = False
+    except SystemExit as e:
+        refused = "k00000" in str(e.code)
+    finally:
+        CLI.RESULTS = old
+    check("bound aggregate: refuses, naming the missing repro keys, before it marks itself executed",
+          refused and not tr.marked)
+    d = _results_dir(cs, repro={"k00000": True})
+    summary, missing = CLI.bound_summary(d)
+    check("bound aggregate: a reproduced record is not missing", not missing and summary["cases"][0]["reproduces"])
+
+
+def _sealed_tar(d, tiers, records, xstub=None):
+    import hashlib
+    import io
+    import tarfile
+    fx = os.path.join(d, "fx")
+    os.makedirs(fx)
+    b = "flowchart LR\n  api --> db\n  db --> cache\n  ui --> api\n"
+    for n, t in (("base", b), ("o", b.replace("db", "pg")), ("t", b + "  worker --> db\n")):
+        with open(os.path.join(fx, n + ".mmd"), "w") as f:
+            f.write(t)
+    with open(os.path.join(fx, "expect.json"), "w") as f:
+        json.dump({"stratum": "F", "exposed": True, "records": records, "tiers": tiers, "why": "plant"}, f)
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        for n in sorted(os.listdir(fx)):
+            ti = tf.gettarinfo(os.path.join(fx, n), "sealed/fx/" + n)
+            ti.mtime = ti.uid = ti.gid = 0
+            ti.mode = 0o644
+            with open(os.path.join(fx, n), "rb") as fh:
+                tf.addfile(ti, fh)
+    tp = os.path.join(d, "s.tar")
+    with open(tp, "wb") as f:
+        f.write(buf.getvalue())
+    return tp, hashlib.sha256(b"\x01" * 32 + buf.getvalue()).hexdigest()
+
+
+def s_sealed():
+    """H5: R-tiers, checked before the sealed run marks itself executed."""
+    d = tmpdir("sealed")
+    x = os.path.join(d, "x.py")
+    with open(x, "w") as f:
+        f.write("import json\nprint(json.dumps({'exposed': True, 'records': [{'category': 'I1', "
+                "'objects': ['db', 'worker'], 'tier': 'A'}]}))\n")
+    td = tmpdir("tr")
+    tp, h = _sealed_tar(tmpdir("good"), ["A"], [{"category": "I1", "objects": ["db", "worker"]}])
+    out = tmpdir("out")
+    rc, o = cli(["sealed", "--tar", tp, "--nonce-hex", "01" * 32, "--sealed-sha256", h, "--out-dir", out,
+                 "--extractor", x, "--transcript-dir", td])
+    lines = json.load(open(os.path.join(out, "sealed.json")))["sealed"] if rc == 0 else []
+    check("sealed: a well-formed tar runs, and F's lines come from its tiers",
+          rc == 0 and {(ln["line"], ln["f"]) for ln in lines} == {("A", True), ("B", False)}, o[-300:])
+    check("sealed: H's and X's lines are computed (bare-style hole #2: A, not B)",
+          all(ln["h"] == (ln["line"] == "A") and ln["x"] == (ln["line"] == "A") for ln in lines), lines)
+    tp2, h2 = _sealed_tar(tmpdir("bad"), "A", [{"category": "I1", "objects": ["db"]}])
+    td2 = tmpdir("tr2")
+    rc, o = cli(["sealed", "--tar", tp2, "--nonce-hex", "01" * 32, "--sealed-sha256", h2, "--out-dir", tmpdir("o"),
+                 "--extractor", x, "--transcript-dir", td2])
+    t = "".join(open(os.path.join(td2, n)).read() for n in os.listdir(td2))
+    check("sealed: malformed tiers are refused before the run marks itself executed",
+          rc != 0 and "tiers must be" in o and "# executed:" not in t, o[-300:])
+    import mermaid_spike as CLI
+    res = [{"fixture": "f", "expect": {"records": [{"category": "G2", "objects": []}], "tiers": ["A"]},
+            "records": [], "x": {"records": [{"category": "G2", "objects": [], "tier": "tier-A"}]}}]
+    ln = CLI.sealed_lines(res)
+    check("sealed: an X tier outside the vocabulary gives x = None", all(x_["x"] is None for x_ in ln))
+    check("sealed: H differing from F with X malformed is disputed, not VOID",
+          AG.fixtures(ln)[1]["structure"] and not AG.fixtures(ln)[0]["structure"])
+
+
+def s_archive_leak():
+    """H6: a failed archive names no corpus."""
+    d = tmpdir("arch")
+    from ms import transcript as TRN
+    tr = TRN.Transcript("archive", ["mermaid_spike.py", "archive", "--corpus", "u:000000000000"],
+                        os.path.join(d, "tr"))
+    try:
+        K.archive("planted-private-owner/planted-repo", os.path.join(d, "out"),
+                  url=os.path.join(d, "planted-private-owner", "planted-repo.git"))
+        failed = None
+    except K.ArchiveFailed as e:
+        failed = str(e)
+        print(f"archive failed: {e}")
+    finally:
+        tr.close(1, "aborted")
+    t = open(tr.path).read()
+    check("archive: a failure is reported", failed is not None)
+    check("archive: a failed archive's transcript names neither the owner nor the repository",
+          "planted-private-owner" not in t and "planted-repo" not in t, t[-300:])
+    rc, o = cli(["archive", "--corpus", "x", "--out", tmpdir("o"), "--private-map",
+                 os.path.join(SPIKE, "LOG.md"), "--private-table", os.path.join(SPIKE, "LOG.md"),
+                 "--transcript-dir", tmpdir("t")])
+    check("archive: a private file inside the repository is refused", rc != 0 and "outside the repository" in o, o[-200:])
+    rc, o = cli(["archive", "--corpus", "x", "--out", tmpdir("o"), "--private-map", tmpdir("p") + "/m",
+                 "--private-table", tmpdir("p") + "/t"])
+    check("archive: a run without --transcript-dir outside the repository is refused", rc != 0 and
+          "transcript outside" in o, o[-200:])
+
+
+def s_history_more():
+    """R14, R24, R26, R27, R29, R30 plants."""
+    b = "flowchart LR\n  c[C] --> d[D]\n  e[E]\n  f[F]\n  g[G]\n  h[H]\n"
+    o = "flowchart LR\n  d[D]\n  e[E]\n  f[F]\n  g[G]\n  h[H]\n"
+    t = b + "  style c fill:#f00\n"
+    p, r = run_case("F", b, t, o)
+    check("delete/modify with the legs swapped: I3 on c", has(r, "I3", obj="c"), cats(r))
+    b = "flowchart LR\n  api --> db\n  db --> cache\n  ui --> api\n"
+    p, r = run_case("F", b, b + "  worker --> db\n", b.replace("db", "pg"))
+    check("hole #2 with the legs swapped is exposed and I1", p.get("exposed") is True and has(r, "I1", obj="db"),
+          cats(r))
+    # rebase with the pull request's commits replayed in reverse order
+    pl = Plant("rev")
+    lines = [f"  n{i}[N{i}]\n" for i in range(30)]
+    base = "flowchart TD\n" + "".join(lines)
+    pl.commit({"g.mmd": base}, "base")
+    pl.g("checkout", "-q", "-b", "pr")
+    cur, prc = base, []
+    for i in (2, 14, 26):
+        cur = cur.replace(f"n{i}[N{i}]", f"n{i}[M{i}]")
+        prc.append(pl.commit({"g.mmd": cur}, f"pr {i}"))
+    pl.g("checkout", "-q", "main")
+    pl.commit({"g.mmd": base.replace("n8[N8]", "n8[Main]")}, "main moves")
+    for c in reversed(prc):
+        pl.g("cherry-pick", c)
+    head_c = pl.g("rev-parse", "HEAD")
+    pin = head_c
+    cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"},
+                                [{"number": 7, "head": prc[-1], "merge": head_c, "commit_count": 3, "commits": prc}])
+    check("M-PR: a pull request's commits landed in another order are not a rebase merge",
+          counts["rebase"] == 0, counts)
+    # the last predecessor step of a triple fails
+    pl = Plant("plast")
+    V = ["flowchart TD\n  a[A] --> b[B]\n", "flowchart TD\n  a[A1] --> b[B]\n", "flowchart TD\n  a[A1] --> b[S]\n",
+         "flowchart TD\n  a[A1] --> b[S]\n  c[C]\n"]
+    pl.commit({"p.mmd": V[0]}, "v0")
+    c1 = pl.commit({"p.mmd": V[1]}, "v1")
+    pl.g("checkout", "-q", "-b", "side")
+    pl.commit({"p.mmd": V[2]}, "s")
+    pl.g("checkout", "-q", "main")
+    pl.g("merge", "-q", "--no-ff", "--no-commit", "side")
+    with open(os.path.join(pl.path, "p.mmd"), "w") as f:
+        f.write("flowchart TD\n  a[A1] --> b[W]\n")
+    pl.g("add", "-A")
+    pl.g("commit", "-q", "-m", "merge, resolved to W")
+    pl.commit({"p.mmd": V[3]}, "v3")
+    pin = pl.g("rev-parse", "HEAD")
+    repo = HI.Repo(pl.path)
+    trip, counts = HI.p_triples(repo, {"p.mmd": "F"}, HI.walk(repo, pin)[1])
+    seq = [b_ for _, b_ in HI.segments(HI.walk(repo, pin)[1]["p.mmd"])[0]]
+    check("plant: versions V0, V1, S, V3 in order", len(seq) == 4, len(seq))
+    check("P: a triple whose last step fails the predecessor rule is dropped",
+          not any(t_["i"] == 1 and (t_["a"], t_["b"]) == (1, 1) for t_ in trip) and
+          any(t_["i"] == 0 and (t_["a"], t_["b"]) == (1, 1) for t_ in trip), [(t_["i"], t_["a"], t_["b"]) for t_ in trip])
+    # convergent
+    pl = Plant("conv")
+    b = "flowchart TD\n  a[A] --> b[B]\n"
+    pl.commit({"c.mmd": b}, "b")
+    pl.g("checkout", "-q", "-b", "side")
+    pl.commit({"c.mmd": b + "  c[C]\n", "other.txt": "1\n"}, "side")
+    pl.g("checkout", "-q", "main")
+    pl.commit({"c.mmd": b + "  c[C]\n", "other2.txt": "2\n"}, "main")
+    pl.g("merge", "-q", "--no-edit", "side")
+    cases, counts = HI.merge_cases(HI.Repo(pl.path), pl.g("rev-parse", "HEAD"), {"c.mmd": "F"})
+    check("M: a path both sides changed to the same blob is convergent, not a case",
+          counts["convergent"] == 1 and not cases, counts)
+    # authors are the last changers of the path, not the leg tips
+    pl = Plant("auth")
+    b = "flowchart LR\n  api --> db\n  db --> cache\n  ui --> api\n"
+    pl.commit({"c.mmd": b}, "b")
+    pl.g("checkout", "-q", "-b", "side")
+    pl.commit({"c.mmd": b + "  worker --> db\n"}, "t", author=("Tess", "tess@t.org"))
+    pl.commit({"other.txt": "x\n"}, "tip", author=("Tipper", "tip@t.org"))
+    pl.g("checkout", "-q", "main")
+    pl.commit({"c.mmd": b.replace("db", "pg")}, "o", author=("Olga", "olga@o.org"))
+    pl.g("merge", "-q", "--no-edit", "side")
+    ctx = AR.Ctx("plant/a", None, pl.path, pl.g("rev-parse", "HEAD"), "in", False, "", TMP)
+    cs, _ = AR.arm_m(ctx, R, None)
+    au = cs[0]["authors"] if cs else []
+    check("authors: a case's authors are the last changers of the path on each leg",
+          sorted(au) == sorted([ctx.authors.of("Olga", "olga@o.org"), ctx.authors.of("Tess", "tess@t.org")]), au)
+    pl = Plant("prank")
+    v = "flowchart TD\n" + "".join(f"  n{i}[N{i}]\n" for i in range(12))
+    pl.commit({"p.mmd": v}, "v0")
+    for i in (1, 3, 5, 7, 9):
+        v = v.replace(f"n{i}[N{i}]", f"n{i}[M{i}]")
+        pl.commit({"p.mmd": v}, f"v{i}")
+    pin = pl.g("rev-parse", "HEAD")
+    ctx = AR.Ctx("plant/p", None, pl.path, pin, "in", False, "", TMP)
+    ps, _ = AR.arm_p(ctx, R, None)
+    ranks = {(c["spec"]["a"], c["spec"]["b"]): c.get("rank") for c in ps if c.get("rank") is not None}
+    want = {(1, 1): 0, (1, 3): 1, (3, 1): 2}
+    check("P: ranks are (1,1) 0, (1,3) 1, (3,1) 2", ranks and all(want[k] == v for k, v in ranks.items()) and
+          (1, 1) in ranks, ranks)
+    check("decided: a case with an UNRELIABLE record is not decided",
+          AR.decided_of(None, "JUDGED", [{"unreliable": "x"}]) is False and AR.decided_of(None, "JUDGED", []) is True)
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
-            s_fuzz, s_blind, s_binding, s_cli_arms]
+            s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more]
 
 
 def main():
