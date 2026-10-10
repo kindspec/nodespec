@@ -17,10 +17,30 @@ validation commit (commit 3) is the implementation.
   `package-lock.json`), `blind/` (what F and X are given),
   `harness/README.md` (threat model, binding, redaction, and the readings
   §5, §7 and §8 left open, each with its direction).
-- **V steps run on this harness**, transcripts in `results/validation/`:
-  V0, V3 (its plant half, with V1's refusal half and an H/R fuzz check),
-  V4. A red-first run of V3's verdict checks against a naive §9 aggregator
-  is in `results/validation/red-first-verdicts.txt`.
+- **V steps run on this harness at `4153d09`**, transcripts in
+  `results/validation/` (pre-review runs; §11.2 re-runs them at the
+  validation commit):
+  - V0: `V0: PASS` (`v0.txt`).
+  - V3, its plant half, with V1's refusal half and an H/R fuzz check:
+    `180 checks, 0 failed` (`v3.txt`).
+  - V4: `89 mutants: 89 killed, 0 survived, 0 BROKEN` (`v4.txt`).
+- **What V4 found before that.** The first sweep (90 mutants) left 14 alive,
+  and the second 3. Each now has a check that goes red, except three that
+  were equivalent and were replaced or removed, each named in `v4.py`:
+  - the markdown-string refusal is enforced twice, in preprocessing and in
+    the lexer table;
+  - HOME is moot under GIT_CONFIG_GLOBAL=/dev/null;
+  - setdefault versus assignment for the holder is a no-op, because
+    Mermaid's makeUniq keeps each node in one subgraph's list.
+  The redaction plant had silently produced no individual case. It now has a
+  guard check.
+- **Red-first for the verdict logic.** V3's verdict checks, run against a
+  naive §9 aggregator, give `42 checks, 32 failed`
+  (`results/validation/red-first-verdicts.txt`). The 10 that pass are
+  checks a naive aggregator also meets, or ones that call the real
+  `counted()` directly. The checks were written alongside the code, not
+  before it. Per gate, the evidence is V4: every mutant is killed by a
+  named check, and never by a crash.
 - **Not yet runnable:** V1, V2 and V5, and V3's V-fixture half, need F's
   V-fixtures and X (`harness/vfix.py` runs them once those exist). The
   archive (§7.6) has not fetched any corpus; where bundles live is the
