@@ -1463,6 +1463,13 @@ def main():
     ap.add_argument("--only")
     a = ap.parse_args()
     TMP = tempfile.mkdtemp(prefix="v3.")
+
+    def results_files():
+        out = set()
+        for root, _, files in os.walk(os.path.join(SPIKE, "results")):
+            out |= {os.path.join(root, f) for f in files}
+        return out
+    before = results_files()
     try:
         RB.check_install()
         for s in SECTIONS:
@@ -1476,6 +1483,9 @@ def main():
                 traceback.print_exc(file=sys.stdout)
     finally:
         shutil.rmtree(TMP, ignore_errors=True)
+    if not a.only:
+        added = sorted(results_files() - before)
+        check("V3 wrote nothing under results/", not added, added[:3])
     n = RESULTS["pass"] + RESULTS["fail"]
     print(f"\n{n} checks, {RESULTS['fail']} failed")
     print("V3:", "PASS" if RESULTS["fail"] == 0 and n else "FAIL")

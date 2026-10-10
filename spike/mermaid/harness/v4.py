@@ -291,7 +291,7 @@ M = [
      '            if v and inside(v, os.path.dirname(SPIKE)):\n                raise SystemExit(f"refusing: --{opt',
      '            if False:\n                raise SystemExit(f"refusing: --{opt', "v3"),
     ("archive: transcript allowed inside the repository", "harness/mermaid_spike.py",
-     '        if a.cmd == "archive" and (not tdir or inside(tdir, os.path.dirname(SPIKE))):', '        if False:', "v3"),
+     '        if a.cmd == "archive" and not argv_tdir_ok:', '        if False:', "v3"),
     ("binding: LOG.md's sealed hash not compared", "harness/ms/binding.py",
      '    if rec != [v["sealed_sha256"]]:', '    if False:', "v3"),
     ("binding: a malformed bundle entry accepted", "harness/ms/binding.py",

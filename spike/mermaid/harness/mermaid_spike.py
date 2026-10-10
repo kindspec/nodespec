@@ -571,6 +571,16 @@ def main(argv=None):
         unbound_pre = True
     if tdir and (not unbound_pre or inside(tdir, RESULTS)):
         tdir = None
+    if cmd == "archive" and (not tdir or inside(tdir, os.path.dirname(SPIKE))):
+        # archive's transcript never lands in the repository (H6): without a
+        # --transcript-dir outside it, the refusal is recorded in a fresh
+        # directory outside it.
+        import tempfile
+        tdir = tempfile.mkdtemp(prefix="mermaid-archive-transcript.")
+        print(f"archive transcript: {tdir}", file=sys.stderr)
+        argv_tdir_ok = False
+    else:
+        argv_tdir_ok = True
     tr = TR.Transcript(cmd, ["mermaid_spike.py"] + argv, tdir if unbound_pre else None)
     rc, how = 1, "exited"
     try:
@@ -592,7 +602,7 @@ def main(argv=None):
             if v and inside(v, os.path.dirname(SPIKE)):
                 raise SystemExit(f"refusing: --{opt.replace('_', '-')} is the owner's private file; "
                                  "it must be outside the repository")
-        if a.cmd == "archive" and (not tdir or inside(tdir, os.path.dirname(SPIKE))):
+        if a.cmd == "archive" and not argv_tdir_ok:
             raise SystemExit("refusing: archive writes its transcript outside the repository (--transcript-dir)")
         if unbound != unbound_pre:
             raise SystemExit("refusing: the options parse differently from how they read")
