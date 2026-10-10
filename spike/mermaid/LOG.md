@@ -26,7 +26,8 @@ validation commit (commit 3) is the implementation.
   - V4: `89 mutants: 89 killed, 0 survived, 0 BROKEN` (`v4.txt`).
 - **What V4 found before that.** The first sweep (90 mutants) left 14 alive,
   and the second 3. Each now has a check that goes red, except three that
-  were equivalent and were replaced or removed, each named in `v4.py`:
+  were equivalent and were replaced or removed (the third is named in a
+  comment in `v4.py`):
   - the markdown-string refusal is enforced twice, in preprocessing and in
     the lexer table;
   - HOME is moot under GIT_CONFIG_GLOBAL=/dev/null;
