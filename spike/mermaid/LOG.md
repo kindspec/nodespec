@@ -231,6 +231,22 @@ settled in §2 and §3.
 - **Outputs.** `results/validation/review-probes.txt` and `review-mymut.txt`
   no longer carry absolute scratch paths or working-directory names.
 
+## 2026-10-10 — §5. V steps after the second review
+
+These are runs before validation, at `8a9b8e7`, with every bound path clean.
+Transcripts are in `results/validation/`.
+
+- V0: `V0: PASS`.
+- V2: `60 histories, 480 replays, 0 failed`.
+- V3: `244 checks, 0 failed`.
+- V4: `153 mutants: 153 killed, 0 survived, 0 BROKEN`.
+
+The first V4 run after §4, at `404ebb9`, killed 152 of 153 mutants. The
+remaining one dropped Appendix D from X's section list, and was killed only
+by a crash in the cut. The cut now takes Appendix D's extractor contract on
+its own, and the mutant now drops Appendix C. That run's transcript is kept
+as `v4-404ebb9-fail.txt`.
+
 ## Blind roles
 
 Not yet launched. Each launch is logged here with its export manifest,
