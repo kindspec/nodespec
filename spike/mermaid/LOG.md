@@ -147,6 +147,26 @@ The review's probes, run unchanged, are in `review-probes.txt`:
   so F is not asked for one. V2 runs over histories H builds (`v2.py`,
   R-v2).
 
+## 2026-10-10 — §3. Plan: the `tiers` encoding follows F's V-fixtures
+
+R-tiers (README) is provisional. Appendix D names `tiers` without an
+encoding, and Appendix E's prompt to F is frozen, so F will not see the
+encoding the harness reads today. A sealed tar must not be refused for
+using a different but consistent encoding. So:
+
+1. F delivers its V-fixtures (visible) and its sealed hash.
+2. Before the validation commit, H reads the `tiers` encoding the
+   V-fixtures use, rewrites the parser to match it, and logs that encoding
+   here as a reading. The parser is a bound path, so this change lands
+   before validation. V3 and V4 cover the new parser.
+3. `vfix.py v3` checks every V-fixture's A and B lines under that parser.
+4. The sealed run, at commit 6, checks the sealed tar against the same
+   parser. A sealed fixture that fails it is a fact about F's fixtures, to
+   be logged, and not a reason the harness chose after seeing them.
+
+No code change is made yet; this entry is the plan the coordinator set on
+2026-10-10.
+
 ## Blind roles
 
 Not yet launched. Each launch is logged here with its export manifest,
