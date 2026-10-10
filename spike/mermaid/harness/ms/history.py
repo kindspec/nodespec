@@ -153,8 +153,15 @@ def select(repo, pin, walked=None):
         if FN.generated_by_declaration(txt):
             exc[p] = "generated: declaration"
             continue
-        d, why = FN.diagram_of(st, txt)
-        if d is None:
+        if st == "D":
+            # R-select: a D path is examined if its last version holds a
+            # Mermaid fence that is a flowchart; each case's inputs are then
+            # held to the one-fence rule (§3).
+            ok = any(FN.is_flowchart(b) for b, _ in FN.fences(txt))
+            why = "no Mermaid fence that is a flowchart"
+        else:
+            ok, why = FN.is_flowchart(txt), "not a flowchart"
+        if not ok:
             exc[p] = f"stratum test: {why}"
             continue
         if st == "F" and sibling_derived(repo, p, last_c, {c for c, s, _ in ents if s in "AM"}, touched):

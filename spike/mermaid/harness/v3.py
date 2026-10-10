@@ -136,6 +136,7 @@ def s_holes():
         check(f"{st}: hole #2 bare style is clean I1 at tier A", r and r["outcome"] == "JUDGED" and
               has(r, "I1", "A", "db"), cats(r))
         check(f"{st}: hole #2 bare style is exposed", p.get("exposed") is True)
+        check(f"{st}: hole #2's ghost is no G1: G1 is outside I1-I4", not has(r, "G1", obj="db"), cats(r))
         p, r = run_case(st, w(bd), w(od), w(td))
         check(f"{st}: hole #2 with a declared label is I1 at tier B through L1", has(r, "I1", "B", "db") and
               any(x.startswith("L1:db") for x in r.get("lint_new", [])), cats(r))
@@ -168,6 +169,28 @@ def s_census_cases():
         elif c == "renameExplicitRef":
             check("census case renameExplicitRef: clean, I1 on fe, tier B by a new L1",
                   has(r, "I1", "B", "fe") and "L1:fe" in r.get("lint_new", []), cats(r))
+
+
+def s_conflicts():
+    """Model conflicts, delete/modify, and holders that are not references."""
+    b = "flowchart LR\n  a[A] --> b[B]\n  x[X]\n  y[Y]\n  z[Z]\n  b --> a\n"
+    o = b.replace("a[A] --> b[B]", "a[From O] --> b[B]")
+    t = b + "  a[From T]\n"
+    p, r = run_case("F", b, o, t)
+    check("a label both legs change is a model conflict; merged to a leg's value it is ineligible MC",
+          r and has(r, "MC-ineligible") and not has(r, "MC") and not has(r, "G4"), cats(r))
+    b = "flowchart LR\n  c[C] --> d[D]\n  e[E]\n  f[F]\n  g[G]\n  h[H]\n"
+    o = "flowchart LR\n  d[D]\n  e[E]\n  f[F]\n  g[G]\n  h[H]\n"
+    t = b + "  style c fill:#f00\n"
+    p, r = run_case("F", b, o, t)
+    check("delete/modify: one leg deletes c, the other restyles it: I3 on c", has(r, "I3", obj="c"), cats(r))
+    d = os.path.join(SPIKE, "census", "v4", "cases", "retitle")
+    q = C.prepare("F", *(open(os.path.join(d, f + ".mmd")).read() for f in "bot"), R)
+    check("a holder is not a reference: retitling a box while the other leg adds a member is not exposed",
+          q["exposed"] is False, q.get("exposure_reason"))
+    t = "flowchart TD\n subgraph s1\n X\n end\n subgraph s2\n X\n end\n"
+    m = SS.classify(t, R.get(t)).model
+    check("membership: a node mentioned in two subgraphs is held by the first to close", m.get(("nhold", "X")) == "s1")
 
 
 def s_positional():
@@ -366,6 +389,31 @@ def _p_plant():
     return pl, pl.g("rev-parse", "HEAD"), side, c
 
 
+def s_p_ancestry():
+    """A step whose first-parent blob matches but whose predecessor is not an
+    ancestor: only the ancestry half of the predecessor rule drops it."""
+    pl = Plant("panc")
+    v0 = "flowchart TD\n  a[A] --> b[B]\n"
+    M = "flowchart TD\n  a[A] --> b[M]\n"
+    S = "flowchart TD\n  a[A] --> b[S]\n"
+    c1 = pl.commit({"p.mmd": v0}, "v0")
+    m = pl.commit({"p.mmd": M}, "M on main")
+    pl.g("checkout", "-q", "-b", "side", c1)
+    pl.commit({"p.mmd": M}, "the same M on side")
+    s = pl.commit({"p.mmd": S}, "S on side")
+    pl.g("checkout", "-q", "main")
+    pl.g("merge", "-q", "--no-edit", "-s", "ours", "side")
+    pin = pl.g("rev-parse", "HEAD")
+    repo = HI.Repo(pl.path)
+    seg = HI.segments(HI.walk(repo, pin)[1]["p.mmd"])[0]
+    cs = [c for c, _ in seg]
+    adjacent = s in cs and m in cs and cs.index(s) == cs.index(m) + 1
+    check("plant: m on main and S on side are consecutive versions", adjacent, cs)
+    trip, counts = HI.p_triples(repo, {"p.mmd": "F"}, HI.walk(repo, pin)[1])
+    check("P: a pair whose first-parent blob matches but whose predecessor is not an ancestor is dropped",
+          adjacent and counts["pairs"] >= 1 and counts["predecessor ok"] == counts["pairs"] - 1, counts)
+
+
 def s_p():
     pl, pin, side, cs = _p_plant()
     repo = HI.Repo(pl.path)
@@ -466,12 +514,12 @@ def s_hermetic():
 def s_redaction():
     salt = "planted-salt"
     pl = Plant("ro")
-    b = "flowchart LR\n  api[Zebracorn] --> db\n  db --> cache\n  ui --> api\n"
+    b = "flowchart LR\n  api[Zebracorn] --> zebranode\n  zebranode --> cache\n  ui --> api\n"
     pl.commit({"docs/flow.mmd": b}, "b")
     pl.g("checkout", "-q", "-b", "side")
-    pl.commit({"docs/flow.mmd": b + "  worker --> db\n"}, "t")
+    pl.commit({"docs/flow.mmd": b + "  worker --> zebranode\n"}, "t")
     pl.g("checkout", "-q", "main")
-    pl.commit({"docs/flow.mmd": b.replace("db", "pg")}, "o")
+    pl.commit({"docs/flow.mmd": b.replace("zebranode", "pg")}, "o")
     pl.g("merge", "-q", "--no-edit", "side", check=False)
     pl.g("add", "-A")
     pl.g("commit", "-q", "-m", "m", "--allow-empty", check=False)
@@ -495,7 +543,7 @@ def s_redaction():
         raw += cs
         red += [AR.redact(c, (status, ind, salt)) for c in cs]
         red.append(AR.redact_arm0(AR.arm0(ctx, R), (status, ind, salt)))
-    forbidden_names = ["Zebracorn", "Alice Privatesson", "alice@private.example", "secretname"]
+    forbidden_names = ["Zebracorn", "zebranode", "Alice Privatesson", "alice@private.example", "secretname"]
     txt_red = json.dumps(red, default=str)
     txt_raw = json.dumps(raw, default=str)
     hits = K.redaction_hits(txt_red, forbidden_names, shas)
@@ -526,6 +574,9 @@ def s_xfail():
     check("X failure: an X that prints nothing makes its case a disagreement", out["empty"] is False)
     check("X failure: an X that prints no JSON makes its case a disagreement", out["garbage"] is False)
     check("X agreement: equal records and exposure agree", out["good"] is True)
+    xo = {"exposed": False, "records": [{"category": "I1", "objects": ["db", "worker"]}]}
+    check("X disagreement: equal records, differing exposure", XR.compare(
+        [{"category": "I1", "objects": ["db", "worker"], "tier": "A"}], True, xo, None)[0] is False)
     p = os.path.join(d, "slow.py")
     with open(p, "w") as f:
         f.write("import time; time.sleep(5)\n")
@@ -594,8 +645,11 @@ def s_cli_arms():
         json.dump({"cases": []}, f)
     rc, o = cli(["aggregate", "--summary", sf, "--out", os.path.join(out, "v.json"), "--transcript-dir", td])
     check("the aggregator exits non-zero on empty input", rc != 0 and "no input" in o)
-    rc, o = cli(["aggregate", "--summary", sf, "--out", os.path.join(SPIKE, "results", "v.json"), "--transcript-dir", td])
-    check("an unbound run may not write under results/", rc != 0)
+    sf2 = os.path.join(tmpdir("sum"), "s.json")
+    with open(sf2, "w") as f:
+        json.dump(_sum(_base(3)), f)
+    rc, o = cli(["aggregate", "--summary", sf2, "--out", os.path.join(SPIKE, "results", "v.json"), "--transcript-dir", td])
+    check("an unbound run may not write under results/", rc != 0 and not os.path.exists(os.path.join(SPIKE, "results", "v.json")))
     trs = os.listdir(td)
     check("every invocation wrote a transcript, refused ones included", len(trs) >= 12, len(trs))
 
@@ -814,6 +868,9 @@ def s_subset_refusals():
     check("V1 refusal: two untitled subgraphs of one title are DUP-TITLE", s.status == "duptitle")
     t = "flowchart TD\n  A[Alpha] --> B\n  subgraph S [Box]\n    B\n  end\n"
     check("V1: a plain chart is in the subset", SS.classify(t, R.get(t)).status == "in")
+    r = json.loads(json.dumps(R.get(t)))
+    r["vertices"][0]["text"] = "Something else"
+    check("subset: a text whose H model differs from R's is out of the subset", SS.classify(t, r).status == "out")
     check("V1: H on empty input is refused", SS.classify("", R.get("")).status != "in")
 
 
@@ -822,7 +879,7 @@ def s_fuzz():
     random synthetic flowcharts wherever both accept, and H accepts most."""
     rng = random.Random(20261009)
     ids = ["A", "B", "db", "api", "node1", "x1", "o", "v", "vpc", "default", "é", "1", "S", "e1", "endpoint"]
-    labels = ["Alpha", "Two words", "a<br>b", "x & y", "it's", '"quoted"', "n-1", "Ünï", "50%"]
+    labels = ["Alpha", "Two words", "a<br>b", "a<br/>b", "x & y", "it's", '"quoted"', "n-1", "Ünï", "50%"]
     shapes = [("[", "]"), ("(", ")"), ("([", "])"), ("[[", "]]"), ("[(", ")]"), ("((", "))"), (">", "]"),
               ("{", "}"), ("{{", "}}"), ("[/", "\\]"), ("[\\", "/]"), ("(((", ")))")]
     links = ["-->", "---", "-.->", "==>", "~~~", "--o", "--x", "<-->", "o--o"]
@@ -831,6 +888,8 @@ def s_fuzz():
         i = rng.choice(ids)
         if rng.random() < 0.5:
             return i
+        if rng.random() < 0.1:
+            return f'{i}@{{ shape: {rng.choice(["rounded", "cyl", "diam"])}, label: "{rng.choice(["Hi", "Two words"])}" }}'
         a, b = rng.choice(shapes)
         return f"{i}{a}{rng.choice(labels)}{b}"
 
@@ -840,7 +899,9 @@ def s_fuzz():
             s = vert()
             for _ in range(rng.randint(0, 2)):
                 lk = rng.choice(links)
-                s += (f" {lk}|{rng.choice(labels)}| " if rng.random() < 0.2 else f" {lk} ") + vert()
+                r2 = rng.random()
+                s += (f" {lk}|{rng.choice(labels)}| " if r2 < 0.2 else
+                      f" e{rng.randint(1, 2)}@{lk} " if r2 < 0.3 else f" {lk} ") + vert()
             return [s]
         if r < 0.75 and depth < 2:
             return [rng.choice(["subgraph " + rng.choice(ids), "subgraph Front End", "subgraph sg [Title]"])] + \
@@ -924,6 +985,10 @@ def s_binding():
     g("add", "-A")
     g("commit", "-q", "-m", "late harness edit")
     check("binding: a commit after validation touching the harness is refused", not BD.check(sp, "arms")["bound"])
+    g("revert", "--no-edit", "HEAD")
+    st = BD.check(sp, "arms")
+    check("binding: a later edit and its revert, the tree back to the validation commit's, is still refused",
+          not st["bound"] and any("after the validation commit" in x for x in st["reasons"]), st["reasons"])
     rv = subprocess.run(["bash", os.path.join(HERE, "reverify.sh"), sp], capture_output=True, text=True)
     check("reverify: fails when a later commit touches the harness", rv.returncode != 0 and "FAIL" in rv.stdout,
           rv.stdout[-300:])
@@ -973,8 +1038,8 @@ def s_binding():
     check("reverify: fails when VALIDATION changed", rv.returncode != 0)
 
 
-SECTIONS = [s_holes, s_census_cases, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
-            s_generated, s_mpr, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
+SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
+            s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms]
 
 

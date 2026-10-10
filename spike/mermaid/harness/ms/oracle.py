@@ -166,18 +166,14 @@ def lint_failures(model, db, stratum=None, fence_ok=True, path=None):
             out.add(("L4", u[1]))
     for i in db.swallowed:
         out.add(("L4", i))
-    # R-L5: a duplicate edge's failing objects are its two ends (and its id).
+    # R-L5: a duplicate edge's failing object is the edge itself (its key),
+    # the reading that cannot demote a G2 record (whose objects are its ends).
     for u, v in model.items():
         if u[0] == "ecount" and v > 1:
-            out.add(("L5", u[1][0]))
-            out.add(("L5", u[1][1]))
+            out.add(("L5", "edge:" + repr(u[1])))
     for eid, n in db.edge_id_attempts.items():
         if n > 1:
-            out.add(("L5", eid))
-            for e in db.edges:
-                if e["want_id"] == eid:
-                    out.add(("L5", e["start"]))
-                    out.add(("L5", e["end"]))
+            out.add(("L5", "edge:" + eid))
     return out
 
 
@@ -239,8 +235,8 @@ def judge(B, O, T, M, lint_new):
         if p == "order":
             recs.append(_rec("S-ORDER", set(), "-", [u], "statement order"))
             continue
-        if related(u, d) or related(u, m):
-            continue  # R-ident: an identity record's consequences are not structure records
+        if p == "exist" and (related(u, d) or related(u, m)):
+            continue  # §5.3: G1 is "outside I1-I4" (R-ident: only G1 is excluded)
         if p == "exist":
             kinds = set(d or ()) | set(m or ())
             if "node" in kinds and "node" in set(d or ()) ^ set(m or ()):
@@ -273,7 +269,7 @@ def judge(B, O, T, M, lint_new):
     for u in sorted(mc, key=repr):
         m = M.get(u)
         legs = (O.get(u), T.get(u))
-        if u[0] == "exist" or related(u, m) or related(u, O.get(u)) or related(u, T.get(u)):
+        if u[0] == "exist":
             continue
         cls = CLASS_OF[u[0]]
         if cls == "order":
