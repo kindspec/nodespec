@@ -44,6 +44,18 @@ from ms import transcript as TR  # noqa: E402
 
 SPIKE = TR.SPIKE
 RESULTS = TR.RESULTS
+
+
+def _repo_root():
+    """The repository holding spike/mermaid: git's top level, else the
+    directory two levels above spike/mermaid. "Outside the repository"
+    means outside this."""
+    import subprocess
+    r = subprocess.run(["git", "-C", SPIKE, "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else os.path.dirname(os.path.dirname(SPIKE))
+
+
+REPO = _repo_root()
 EXTRACTOR = os.path.join(SPIKE, "x", "extract2.py")
 COMMANDS = ("validation", "arm0", "arms", "repro", "sealed", "aggregate", "fixtures", "export", "archive")
 BOUND_CMDS = {"arm0", "arms", "repro", "sealed", "aggregate"}
@@ -228,7 +240,7 @@ def cmd_validation(a, tr, bound):
     if rec != [a.sealed_sha256]:
         raise SystemExit(f"refusing: LOG.md records the sealed hash {rec or 'nowhere'}; it must record "
                          f"--sealed-sha256 exactly once, in commit 2")
-    if inside(a.bundles, os.path.dirname(SPIKE)):
+    if inside(a.bundles, REPO):
         raise SystemExit("refusing: --bundles is the owner's file, outside the repository")
     lock = K.sha256_file(os.path.join(SPIKE, "r", "package-lock.json"))
     v = {"sealed_sha256": a.sealed_sha256, "lockfile_sha256": lock, "bundles": json.load(open(a.bundles))}
@@ -423,10 +435,12 @@ def lines_of(records, group):
 
 
 def sealed_lines(results):
-    """[{name, group, line, f, h, x}] from run_fixture_dir results. x is
-    None when X's answer is malformed or missing: §10.4's rules then read it
-    as agreeing with neither, and aggregate.fixtures treats a fixture where
-    H differs from F and X is None as disputed (R-sealed)."""
+    """[{name, group, line, f, h, x}] from run_fixture_dir results. A
+    fixture's group is identity if F's records hold an I category, else
+    structure; its "tiers" are per fixture, and are read as that group's A
+    and B lines (R-sealed). x is None when X's answer is missing or holds a
+    tier outside its vocabulary: X then agrees with neither, and
+    aggregate.fixtures reads a fixture where H differs from F as disputed."""
     out = []
     for r in results:
         exp = r["expect"]
@@ -440,9 +454,12 @@ def sealed_lines(results):
 
 
 def cmd_sealed(a, tr, bound):
-    """§10.4, at commit 6: check sha256(nonce + tar) against VALIDATION, check
-    every fixture's expect.json, and only then mark the run executed and run
-    H and X on every sealed fixture."""
+    """§10.4, at commit 6: check sha256(nonce + tar) against VALIDATION, mark
+    the run executed, and run H and X on every sealed fixture. A fixture
+    whose expect.json the tiers parser cannot read is logged in sealed.json
+    as malformed, with the reason, and contributes no line; it does not stop
+    the run (LOG §3 step 4, §4; §10.4 runs the sealed fixtures, it does not
+    gate them)."""
     import tarfile
     import tempfile
     want = tr_state(tr)["validation"]["sealed_sha256"] if bound else a.sealed_sha256
@@ -457,20 +474,23 @@ def cmd_sealed(a, tr, bound):
     fxs = sorted(os.path.dirname(p) for p in glob.glob(os.path.join(tmp, "**", "expect.json"), recursive=True))
     if not fxs:
         raise SystemExit("refusing: the sealed tar holds no fixture")
-    for fx in fxs:
-        try:
-            expect_tiers(json.load(open(os.path.join(fx, "expect.json"))))
-        except (Malformed, ValueError) as e:
-            raise SystemExit(f"refusing: sealed fixture {os.path.basename(fx)}: {e}")
     tr.mark_executed()
     if bound:
         BD.mark_executed(SPIKE, "sealed", tr.path)
+    good, malformed = [], []
+    for fx in fxs:
+        try:
+            expect_tiers(json.load(open(os.path.join(fx, "expect.json"))))
+            good.append(fx)
+        except (Malformed, ValueError) as e:
+            malformed.append({"name": os.path.basename(fx), "reason": str(e)})
+            print(f"sealed fixture {os.path.basename(fx)} is malformed, logged and not lined: {e}")
     R = RB.RCache()
     ext = EXTRACTOR if bound else a.extractor
-    out = sealed_lines([run_fixture_dir(fx, R, ext) for fx in fxs])
+    out = sealed_lines([run_fixture_dir(fx, R, ext) for fx in good])
     d = outdir(a, bound, RESULTS)
-    jdump({"sealed": out}, os.path.join(d, "sealed.json"))
-    print(json.dumps(out, sort_keys=True, indent=1))
+    jdump({"sealed": out, "malformed": malformed}, os.path.join(d, "sealed.json"))
+    print(json.dumps({"sealed": out, "malformed": malformed}, sort_keys=True, indent=1))
     return 0
 
 
@@ -480,7 +500,8 @@ def bound_summary(results):
     reproduction result (F8). Row 4 is (a), the owner's choice (§0.1)."""
     arms = json.load(open(os.path.join(results, "arms.json")))
     a0 = json.load(open(os.path.join(results, "arm0.json")))
-    sealed = json.load(open(os.path.join(results, "sealed.json")))["sealed"]
+    sj = json.load(open(os.path.join(results, "sealed.json")))
+    sealed = sj["sealed"]
     repro = {}
     for p in glob.glob(os.path.join(results, "repro", "*.json")):
         o = json.load(open(p))
@@ -490,7 +511,7 @@ def bound_summary(results):
     for c in arms["cases"]:
         c["reproduces"] = repro.get(c.get("key"), False)
     summary = {"row4": "a", "cases": arms["cases"], "coverage": a0["coverage"], "sealed": sealed,
-               "s_rates": arms["s_rates"]}
+               "sealed_malformed": sj.get("malformed", []), "s_rates": arms["s_rates"]}
     return summary, missing
 
 
@@ -541,10 +562,10 @@ def cmd_archive(a, tr, bound):
     if not rows:
         raise SystemExit(f"refusing: {a.corpus} is not a listed corpus")
     name = ident[(rows[0]["stratum"], a.corpus)]["name"]
-    if inside(a.out, os.path.dirname(SPIKE)):
+    if inside(a.out, REPO):
         raise SystemExit("refusing: archives live outside the repository")
     try:
-        res = K.archive(name, a.out)
+        res = K.archive(name, a.corpus, a.out)
     except K.ArchiveFailed as e:
         raise SystemExit(f"archive of {a.corpus} failed: {e}")
     print(json.dumps({a.corpus: res}, sort_keys=True))
@@ -571,7 +592,7 @@ def main(argv=None):
         unbound_pre = True
     if tdir and (not unbound_pre or inside(tdir, RESULTS)):
         tdir = None
-    if cmd == "archive" and (not tdir or inside(tdir, os.path.dirname(SPIKE))):
+    if cmd == "archive" and (not tdir or inside(tdir, REPO)):
         # archive's transcript never lands in the repository (H6): without a
         # --transcript-dir outside it, the refusal is recorded in a fresh
         # directory outside it.
@@ -599,7 +620,7 @@ def main(argv=None):
         unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive")
         for opt in ("private_map", "private_table", "bundles"):
             v = getattr(a, opt, None)
-            if v and inside(v, os.path.dirname(SPIKE)):
+            if v and inside(v, REPO):
                 raise SystemExit(f"refusing: --{opt.replace('_', '-')} is the owner's private file; "
                                  "it must be outside the repository")
         if a.cmd == "archive" and not argv_tdir_ok:
@@ -631,7 +652,7 @@ def main(argv=None):
             if a.cmd in ("arm0", "arms", "repro"):
                 for opt in ("bundle_dir", "work_dir", "private_map", "private_table"):
                     v = getattr(a, opt)
-                    if not v or inside(v, os.path.dirname(SPIKE)):
+                    if not v or inside(v, REPO):
                         raise SystemExit(f"refusing: --{opt.replace('_', '-')} is required, outside the repository")
         rc = {"validation": cmd_validation, "arm0": cmd_arm0, "arms": cmd_arms, "repro": cmd_repro,
               "sealed": cmd_sealed, "aggregate": cmd_aggregate, "fixtures": cmd_fixtures, "export": cmd_export,

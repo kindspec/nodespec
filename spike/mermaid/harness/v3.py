@@ -935,9 +935,11 @@ def s_blind():
     check("blind: the committed X spec is a fresh cut of the document",
           open(os.path.join(SPIKE, "blind", "x", "SPEC.md"), encoding="utf-8").read() == BL.x_spec())
     spec = BL.x_spec()
-    check("blind: X's spec holds §4, §5, Appendices A, C and D, and not §6, Appendix B or E",
-          all(h in spec for h in BL.SECTIONS) and "## 6. FOUND" not in spec and "## Appendix B" not in spec
-          and "## Appendix E" not in spec)
+    check("blind: X's spec holds §4, §5, Appendices A and C and Appendix D's extractor contract, and not §6, "
+          "Appendix B or E", all(h in spec for h in BL.SECTIONS) and "## 6. FOUND" not in spec and
+          "## Appendix B" not in spec and "## Appendix E" not in spec and "**Extractor.**" in spec)
+    check("blind: X's spec leaves out Appendix D's fixture contract (§10.3)", "**Fixtures.**" not in spec
+          and "expect.json" not in spec)
     from ms import hparse  # noqa: F401
     doc = os.path.join(SPIKE, "blind", "mermaid-12.1.0-flowchart.md")
     blob = subprocess.run(["git", "hash-object", doc], capture_output=True, text=True).stdout.strip()
@@ -1068,6 +1070,26 @@ def s_binding():
     st = BD.check(sp4, "arm0")
     check("binding: VALIDATION's sealed hash must equal the one LOG.md records (commit 2)",
           not st["bound"] and any("LOG.md" in r for r in st["reasons"]), st["reasons"])
+    check("binding: no bundle is read while the derivation reports a reason", K.bundles(sp4) == {})
+    root5 = tmpdir("bind5")
+    sp5 = os.path.join(root5, "spike", "mermaid")
+    os.makedirs(sp5)
+    shutil.copy(os.path.join(SPIKE, "PRE-REGISTRATION.md"), sp5)
+    with open(os.path.join(sp5, "LOG.md"), "w") as f:
+        f.write("# log\n\n- sealed fixtures sha256: " + "a" * 64 + "\n- sealed fixtures sha256: " + "a" * 64 + "\n")
+
+    def g5(*a):
+        return subprocess.run(["git", "-C", root5, *a], capture_output=True, text=True, env=e)
+    g5("init", "-q", "-b", "main")
+    g5("add", "-A")
+    g5("commit", "-q", "-m", "commit 2 records the hash twice")
+    os.makedirs(os.path.join(sp5, "results"))
+    with open(os.path.join(sp5, "results", "VALIDATION"), "w") as f:
+        json.dump(VAL_A, f)
+    g5("add", "-A")
+    g5("commit", "-q", "-m", "validation")
+    vc_, v_, rs_ = BD.derive(sp5)
+    check("binding: LOG.md recording the sealed hash twice is refused", rs_ and any("LOG.md" in r for r in rs_), rs_)
     try:
         BD.validate_content(dict(VAL_A, bundles={"x": {"file": "a/b", "sha256": "d" * 64, "prs_file": "p",
                                                         "prs_sha256": "e" * 64}}))
@@ -1266,26 +1288,30 @@ def s_bound_aggregate():
     check("bound aggregate: a reproduced record is not missing", not missing and summary["cases"][0]["reproduces"])
 
 
-def _sealed_tar(d, tiers, records, xstub=None):
+def _sealed_tar(d, tiers, records, more=()):
+    """A sealed tar of the bare hole #2 fixture "fx" (and any `more`
+    (name, tiers, records) fixtures on the same texts), sorted names and
+    zeroed times; returns (path, sha256(nonce + tar)) with nonce 01 * 32."""
     import hashlib
     import io
     import tarfile
-    fx = os.path.join(d, "fx")
-    os.makedirs(fx)
     b = "flowchart LR\n  api --> db\n  db --> cache\n  ui --> api\n"
-    for n, t in (("base", b), ("o", b.replace("db", "pg")), ("t", b + "  worker --> db\n")):
-        with open(os.path.join(fx, n + ".mmd"), "w") as f:
-            f.write(t)
-    with open(os.path.join(fx, "expect.json"), "w") as f:
-        json.dump({"stratum": "F", "exposed": True, "records": records, "tiers": tiers, "why": "plant"}, f)
     buf = io.BytesIO()
     with tarfile.open(fileobj=buf, mode="w") as tf:
-        for n in sorted(os.listdir(fx)):
-            ti = tf.gettarinfo(os.path.join(fx, n), "sealed/fx/" + n)
-            ti.mtime = ti.uid = ti.gid = 0
-            ti.mode = 0o644
-            with open(os.path.join(fx, n), "rb") as fh:
-                tf.addfile(ti, fh)
+        for name, ti_, rec in [("fx", tiers, records)] + list(more):
+            fx = os.path.join(d, name)
+            os.makedirs(fx)
+            for n, t in (("base", b), ("o", b.replace("db", "pg")), ("t", b + "  worker --> db\n")):
+                with open(os.path.join(fx, n + ".mmd"), "w") as f:
+                    f.write(t)
+            with open(os.path.join(fx, "expect.json"), "w") as f:
+                json.dump({"stratum": "F", "exposed": True, "records": rec, "tiers": ti_, "why": "plant"}, f)
+            for n in sorted(os.listdir(fx)):
+                ti = tf.gettarinfo(os.path.join(fx, n), f"sealed/{name}/" + n)
+                ti.mtime = ti.uid = ti.gid = 0
+                ti.mode = 0o644
+                with open(os.path.join(fx, n), "rb") as fh:
+                    tf.addfile(ti, fh)
     tp = os.path.join(d, "s.tar")
     with open(tp, "wb") as f:
         f.write(buf.getvalue())
@@ -1293,7 +1319,7 @@ def _sealed_tar(d, tiers, records, xstub=None):
 
 
 def s_sealed():
-    """H5: R-tiers, checked before the sealed run marks itself executed."""
+    """H5: R-tiers; a malformed sealed fixture is logged, the rest still run."""
     d = tmpdir("sealed")
     x = os.path.join(d, "x.py")
     with open(x, "w") as f:
@@ -1309,13 +1335,20 @@ def s_sealed():
           rc == 0 and {(ln["line"], ln["f"]) for ln in lines} == {("A", True), ("B", False)}, o[-300:])
     check("sealed: H's and X's lines are computed (bare-style hole #2: A, not B)",
           all(ln["h"] == (ln["line"] == "A") and ln["x"] == (ln["line"] == "A") for ln in lines), lines)
-    tp2, h2 = _sealed_tar(tmpdir("bad"), "A", [{"category": "I1", "objects": ["db"]}])
-    td2 = tmpdir("tr2")
-    rc, o = cli(["sealed", "--tar", tp2, "--nonce-hex", "01" * 32, "--sealed-sha256", h2, "--out-dir", tmpdir("o"),
+    tp2, h2 = _sealed_tar(tmpdir("bad"), ["A"], [{"category": "I1", "objects": ["db", "worker"]}],
+                          more=[("fy", "A", [{"category": "I1", "objects": ["db"]}])])
+    td2, out2 = tmpdir("tr2"), tmpdir("o")
+    rc, o = cli(["sealed", "--tar", tp2, "--nonce-hex", "01" * 32, "--sealed-sha256", h2, "--out-dir", out2,
                  "--extractor", x, "--transcript-dir", td2])
     t = "".join(open(os.path.join(td2, n)).read() for n in os.listdir(td2))
-    check("sealed: malformed tiers are refused before the run marks itself executed",
-          rc != 0 and "tiers must be" in o and "# executed:" not in t, o[-300:])
+    sj = json.load(open(os.path.join(out2, "sealed.json"))) if rc == 0 else {}
+    check("sealed: a fixture whose tiers the parser cannot read is logged as malformed, not refused (LOG §3, §4)",
+          rc == 0 and "# executed:" in t and [m["name"] for m in sj.get("malformed", [])] == ["fy"], o[-300:])
+    check("sealed: the other fixtures are still lined",
+          {ln["name"] for ln in sj.get("sealed", [])} == {"fx"}, sj.get("sealed"))
+    from ms import aggregate as AGG
+    v = AGG.verdict(dict(_sum(_base()), sealed=sj.get("sealed", []), sealed_malformed=sj.get("malformed", [])))
+    check("sealed: a malformed sealed fixture is listed in the verdict", v["lists"]["malformed_sealed_fixtures"])
     import mermaid_spike as CLI
     res = [{"fixture": "f", "expect": {"records": [{"category": "G2", "objects": []}], "tiers": ["A"]},
             "records": [], "x": {"records": [{"category": "G2", "objects": [], "tier": "tier-A"}]}}]
@@ -1332,7 +1365,7 @@ def s_archive_leak():
     tr = TRN.Transcript("archive", ["mermaid_spike.py", "archive", "--corpus", "u:000000000000"],
                         os.path.join(d, "tr"))
     try:
-        K.archive("planted-private-owner/planted-repo", os.path.join(d, "out"),
+        K.archive("planted-private-owner/planted-repo", "u:000000000000", os.path.join(d, "out"),
                   url=os.path.join(d, "planted-private-owner", "planted-repo.git"))
         failed = None
     except K.ArchiveFailed as e:
@@ -1451,10 +1484,105 @@ def s_history_more():
     check("decided: a case with an UNRELIABLE record is not decided",
           AR.decided_of(None, "JUDGED", [{"unreliable": "x"}]) is False and AR.decided_of(None, "JUDGED", []) is True)
 
+
+def s_rereview():
+    """The unfiltered tier-A set under P, salted bundle names, archive's
+    scrubbing and repository boundary, L5 on a user edge id, the coverage
+    scope, missing X answers, authors and R-select."""
+    # P: H's unfiltered tier-A set is what X is held to (ptier).
+    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  A --> B\n  C[Gamma]\n"
+    v1 = v0 + "  A --> B\n"
+    v2 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  C[Gamma]\n  A --> B\n"
+    t = RP.replay(v0, v1, v2)
+    prep = C.prepare("F", v0, v1, t, R)
+    res = C.outcome(prep, [v0, v1, t], G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R,
+                    path="c.mmd", truth=v2)
+    x = os.path.join(tmpdir("px"), "x.py")
+    with open(x, "w") as f:
+        f.write("import json\nprint(%r)\n" % json.dumps({"exposed": bool(prep.get("exposed")), "records": [
+            {"category": r["category"], "objects": r["objects"], "tier": r["tier"]} for r in res["records_unfiltered"]]}))
+    c = AR.evaluate(_Ctx(), {"arm": "P", "path": "c.mmd"}, "F", [v0, v1, t],
+                    lambda: G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R, x, truth=v2)
+    check("plant: the P case has an unfiltered tier-A structure record that the truth filter removes",
+          any(r["tier"] == "A" for r in res["records_unfiltered"]) and not any(r["tier"] == "A" for r in res["records"]))
+    c.update(path_i=["c.mmd", 0, 0], rank=0, authors=["pa"], corpus="c9")
+    v = AG.verdict(_sum(_base() + [c]))
+    check("a perfect X on a P case whose tier-A record the truth filter removes leaves NOT FOUND standing",
+          v["structure"]["verdict"] == "NOT FOUND", v["structure"])
+    # bundle file names come from the salted label, not the name
+    import hashlib
+    src = Plant("bsrc")
+    src.commit({"a.mmd": "flowchart TD\n  A --> B\n"}, "x")
+    name = "planted-private-owner/planted-repo"
+    res_b = K.archive(name, K.u_label("a-secret-salt", name), tmpdir("bout"), api=lambda path: [], url=src.path)
+    guess = hashlib.sha256(name.encode()).hexdigest()[:16]
+    check("archive: bundle file names cannot be computed from the corpus name without the salt",
+          guess not in res_b["file"] and guess not in res_b["prs_file"], res_b)
+
+    def boom(path):
+        raise RuntimeError(f"API failed for {name}")
+    try:
+        K.archive(name, "u:000000000000", tmpdir("bout2"), api=boom, url=src.path)
+        msg, typ = "", None
+    except Exception as e:  # noqa: BLE001 -- the check is on what escapes
+        msg, typ = str(e), type(e)
+    check("archive: a failure outside a subprocess is raised as ArchiveFailed, scrubbed",
+          typ is K.ArchiveFailed and "planted-private-owner" not in msg, f"{typ}: {msg}")
+    import mermaid_spike as CLI
+    rc, o = cli(["archive", "--corpus", "x", "--out", tmpdir("o"), "--private-map",
+                 os.path.join(CLI.REPO, "private-map.tsv"), "--private-table", tmpdir("p") + "/t",
+                 "--transcript-dir", tmpdir("t")])
+    check("archive: a private file anywhere in the repository, outside spike/mermaid too, is refused",
+          rc != 0 and "outside the repository" in o, o[-200:])
+    # L5 on a duplicated user edge id
+    b = "flowchart LR\n  A[A]\n  C[C]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n  D[D]\n"
+    o_ = b.replace("  C[C]\n", "  C[C]\n  A e1@--> C\n")
+    t_ = b + "  A e1@--> C\n"
+    p, r = run_case("F", b, o_, t_)
+    check("L5: a user edge id both legs add gives a G2 at tier B through L5 on the edge's ends",
+          has(r, "G2", "B") and not has(r, "G2", "A") and "L5:A" in r.get("lint_new", []), cats(r))
+    # the disagreement check reaches a stratum below the coverage bar
+    cs = _base() + [_case(900, stratum="D", x_tier_a=[["G2", ["a", "b"]]], agree=False)]
+    v = AG.verdict(_sum(cs, coverage={"F": 0.95, "D": 0.5}))
+    check("scope: an X-only tier-A record in a stratum below the coverage bar is NO VERDICT",
+          v["structure"]["verdict"] == "NO VERDICT" and "tier-A" in v["structure"]["reason"], v["structure"])
+    # a missing X answer is None, never "not qualifying"
+    ln = CLI.sealed_lines([{"fixture": "f", "expect": {"records": [{"category": "G2", "objects": []}],
+                                                      "tiers": ["A"]}, "records": []}])
+    check("sealed: a missing X answer gives x = None on both lines", [x_["x"] for x_ in ln] == [None, None], ln)
+    # authors: never a merge commit; identities from every ref
+    pl = Plant("lc")
+    pl.commit({"keep.txt": "k\n"}, "root", author=("Bea", "bea@b.org"))
+    base = pl.commit({"p.mmd": "flowchart TD\n  a --> b\n"}, "b", author=("Bea", "bea@b.org"))
+    pl.g("checkout", "-q", "-b", "side")
+    pl.commit({"p.mmd": "flowchart TD\n  a --> c\n"}, "s", author=("Sam", "sam@s.org"))
+    pl.g("checkout", "-q", "main")
+    pl.commit({"other.txt": "x\n"}, "m", author=("Max", "max@m.org"))
+    pl.e.update(GIT_AUTHOR_NAME="Merger", GIT_AUTHOR_EMAIL="merger@m.org")
+    pl.g("merge", "-q", "--no-ff", "--no-edit", "side")
+    pl.g("checkout", "-q", "-b", "elsewhere")
+    pl.commit({"x.txt": "1\n"}, "joins the names", author=("Ann", "ann@two.org"))
+    pl.g("checkout", "-q", "main")
+    pl.commit({"y.txt": "1\n"}, "a", author=("Ann", "ann@one.org"))
+    pl.commit({"z.txt": "1\n"}, "b2", author=("Annie", "ann@two.org"))
+    ctx = AR.Ctx("plant/lc", None, pl.path, pl.g("rev-parse", "main"), "in", False, "", TMP)
+    lc = ctx.last_changer(base, pl.g("rev-parse", "main"), "p.mmd")
+    check("authors: a leg's last changer is never a merge commit",
+          ctx.author(lc)[0] == ctx.authors.of("Sam", "sam@s.org"), ctx.author(lc))
+    check("authors: identities from every ref join before any lookup",
+          ctx.authors.of("Ann", "ann@one.org") == ctx.authors.of("Annie", "ann@two.org"))
+    # R-select: a D path whose last version holds two fences, one a flowchart
+    pl = Plant("dsel")
+    two = ("# T\n\n```mermaid\nflowchart TD\n  A --> B\n```\n\n```mermaid\nsequenceDiagram\n  A->>B: hi\n```\n")
+    pl.commit({"doc.md": two, "one.md": "```mermaid\nflowchart TD\n  A --> B\n```\n"}, "c")
+    sel = HI.select(HI.Repo(pl.path), pl.g("rev-parse", "HEAD"))
+    check("R-select: a D path with two fences is not selected, even when one is a flowchart (§3)",
+          "doc.md" not in sel["selected"] and sel["selected"].get("one.md") == "D", sel)
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview]
 
 
 def main():

@@ -98,12 +98,13 @@ def load_private(map_path, table_path, public):
 
 # ------------------------------------------------------------------ archive
 
-def bundles():
+def bundles(spike=SPIKE):
     """§7.6: each bundle's and pull-request list's sha256, as the validation
     commit's results/VALIDATION records them (R-bundles). Empty before
-    validation, so a bound arm makes every corpus NO VERDICT."""
+    validation, and whenever the derivation reports a reason, so a bound arm
+    then makes every corpus NO VERDICT."""
     from . import binding as BD
-    _, v, rs = BD.derive(SPIKE)
+    _, v, rs = BD.derive(spike)
     return v["bundles"] if v and not rs else {}
 
 
@@ -171,14 +172,18 @@ class ArchiveFailed(Exception):
     corpus may belong to a private individual (H6)."""
 
 
-def archive(name, out_dir, api=gh_api, url=None):
-    """Fetch a corpus with its refs/pull/*/head refs, bundle it, and save its
-    merged pull-request list. Returns {"file", "sha256", "prs_file",
+def archive(name, label, out_dir, api=gh_api, url=None):
+    """Fetch a corpus (name: owner/name) with its refs/pull/*/head refs,
+    bundle it, and save its merged pull-request list under file names derived
+    from its public label. Returns {"file", "sha256", "prs_file",
     "prs_sha256"}. Run by the owner before validation; never by a bound arm.
     Every subprocess's output is captured, and a failure is re-raised with
     the corpus's name and URL removed."""
     os.makedirs(out_dir, exist_ok=True)
-    tag = hashlib.sha256(name.encode()).hexdigest()[:16]
+    # The files are named from the corpus's public label, never its name:
+    # their names are committed in VALIDATION (R-bundles), and a hash of the
+    # name alone would let anyone link a u: label to its repository.
+    tag = hashlib.sha256(label.encode()).hexdigest()[:16]
     mirror = os.path.join(out_dir, tag + ".mirror.git")
     e = G.env(os.devnull)
     url = url or f"https://github.com/{name}.git"

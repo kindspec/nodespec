@@ -195,7 +195,7 @@ M = [
     ("blind: X's spec drops Appendix D", "harness/ms/blind.py",
      'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C", "## Appendix D"]',
      'SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C"]', "v3"),
-    # ---- the review of nodespec#3: its 33 mutants (R1-R33), as the code now reads
+    # ---- R1-R33: verdict, oracle, history and CLI rules
     ("R1 identity: a disputed identity fixture ignored", "harness/ms/aggregate.py",
      '    elif disputed["identity"]:\n        ident.update(', '    elif False:\n        ident.update(', "v3"),
     ("R2 fixtures: VOID when X agrees with H", "harness/ms/aggregate.py",
@@ -266,7 +266,7 @@ M = [
      '"line": line, "f": line in tiers,', '"line": line, "f": True,', "v3"),
     ("R33 bound aggregate: every case reproduces", "harness/mermaid_spike.py",
      '        c["reproduces"] = repro.get(c.get("key"), False)', '        c["reproduces"] = True', "v3"),
-    # ---- the fixes for that review
+    # ---- L5's objects, X before P's filter, scopes, repro, tiers, archive, binding
     ("L5: a duplicated edge's ends do not fail", "harness/ms/oracle.py",
      '            out.add(("L5", u[1][0]))\n            out.add(("L5", u[1][1]))', '            pass', "v3"),
     ("X compared with H's records after P's truth filter", "harness/ms/arms.py",
@@ -288,7 +288,7 @@ M = [
      '        return str(x).replace(url, "<url>").replace(name, "<corpus>").replace(name.split("/")[0], "<owner>")',
      '        return str(x)', "v3"),
     ("archive: private files inside the repository accepted", "harness/mermaid_spike.py",
-     '            if v and inside(v, os.path.dirname(SPIKE)):\n                raise SystemExit(f"refusing: --{opt',
+     '            if v and inside(v, REPO):\n                raise SystemExit(f"refusing: --{opt',
      '            if False:\n                raise SystemExit(f"refusing: --{opt', "v3"),
     ("archive: transcript allowed inside the repository", "harness/mermaid_spike.py",
      '        if a.cmd == "archive" and not argv_tdir_ok:', '        if False:', "v3"),
@@ -308,6 +308,42 @@ M = [
      '            if g1_outside and "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):', "v3"),
     ("replay: edits applied in forward order", "harness/ms/replay.py",
      "    for s, e, new in reversed(edits):", "    for s, e, new in edits:", "v2"),
+    # ---- RR: the unfiltered tier-A set, salted bundle names, X's export, sealed logging, authors
+    ("RR2 L5 on a duplicated user edge id: ends dropped", "harness/ms/oracle.py",
+     '                    out.add(("L5", e["start"]))\n                    out.add(("L5", e["end"]))', '                    pass', "v3"),
+    ("RR4 tier-A check skips a low-coverage stratum", "harness/ms/aggregate.py",
+     '        if any(_x_tier_a(c) != _h_tier_a(c) for c in decided_real(cases)):',
+     '        if any(_x_tier_a(c) != _h_tier_a(c) for c in decided_real(cases) if coverage.get(c["stratum"], 0) >= COVERAGE_BAR):', "v3"),
+    ("RR8 a missing X answer read as not qualifying", "harness/mermaid_spike.py",
+     '        xl = lines_of((r.get("x") or {}).get("records", []), group) if r.get("x") else None',
+     '        xl = lines_of((r.get("x") or {}).get("records", []), group) if r.get("x") else {"A": False, "B": False}', "v3"),
+    ("RR9 a non-subprocess archive failure re-raised unscrubbed", "harness/ms/corpus.py",
+     '        raise ArchiveFailed(f"{x.__class__.__name__}: {scrub(x)}") from None', '        raise', "v3"),
+    ("RR10 private files only refused inside spike/mermaid", "harness/mermaid_spike.py",
+     '            if v and inside(v, REPO):', '            if v and inside(v, SPIKE):', "v3"),
+    ("RR16 a merge commit can be a leg's author", "harness/ms/arms.py",
+     '        out = self.repo.out("log", "-1", "--no-merges", "--format=%H", "--full-history", f"{base}..{leg}",',
+     '        out = self.repo.out("log", "-1", "--format=%H", "--full-history", f"{base}..{leg}",', "v3"),
+    ("RR17 identities from HEAD's history only", "harness/ms/arms.py",
+     '        for ln in self.repo.out("log", "--all", "--format=%an%x09%ae").splitlines():',
+     '        for ln in self.repo.out("log", "--format=%an%x09%ae").splitlines():', "v3"),
+    ("RR18 bundles read while the derivation reports a reason", "harness/ms/corpus.py",
+     '    return v["bundles"] if v and not rs else {}', '    return v["bundles"] if v else {}', "v3"),
+    ("RR19 two LOG records of the sealed hash accepted", "harness/ms/binding.py",
+     '    if rec != [v["sealed_sha256"]]:', '    if v["sealed_sha256"] not in rec:', "v3"),
+    ("RR20 a D path with any flowchart fence selected", "harness/ms/history.py",
+     '        d, why = FN.diagram_of(st, txt)\n',
+     '        d, why = FN.diagram_of(st, txt)\n        if st == "D" and d is None and any(FN.is_flowchart(b) for b, _ in FN.fences(txt)):\n            d = "x"\n', "v3"),
+    ("RR1 X held to H's truth-filtered tier-A set", "harness/ms/aggregate.py",
+     '    recs = c.get("records_unfiltered", c.get("records", []))', '    recs = c.get("records", [])', "v3"),
+    ("RR1 unfiltered P records not kept on the case", "harness/ms/arms.py",
+     '        case["records_unfiltered"] = res["records_unfiltered"]', '        pass', "v3"),
+    ("RR2b bundle files named from the corpus name", "harness/ms/corpus.py",
+     '    tag = hashlib.sha256(label.encode()).hexdigest()[:16]', '    tag = hashlib.sha256(name.encode()).hexdigest()[:16]', "v3"),
+    ("RR3 X's spec carries Appendix D's fixture contract", "harness/ms/blind.py",
+     '    parts[-1] = _extractor_contract(parts[-1])', '    pass', "v3"),
+    ("RR4b a malformed sealed fixture stops the run", "harness/mermaid_spike.py",
+     '            malformed.append({"name": os.path.basename(fx), "reason": str(e)})', '            raise SystemExit(f"refusing: {e}")', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",
@@ -329,7 +365,14 @@ def sha(p):
     return hashlib.sha256(open(p, "rb").read()).hexdigest()[:16]
 
 
-def copy_spike(dst):
+def copy_spike(top):
+    """A scratch repository holding a copy of spike/mermaid at the same
+    place, so "the repository" means the same thing in the copy (git's top
+    level). Returns the copy's spike/mermaid."""
+    dst = os.path.join(top, "spike", "mermaid")
+    os.makedirs(dst)
+    subprocess.run(["git", "init", "-q", top], capture_output=True,
+                   env=dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1"))
     for d in ("harness", "census", "blind", "v-fixtures"):
         if not os.path.isdir(os.path.join(SPIKE, d)):
             continue
@@ -343,6 +386,7 @@ def copy_spike(dst):
             shutil.copy(src, os.path.join(dst, "r", f))
     shutil.copy(os.path.join(SPIKE, "PRE-REGISTRATION.md"), dst)
     shutil.copy(os.path.join(SPIKE, "LOG.md"), dst)
+    return dst
 
 
 def run_checker(root, which, timeout):
@@ -370,7 +414,7 @@ def mutant(n, mu, tmp, timeout):
     name, rel, old, new, which = mu
     root = tempfile.mkdtemp(prefix=f"m{n:03d}.", dir=tmp)
     try:
-        copy_spike(root)
+        root = copy_spike(root)
         p = os.path.join(root, rel)
         before = sha(p)
         src = open(p, encoding="utf-8").read()
@@ -407,7 +451,7 @@ def main():
     try:
         print("=== 0. baseline: the unmutated copy, V3 and V0")
         base = tempfile.mkdtemp(prefix="base.", dir=tmp)
-        copy_spike(base)
+        base = copy_spike(base)
         for which in ("v3", "v0", "v2"):
             rc, out, to = run_checker(base, which, a.timeout)
             print(f"   {which}: " + (out.strip().splitlines() or ["(no output)"])[-1])

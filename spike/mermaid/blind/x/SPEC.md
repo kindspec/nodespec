@@ -1,6 +1,7 @@
 <!-- SPDX-License-Identifier: CC-BY-4.0 -->
 <!-- Cut byte for byte from spike/mermaid/PRE-REGISTRATION.md by harness/ms/blind.py:
-     its sections 4 and 5 and Appendices A, C and D, in that order. -->
+     its sections 4 and 5, Appendices A and C, and Appendix D's extractor contract
+     (its heading and its Extractor paragraph), in that order. -->
 ## 4. The model
 
 ### 4.1 Classes
@@ -301,11 +302,6 @@ Each runs on the merged file alone. Only a new failure counts (§5.4).
 
 
 ## Appendix D — contracts for the blind roles
-
-**Fixtures.** One directory per case: `base.<ext>`, `o.<ext>`, `t.<ext>`, and
-`expect.json` holding `{"stratum", "exposed", "records": [{"category",
-"objects"}], "tiers", "why"}`. `<ext>` is `mmd` or `md`. Files are exact
-bytes, synthetic, under CC0-1.0, as org contract §6 sets for fixtures.
 
 **Extractor.** `python3 -I extract2.py <stratum> <base> <o> <t> <merged>`
 prints one JSON object: the decided values, the exposure, and every record with

@@ -4,11 +4,11 @@
 - F gets PRE-REGISTRATION.md (this document, whole), Mermaid 12.1.0's
   docs/syntax/flowchart.md, and Appendix D's fixture contract (inside the
   document).
-- X gets §4, §5, Appendices A and C, the same Mermaid document, and Appendix
-  D whole. §10.3's letter is "Appendix D's extractor contract"; giving the
-  fixture contract too, a format with no answers, so X mirrors
-  expect.json's fields, is the coordinator's implementation choice (LOG
-  §2). Not the harness, not R, not the fixtures.
+- X gets §4, §5, Appendices A and C, the same Mermaid document, and
+  Appendix D's extractor contract: Appendix D's heading and its
+  **Extractor.** paragraph, without the **Fixtures.** paragraph, as §10.3
+  says. Not the harness, not R, not the fixtures. The names X's output uses
+  are mapped to H's after X delivers (LOG §4).
 
 X's excerpt is spike/mermaid/blind/x/SPEC.md, cut byte for byte from the
 document by `x_spec()`; V3 checks the committed file equals a fresh cut. An
@@ -31,9 +31,11 @@ X_SPEC = "spike/mermaid/blind/x/SPEC.md"
 F_PATHS = ["spike/mermaid/PRE-REGISTRATION.md", MERMAID_DOC]
 X_PATHS = [X_SPEC, MERMAID_DOC]
 SECTIONS = ["## 4. The model", "## 5. The oracle", "## Appendix A", "## Appendix C", "## Appendix D"]
+EXTRACTOR_PARAGRAPH = "**Extractor.**"
 X_HEADER = ("<!-- SPDX-License-Identifier: CC-BY-4.0 -->\n"
             "<!-- Cut byte for byte from spike/mermaid/PRE-REGISTRATION.md by harness/ms/blind.py:\n"
-            "     its sections 4 and 5 and Appendices A, C and D, in that order. -->\n")
+            "     its sections 4 and 5, Appendices A and C, and Appendix D's extractor contract\n"
+            "     (its heading and its Extractor paragraph), in that order. -->\n")
 
 
 def _section(doc, head):
@@ -42,9 +44,17 @@ def _section(doc, head):
     return doc[i:] if j < 0 else doc[i:j + 1]
 
 
+def _extractor_contract(section):
+    """Appendix D's heading line and its Extractor paragraph, byte for byte."""
+    head = section[:section.index("\n") + 1]
+    return head + "\n" + section[section.index(EXTRACTOR_PARAGRAPH):]
+
+
 def x_spec(doc_text=None):
     doc = doc_text if doc_text is not None else open(DOC, encoding="utf-8").read()
-    return X_HEADER + "\n".join(_section(doc, h) for h in SECTIONS)
+    parts = [_section(doc, h) for h in SECTIONS]
+    parts[-1] = _extractor_contract(parts[-1])
+    return X_HEADER + "\n".join(parts)
 
 
 def prompt(role, doc_text=None):

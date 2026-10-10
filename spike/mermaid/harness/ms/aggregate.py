@@ -142,6 +142,7 @@ def verdict(summary):
     out = {"lists": {"blocked": blocked, "p_anomalies": anomalies, "with_refusals": refusals,
                      "with_near_misses": near, "found_in_voided_group": voided,
                      "disputed_fixtures": {g: [f["name"] for f in v] for g, v in disputed.items()},
+                     "malformed_sealed_fixtures": summary.get("sealed_malformed", []),
                      "strata_below_coverage": sorted(s for s, v in coverage.items() if v < COVERAGE_BAR),
                      "s_generator_rates": summary.get("s_rates", {})}}
 
@@ -210,7 +211,10 @@ def verdict(summary):
 
 
 def _h_tier_a(c):
-    return {(r["category"], tuple(sorted(r["objects"]))) for r in c.get("records", [])
+    """H's structure tier-A set as X can see it: before P's truth filter,
+    since Appendix D gives X no truth (§9.1, §10.5; R-x-filter)."""
+    recs = c.get("records_unfiltered", c.get("records", []))
+    return {(r["category"], tuple(sorted(r["objects"]))) for r in recs
             if r["tier"] == "A" and group_of(r) == "structure"}
 
 

@@ -66,7 +66,7 @@ def derive(spike=SPIKE):
     _, log, _ = _git(spike, "show", f"{vc}:{rel_log}")
     rec = sealed_in_log(log)
     if rec != [v["sealed_sha256"]]:
-        return vc, None, [f"LOG.md at the validation commit records the sealed hash {rec or 'nowhere'}; "
+        return vc, v, [f"LOG.md at the validation commit records the sealed hash {rec or 'nowhere'}; "
                           f"VALIDATION holds {v['sealed_sha256']} (they must be one and equal)"]
     return vc, v, []
 

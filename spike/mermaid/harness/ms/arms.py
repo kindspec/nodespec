@@ -89,6 +89,8 @@ def evaluate(ctx, spec, stratum, texts, merge_fn, R, extractor, truth=None):
     m = merge_fn()
     res = C.outcome(prep, texts, m, R, path=spec["path"], truth=truth)
     case.update(outcome=res["outcome"], why=res.get("why"), records=res["records"], merge_argv=m.argv)
+    if truth is not None and "records_unfiltered" in res:
+        case["records_unfiltered"] = res["records_unfiltered"]
     case["decided"] = decided_of(case.get("excluded"), res["outcome"], res["records"])
     if res["outcome"] is not None and extractor:
         merged = C.decode(m.merged) if m.merged is not None else ""
@@ -426,7 +428,7 @@ def redact(case, ctx_or_meta):
             c["spec"]["path"] = hp
             if "path_i" in c:
                 c["path_i"][0] = hp
-        for key in ("records", "x_records"):
+        for key in ("records", "records_unfiltered", "x_records"):
             for r in c.get(key) or []:
                 r["objects"] = [K.h_value(str(o)) for o in r.get("objects") or []]
                 for f in ("units", "detail", "lints"):
