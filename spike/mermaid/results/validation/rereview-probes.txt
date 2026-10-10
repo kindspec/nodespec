@@ -1,0 +1,17 @@
+# the second review's probes (ptier.py, bundlename.py, unchanged), run on the work tree of nodespec#3 after its fixes
+
+=== ptier.py
+T leg: 'flowchart TD\n  A[Alpha]\n  B[Beta]\n  C[Gamma]\n'
+excluded: None
+unfiltered: [('MC', 'A', ['A', 'B'], 'G2'), ('S-ORDER', '-', [], None)]
+filtered:   []
+P case: decided True x_agree True x_tier_a [('MC', ('A', 'B'))] H tier-A (filtered) [('MC', ('A', 'B'))]
+without the P case: NOT FOUND
+with the P case:    NOT FOUND | None
+=== bundlename.py
+# note: archive() now takes the corpus's public label and names the files from it, so this probe's
+# call (no label) no longer runs; V3 s_rereview checks the same property on the new signature.
+Traceback (most recent call last):
+  File "<scratch>/rv/probes/bundlename.py", line 23, in <module>
+    res = K.archive(name, os.path.join(d, "out"), api=lambda path: [], url=src)
+TypeError: archive() missing 1 required positional argument: 'out_dir'

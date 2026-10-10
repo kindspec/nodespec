@@ -1,4 +1,4 @@
-# the review's own mutants (q-review-ns3/probes/mymut.py, unchanged), run on nodespec 8b1e6ec17edf5b0c4a165850675593cb651b2928
+# the review's own mutants (mymut.py, unchanged), run on nodespec 8b1e6ec17edf5b0c4a165850675593cb651b2928
 # 2026-10-10T08:12:35Z
 
 MUTATION   1 R1 identity: a disputed identity fixture ignored: KILLED by v3 [acbe33e045e2bd8b -> 5ed7417bcfd2a123] (1 red; first: verdict: identity with a disputed sealed fixture is NO VERDICT naming it)

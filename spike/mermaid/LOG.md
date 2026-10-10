@@ -47,9 +47,19 @@ validation commit (commit 3) is the implementation.
   archive (§7.6) has not fetched any corpus; where bundles live is the
   owner's call.
 
-### Open items at the time
+### Open for the owner, before the validation commit
 
-§1's four open items are settled in §2.
+1. **Appendix D defines no layout for a fixture's history**, so V2 ("on
+   every V-fixture with a history") has nothing to read unless F supplies
+   one. `vfix.py v2` reads `history/v0.<ext>, v1.<ext>, ...` if present.
+2. **Where the sealed hash is committed.** §10.4 says H commits it "in the
+   validation commit"; §11.3 lists it in commit 2. The harness reads it from
+   `results/VALIDATION` (commit 3) and puts nothing in commit 2's way.
+3. **Bundle storage** (§7.6), and running `mermaid_spike.py archive` for
+   each corpus, which fetches every corpus and its merged pull-request list
+   over the network.
+4. **R-L5** (README, Readings): the reading that cannot hide a finding makes
+   lint L5 never demote a record. Confirm, or rule the other reading.
 
 ## 2026-10-10 — §2. Review of nodespec#3, and implementation readings
 
@@ -166,6 +176,60 @@ using a different but consistent encoding. So:
 
 No code change is made yet; this entry is the plan the coordinator set on
 2026-10-10.
+
+## 2026-10-10 — §4. Second review of nodespec#3
+
+A second independent review of nodespec#3 at `37e3ed5` reproduced two
+HIGH defects. This entry records them and the change for each. It is
+appended; §1 to §3 stand as written. §1's open-items subsection is restored
+as it was first committed, since this log is append-only. Its four items are
+settled in §2 and §3.
+
+- **HIGH, P against X.** The tier-A disagreement check held X to H's
+  P records after the truth filter. A P case whose only tier-A record the
+  filter removes (a second `A --> B` on one leg, the first dropped in the
+  truth) turned 60 agreeing M cases' NOT FOUND into NO VERDICT, even with an
+  X that did everything right. X is now held to H's unfiltered set (§9.1,
+  §10.5, R-x-filter); the case keeps both sets, and V3 checks this plant.
+- **HIGH, privacy.** `archive` named bundle files from sha256 of the
+  corpus's owner/name, unsalted, and R-bundles commits those names. A u:
+  label could then be linked to its repository by hashing candidate names.
+  The files are now named from the public label, and V3 checks a name cannot
+  be computed from owner/name.
+- **X's export.** §10.3 decides that X gets "Appendix D's extractor
+  contract". `blind/x/SPEC.md` now holds Appendix D's heading and its
+  Extractor paragraph only, not the Fixtures paragraph. This replaces §2's
+  reading that X gets Appendix D whole. The extractor paragraph names what
+  X prints but not its JSON keys. So, as §3 plans for F's `tiers`: once X
+  delivers, and before validation, H maps the names X's output and
+  CHOICES.md use onto the ones `ms/xrun.py` reads (`exposed`; `records` of
+  `{category, objects, tier}`), logs the mapping here as a reading, and V5
+  runs under it.
+- **Sealed fixtures.** §10.4 runs the sealed fixtures through H and X. It
+  does not gate the run on their format, and §3 step 4 says a fixture that
+  fails the parser is logged. The sealed run therefore no longer refuses on
+  a malformed fixture. It logs the fixture in `sealed.json`'s `malformed`
+  list, which the verdict lists, gives it no line, and runs the rest. An X
+  answer that is missing, or holds a tier outside the vocabulary, gives
+  x = None: X then agrees with neither, and a fixture where H differs from
+  F is read as disputed. `tiers` is per fixture. A fixture's A and B lines
+  are those of its group, identity if F's records hold an I category,
+  else structure (R-sealed).
+- **Mutants the review showed surviving**, each now killed by a named V3
+  check and in V4's list:
+  - L5 on a duplicated user edge id;
+  - the disagreement check in a stratum below the coverage bar;
+  - a missing X answer;
+  - archive's scrubbing, and private files anywhere in the repository;
+  - authors from a merge commit, and from one ref only;
+  - bundles read while the derivation reports a reason;
+  - LOG.md recording the sealed hash twice;
+  - a D path whose last version holds two fences.
+
+  V4's copies are now git repositories, so "the repository" means the same
+  thing in a copy as in the work tree.
+- **Outputs.** `results/validation/review-probes.txt` and `review-mymut.txt`
+  no longer carry absolute scratch paths or working-directory names.
 
 ## Blind roles
 

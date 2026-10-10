@@ -1,4 +1,4 @@
-# the review's probes (q-review-ns3/probes/probe.py, aggprobe.py, archleak.py, unchanged), run on nodespec 8b1e6ec17edf5b0c4a165850675593cb651b2928
+# the review's probes (probe.py, aggprobe.py, archleak.py, unchanged), run on nodespec 8b1e6ec17edf5b0c4a165850675593cb651b2928
 # notes: probe.py's last line compares X with H's filtered P records itself; the harness now compares the unfiltered ones (arms.evaluate, V3 s_p_x).
 # archleak.py's one match is the probe's own source line in its traceback; the exception message is scrubbed.
 
@@ -36,13 +36,13 @@
 3. identity tier-A record, X confirms, no repro result: NO VERDICT 1 exposed, none silent | blocked: ['F8']
 === archleak.py
 Traceback (most recent call last):
-  File "/home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/q-review-ns3/probes/archleak.py", line 17, in <module>
+  File "<review probes>/archleak.py", line 17, in <module>
     K.archive("planted-private-owner/planted-repo", os.path.join(d, "out"))
     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/q-mermaid-h/spike/mermaid/harness/ms/corpus.py", line 196, in archive
+  File "<spike/mermaid>/harness/ms/corpus.py", line 196, in archive
     run(["git", "clone", "-q", "--mirror", url, mirror])
     ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/cam/.local/state/scratch/claude-1000/-home-cam-repos-kindspec/7438ac2c-ba6c-4cb1-a435-681b1287d5a2/scratchpad/q-mermaid-h/spike/mermaid/harness/ms/corpus.py", line 192, in run
+  File "<spike/mermaid>/harness/ms/corpus.py", line 192, in run
     raise ArchiveFailed(f"{scrub(' '.join(argv[:3]))}: exit {r.returncode}: "
                         f"{scrub(r.stderr.decode('utf-8', 'replace').strip()[-300:])}")
 ms.corpus.ArchiveFailed: git clone -q: exit 128: fatal: could not read Username for 'https://github.com': terminal prompts disabled
