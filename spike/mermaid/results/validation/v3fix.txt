@@ -1,0 +1,21 @@
+# v3fix, 2026-10-11T07:47:49Z
+# nodespec HEAD: ceccd7bc56d213792b9788c704e8b4f5dcb4e962
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+  differs from F's expectation: g1-d-bare-two-mentions: H only [('C', ()), ('G3', ('fraud_check',)), ('G4', ('fraud_check',))]; F only []
+  differs from F's expectation: g1-f-bare-revive: H only [('C', ()), ('G3', ('recommender',)), ('G4', ('recommender',))]; F only []
+  differs from F's expectation: g1-f-bare-two-mentions: H only [('C', ()), ('G3', ('legacy_sso',)), ('G4', ('legacy_sso',))]; F only []
+  differs from F's expectation: i1-d-bare-delete: H only [('C', ()), ('G3', ('canary',)), ('G4', ('canary',))]; F only []
+  differs from F's expectation: i1-d-subgraph-rename: H only [('C', ()), ('G3', ('fe',)), ('G4', ('fe',))]; F only []
+  differs from F's expectation: i1-f-bare-rename: H only [('C', ()), ('G3', ('orders_db',)), ('G4', ('orders_db',))]; F only []
+  differs from F's expectation: i1-f-declared-rename: H only [('C', ()), ('G3', ('db',)), ('G4', ('db',)), ('S-ORDER', ())]; F only []
+  differs from F's expectation: i3-d-bare-style: H only [('C', ()), ('G3', ('ftp',)), ('G4', ('ftp',))]; F only []
+  differs from F's expectation: i3-f-bare-label: H only [('G3', ('fax',))]; F only [('I1', ('fax',))]
+  differs from F's expectation: i3-f-declared-relabel: H only [('C', ()), ('G3', ('paypal',))]; F only []
+  differs from F's expectation: i4-f-move-vs-wrap: H only [('C', ()), ('G3', ('api',)), ('G4', ('api',))]; F only []
+  differs from F's expectation: mc-f-dup-three: H only [('S-ORDER', ())]; F only []
+
+V3: 53 checked, 0 failed
+V3: PASS
+# exit status 0

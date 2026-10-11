@@ -1,5 +1,5 @@
-# v3, 2026-10-11T04:06:21Z
-# nodespec HEAD: f0da99321141a2669fee55dc0c333fb0ea300dd6
+# v3, 2026-10-11T07:45:36Z
+# nodespec HEAD: ceccd7bc56d213792b9788c704e8b4f5dcb4e962
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -223,9 +223,9 @@
 == s_l5: R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
   PASS  L5: the same edge added on both legs is G2 at tier B, through L5 on its ends
 == s_p_x: §10.5 with §8.3: X never sees the truth, so it is compared with H's
-  PASS  P: H's unfiltered records hold the S-ORDER X reports
+  PASS  P: H's unfiltered records hold a record the truth filter removes
   PASS  P: X agrees with H's records before the truth filter
-  PASS  P: the truth filter still removes the record from H's P records
+  PASS  P: the truth filter still removes it from H's P records
 == s_aggregate_scope: §9.1 and §10.5 over every decided real-arm case; F8 needs a
   PASS  scope: an X-only tier-A record in a decided case over the corpus cap is NO VERDICT
   PASS  scope: an X-only tier-A record in a decided duplicate-diff case is NO VERDICT
@@ -288,8 +288,39 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  sealed: a fixture whose records do not parse blocks both groups
   PASS  sealed: a structure FOUND in a group with an unreadable fixture is never a clean FOUND
   PASS  sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged
+== s_roles: §10.3's barrier for a blind role (ms/roles.py), without starting a
+  PASS  roles: a file planted outside /work cannot be read in the sandbox
+  PASS  roles: the repository and ~/.claude are not visible; /home holds only the role's HOME
+  PASS  roles: the sandbox HOME holds only the credential file; the environment is cleared
+  PASS  roles: /work is the export
+  PASS  roles: an init event with the pinned model, built-in tools and no MCP server passes
+  PASS  roles: another model is refused
+  PASS  roles: an MCP tool is refused
+  PASS  roles: an MCP server is refused
+  PASS  roles: ANTHROPIC_API_KEY set refuses the launch
+  PASS  roles: two 64-hex tokens in F's result are counted, never recorded as the hash
+  PASS  roles: with a scratch directory, what the role writes to /tmp and HOME survives the session
+  PASS  X's names: an exposure nested as {exposure: {exposed}} is read (LOG §8)
+  PASS  X's names: output with no exposure at all is not read
+== s_archive_prs: R-prs: the archive fetches commit lists only for pull requests whose
+  PASS  archive: a pull request whose commits touch a selected path is relevant
+  PASS  archive: a pull request whose commits touch no selected path is not
+  PASS  archive: the relevant pull request's count and commits are read; the other's are not
+  PASS  M-PR: a listed pull request with no commit list is counted, never evaluated
+== s_commit2_readings: Readings settled with F's V-fixtures and X's output (LOG §8-§10).
+  PASS  R-order: two legs adding statements in different places make no S-ORDER
+  PASS  R-order: a relative order one leg inverts and the merge keeps is no S-ORDER
+  PASS  R-order: a decided relative order inverted in the merge is one S-ORDER record for the vertex map
+  PASS  MC: a model conflict that is part of a collision is not also an MC (§5.3: outside §5.2)
+  PASS  R-tiers: tiers parallel to records, with the reported-only dash, parse
+  PASS  R-tiers: malformed tiers refused ([] for 1 record(s))
+  PASS  R-tiers: malformed tiers refused (['A'] for 0 record(s))
+  PASS  R-tiers: malformed tiers refused ('A' for 1 record(s))
+  PASS  R-sealed: per-record tiers give each group its own lines
+  PASS  R-x-names: X's G0 object, a file path, is read as the path
+  PASS  R-x-compare: objects are compared only for I1-I4, G0-G4
   PASS  V3 wrote nothing under results/
 
-252 checks, 0 failed
+280 checks, 0 failed
 V3: PASS
 # exit status 0
