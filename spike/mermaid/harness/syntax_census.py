@@ -134,7 +134,7 @@ def main():
     c = collections.Counter()
     paths_a, paths_b = set(), set()
     corp_a, corp_b = set(), set()
-    seen_pin, rows = set(), 0
+    seen_pin, rows, differ = set(), 0, set()
     for r in public:
         st = {"md": "D", "mmd": "F"}.get(r["stratum"])
         lab = r["corpus"]
@@ -190,6 +190,7 @@ def main():
                     hd, xd = FN.diagram_of("D", txt)[0], x_diagram("D", txt)[0]
                     if hd != xd:
                         c[("population", "a: versions", "whose diagram differs under X's opener")] += 1
+                        differ.add((lab, p))
                 if any(h.startswith("b:inside") or h.startswith("b:outside") for h in hits):
                     paths_b.add((lab, p))
                     corp_b.add(lab)
@@ -206,10 +207,20 @@ def main():
                 txt = HI.text_of(repo, meta.split()[2])
                 if txt is not None:
                     tally(txt, c, "pin")
+    for scope in ("pin", "population"):
+        for k in ("mermaid-example", "case variant", "other text after mermaid"):
+            c[(scope, "a: fences", k)] += 0
+            c[(scope, "blobs holding", "a:" + k)] += 0
+        for where in ("inside a fence", "outside a fence"):
+            c[(scope, "blobs holding", "b:" + where)] += 0
+            for lt in ("with", "without"):
+                c[(scope, "b: lines", f"{where}, blob {lt} a <<<<<<< line")] += 0
+    c[("population", "b: F versions", "holding a ======= line")] += 0
+    c[("population", "a: paths", "selected, with a version whose diagram differs under X's opener")] = len(differ)
     print(f"corpus rows read: {rows}")
     for k in sorted(c):
         print(f"{' / '.join(k)}: {c[k]}")
-    print(f"\npopulation paths touched by (a): {len(paths_a)}, in {len(corp_a)} corpora")
+    print(f"\npaths touched by (a), selected or selected under X's opener: {len(paths_a)}, in {len(corp_a)} corpora")
     print(f"population paths touched by (b): {len(paths_b)}, in {len(corp_b)} corpora")
     return 0
 
