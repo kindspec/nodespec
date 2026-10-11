@@ -247,6 +247,34 @@ by a crash in the cut. The cut now takes Appendix D's extractor contract on
 its own, and the mutant now drops Appendix C. That run's transcript is kept
 as `v4-404ebb9-fail.txt`.
 
+## 2026-10-10 — §6. §2 and §3 restated
+
+This entry restates the decisions in §2 and §3 as the harness's readings.
+It leaves §2 and §3 unchanged. Where this entry and §2 or §3 differ in
+wording, this entry is the statement of record. Where §4 changed a decision,
+§4 stands.
+
+- **The text first.** Where the frozen text decides a question, it decides
+  it. A harness reading applies only where the text is silent (README,
+  Readings).
+- **X's export.** The harness's reading was first that X gets Appendix D
+  whole (§2). §4 replaced it: X gets Appendix D's extractor contract, as
+  §10.3 decides, and X's output names are mapped after delivery.
+- **Bundle storage.** The harness's reading is that bundles are held by the
+  owner, with a local copy outside the repository. No committed file names
+  the private store. Their sha256s are bound in `results/VALIDATION` at the
+  validation commit (R-bundles).
+- **The sealed hash.** The harness's reading is that commit 2 records it in
+  this log as `- sealed fixtures sha256: <64 hex>`. `results/VALIDATION`
+  repeats it, and the binding requires the two to be equal (R-sealed-hash).
+- **V2's histories.** The harness's reading is that V2 runs over histories H
+  builds, because F's prompt is frozen and asks for none (R-v2).
+- **F's `tiers` encoding (§3).** The harness's reading is that, once F
+  delivers and before validation, the `tiers` parser is matched to the
+  encoding F's V-fixtures use. That encoding is logged here as a reading. The
+  sealed run then checks against that parser, and logs any fixture that
+  fails it (R-tiers, R-sealed).
+
 ## Blind roles
 
 Not yet launched. Each launch is logged here with its export manifest,
