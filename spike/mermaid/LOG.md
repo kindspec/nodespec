@@ -611,3 +611,49 @@ the frozen text and decides selection either way.
   Such a disagreement is reported with this cause: X's allotment.
 - **`=======`.** The census found no `=======` line in any population blob
   that holds a Mermaid fence, so X's marker reading cannot change any case.
+
+### The owner's ruling on I4 (2026-10-11)
+
+On 2026-10-11 the owner ruled that I4 takes Reading H. The sentence at
+issue is §5.3's:
+
+> **I4 Kind clash.** A key that no input gives two kinds, or a kind other
+> than its decided kind, has two kinds or a different kind in the merged
+> model.
+
+- **Reading H**, which `ms/oracle.py` applies:
+  - The only key excluded is one that some input already gives two kinds
+    ("A clash already present in an input is not a record").
+  - I4 fires when the merged model gives the key two kinds, or a kind other
+    than its decided kind. That includes a key whose kind is a model
+    conflict, when the merged model holds both kinds.
+- **The three V-fixtures it decides:**
+  - `i4-d-node-vs-subgraph`: H only I4 `billing`;
+  - `i4-f-move-vs-wrap`: H only I4 `api`, X only G1 `api`;
+  - `i4-f-subgraph-vs-node`: H only I4 `auth`.
+- **X's stated reason, from invocation 4's CHOICES.md, entry 43, verbatim:**
+
+  > §5.3 reads "A key that no input gives two kinds, or a kind other than
+  > its decided kind, has two kinds or a different kind in the merged
+  > model". The phrase "or a kind other than its decided kind" is a second
+  > object of "no input gives".
+  >
+  > - **Input 12.** `api` is a node in B, and the decided kind is
+  >   `subgraph`. So an input gives a kind other than the decided one, and
+  >   I4's precondition fails. The node's presence then differs, which gives
+  >   G1 (§5.3: a decided-absent node is present). Under choice 41 its G3, G4
+  >   and C come with it.
+  > - **Inputs 11 and 13.** The kind is a model conflict, so there is no
+  >   decided kind for the inputs to match. The legs' clash is the I2
+  >   collision, which both readers report. A second I4 would count the same
+  >   collision twice.
+
+  Inputs 11, 12 and 13 are the three fixtures above, in the order listed
+  (`results/roles/x4-index.tsv`).
+- **X is not invoked again.** Neither X nor H changes.
+- **V5 now checks against the ruling.** `vfix.py v5` reads
+  `harness/v5-rulings.json`. V5 passes only when its disagreements, each
+  taken as (fixture, H-only records, X-only records, exposure), are exactly
+  the ruled ones. A disagreement that is not ruled fails V5, and so does a
+  ruled one that no longer occurs. V3 plants each case, and V4 has a
+  mutant for each gate.
