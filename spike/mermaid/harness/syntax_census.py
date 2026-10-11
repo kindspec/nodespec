@@ -42,8 +42,9 @@ from ms import fence as FN  # noqa: E402
 from ms import history as HI  # noqa: E402
 
 # X's opener, as its extract2.py (invocations 1 and 4) has it: case-sensitive,
-# and nothing but blanks after "mermaid".
-X_OPENER = re.compile(r"^( {0,3})(`{3,}|~{3,})[ \t]*mermaid[ \t]*$")
+# and nothing but blanks after "mermaid". Its group 1 is the fence run, as in
+# fence.OPENER, so fence.fences can use either.
+X_OPENER = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*mermaid[ \t]*$")
 WORD = re.compile(r"mermaid", re.IGNORECASE)
 MARK_EQ = re.compile(r"^={7}\r?$")
 MARK_LT = re.compile(r"^<{7}")
