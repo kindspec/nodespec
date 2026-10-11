@@ -408,6 +408,12 @@ M = [
      '    if ev.get("hooks"):', '    if False:', "v3"),
     ("C2 a missing commit list never re-checked for relevance", "harness/ms/history.py",
      '                   if _pr_touches(repo, pr, selected) else', '                   if False else', "v3"),
+    ("C2 vfix v3: a category that does not fire passes", "harness/vfix.py",
+     '            elif cat not in hcats:', '            elif False:', "v3"),
+    ("C2 vfix v3: a clean fixture need not be silent", "harness/vfix.py",
+     '                if hcats - {"S-ORDER"} or r["exposed"] != bool(exp.get("exposed")):', '                if False:', "v3"),
+    ("C2 vfix v3: A and B lines need not match F's tiers", "harness/vfix.py",
+     '                    if ln["h"] != ln["f"]:', '                    if False:', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",

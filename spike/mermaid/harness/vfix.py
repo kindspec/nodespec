@@ -9,12 +9,14 @@
 - V1: H's model equals R's on every V-fixture state, the merged one included,
   under Appendix A's mapping. A state R does not parse is reported, not
   compared.
-- V3 (its V-fixture half): each category fires on its V-fixtures and stays
-  silent on clean ones: H's set of (category, objects) equals the fixture's
-  expect.json "records", and H's exposure equals "exposed".
-  Its expect.json must use R-tiers' encoding, and H must fall on the same
-  side of the A and B lines as "tiers" says: the line computation the sealed
-  run uses (mermaid_spike.sealed_lines).
+- V3 (its V-fixture half, R-v3fix): each category fires on its V-fixtures
+  and stays silent on clean ones. The fixture's category, read from its
+  directory name, must fire in H; a clean fixture must give no record F's
+  tiers would line, and no E. Its expect.json must use R-tiers' encoding,
+  and H must fall on the same side of the A and B lines as "tiers" says:
+  the line computation the sealed run uses (mermaid_spike.sealed_lines).
+  Every other difference from expect.json is listed, not failed (LOG §10,
+  §11).
 - V5: X agrees with H on every V-fixture (§10.5's rule).
 
 V2 does not read fixtures: it runs over histories H builds (v2.py, R-v2).

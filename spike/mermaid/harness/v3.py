@@ -1804,10 +1804,42 @@ def s_commit2_readings():
           XR.norm_records([{"category": "C", "objects": ["q"]}]) == {("C", ())} and
           XR.norm_records([{"category": "G4", "objects": ["q"]}]) == {("G4", ("q",))})
 
+def s_vfix_gates():
+    """R-v3fix: the three gates of V3's V-fixture half (vfix.py v3), each
+    shown to fail on a planted fixture: a category that does not fire, a
+    clean fixture that is not silent, and tiers whose A and B lines H does
+    not match. A correct fixture passes."""
+    base = ("flowchart LR\n  a[A]\n  b[(B)]\n  c[(C)]\n  d[(D)]\n"
+            "  a --> b\n  b --> c\n  a --> c\n  a --> d\n")
+    o = base.replace("  b --> c\n", "") + "  b --> c\n"
+    t = base.replace("  b --> c\n", "")
+    good = {"stratum": "F", "exposed": False, "records": [{"category": "G2", "objects": ["b", "c"]}], "tiers": ["A"]}
+
+    def run(name, exp):
+        d = os.path.join(tmpdir("vfixgate"), "fx")
+        os.makedirs(os.path.join(d, name))
+        for n, txt in (("base", base), ("o", o), ("t", t)):
+            with open(os.path.join(d, name, n + ".mmd"), "w", encoding="utf-8") as f:
+                f.write(txt)
+        with open(os.path.join(d, name, "expect.json"), "w", encoding="utf-8") as f:
+            json.dump(exp, f)
+        r = subprocess.run([sys.executable, "-I", "-S", "-B", os.path.join(HERE, "vfix.py"), "v3", "--dir", d],
+                           capture_output=True, text=True, timeout=300)
+        return r.returncode, r.stdout + r.stderr
+    rc, out = run("g2-planted", good)
+    check("R-v3fix: a fixture whose category fires, with matching tiers, passes", rc == 0 and "V3: PASS" in out, out[-300:])
+    rc, out = run("g1-planted", good)
+    check("R-v3fix: a fixture whose category does not fire fails", rc == 1 and "G1 does not fire" in out, out[-300:])
+    rc, out = run("clean-planted", dict(good, records=[], tiers=[]))
+    check("R-v3fix: a clean fixture on which H reports a record fails", rc == 1 and "clean, but H gives" in out, out[-300:])
+    rc, out = run("g2-planted", dict(good, tiers=["C"]))
+    check("R-v3fix: tiers whose A and B lines H does not match fail", rc == 1 and " line " in out, out[-300:])
+
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates]
 
 
 def main():
