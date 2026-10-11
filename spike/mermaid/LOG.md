@@ -657,3 +657,33 @@ issue is §5.3's:
   the ruled ones. A disagreement that is not ruled fails V5, and so does a
   ruled one that no longer occurs. V3 plants each case, and V4 has a
   mutant for each gate.
+
+### A §10.3 deviation in invocation 4, and two additions
+
+- **Invocation 4's prompt deviated from §10.3.** §10.3 gives X "not the
+  fixtures", and Appendix E tells it "do not guess at what another
+  implementation does". Invocation 4's prompt (`results/roles/x4-prompt.txt`)
+  nonetheless held:
+  - 13 V-fixtures' input files;
+  - X1's output on each;
+  - H's full output on each, including H's unit names, detail text and
+    lints.
+
+  After seeing it, X moved to H's repeat-report reading: it now reports a
+  key's other units even when the key's existence or kind is already
+  wrong (its CHOICES.md entry 41), and V5 now agrees on 10 of the 13.
+  So X4's agreement on the repeat-report reading is not independent
+  evidence for it. The reading is put to the owner for a ruling. Until
+  then, the "V5 with invocation 4's extractor: 50 of 53 agree" entry above
+  is not a blind confirmation of that reading.
+- **Addition to "What V5 cannot see": markers an input already holds.**
+  - H ignores a `<<<<<<<`, `>>>>>>>` or `|||||||` line that an input
+    already holds (R-marker). X counts any such line in the merged file.
+  - A reviewer re-ran the census logic with that pattern over the 52
+    organisation rows (10 stratum D, 42 stratum F). They counted 0 such
+    lines, at the pins and in the population.
+  - That count does not cover the 71 owner-mapped rows, all of stratum F.
+- **Re-running the census.** `harness/syntax_census.py` needs the owner's
+  private map and table for the owner-mapped rows' pins, so only the owner
+  can re-run it in full. Every stratum-D row is an organisation row, and a
+  reviewer reproduced every stratum-D figure without the private files.
