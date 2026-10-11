@@ -424,7 +424,134 @@ before validation (§3, §4).
   in `i3-f-bare-label` (F's reading 1 expects one). F's README says such
   differences are to be logged, not forced.
 
-## Blind roles
+## 2026-10-11 — §11. Review of nodespec#5: X's independence, and corrections
 
-Not yet launched. Each launch is logged here with its export manifest,
-prompt, model id and date (§10.3).
+Entries are appended, never edited, so this entry corrects §8 and §10
+where they are wrong; it does not rewrite them.
+
+### X's invocations 2 and 3 carried argument; invocation 4
+
+- **Correction to §10.** §10 says the prompts of X's invocations 2 and 3
+  quote the frozen text and do not describe H. They did not describe H,
+  but they did not only quote either: each carried argument for a reading.
+  - Invocation 2 said "Only G1 carries the clause". It also argued from
+    setext headings that a bare `=======` is not a conflict marker.
+  - Invocation 3 asked X to "Consider a node that is decided absent and
+    present in the merged model", and set out the units that node has.
+
+  X's revisions repeat that argument closely: see the "Revisions" section
+  of `results/roles/x3-output/CHOICES.md`.
+- **X changed readings after them.** In its first invocation, X read §5.3
+  as reporting no more records on a key whose existence or kind is already
+  wrong (X1's choices 32 and 33). F's V-fixtures read it the same way.
+  After invocations 2 and 3, X took H's reading. So V5's 53 of 53 after
+  invocation 3 did not check H independently, and V5 is the check §10.5
+  exists for.
+- **A deviation in invocation 2.** Invocation 2 quoted §3's definition of
+  a Mermaid fence. That is frozen text outside X's §10.3 allotment, which
+  is SPEC.md.
+- **Invocations 2 and 3 are superseded, and kept.** Their prompts, session
+  streams and launch records stay in `results/roles/`. Invocation 3's
+  output is moved to `results/roles/x3-output/`.
+- **Invocation 4 starts from X1's state.** Invocations 2 and 3 revised
+  X's work directory in place. `harness/x1_recover.py` rebuilds X1's files
+  from the record:
+  - `extract2.py`: invocation 2 copied it to its `/tmp` after one Edit,
+    and its scratch was kept. The script undoes that Edit. The result
+    matches all 270 lines that invocation 2 read from the file before
+    editing it. Invocation 4's own copy of the file it was given, kept in
+    its scratch, is byte-identical.
+  - `CHOICES.md`: replayed from invocation 1's Write and Edit calls. It
+    matches invocation 2's first full Read of the file.
+
+  X1's output is in `results/roles/x1-output/`: `extract2.py` sha256
+  `a35dbe684451ae5945e3dc3841585424e3c44df5543a57bf5c0250b9af934529`,
+  `CHOICES.md` `9abb46755c2bfe2ffa8314efdd18339a8b828018a3997f9e92beacc81a42a605`.
+- **Invocation 4's prompt is fixed and neutral.** It holds a fixed opening
+  paragraph, then one block per input. Each block gives the input files
+  verbatim, then X1's output, then H's output. It holds no argument, no
+  quote from the pre-registration and no section pointer.
+  - `harness/x4_prompt.py` chooses the inputs: every V-fixture on which
+    V5's comparison, run with X1's extractor, finds X1 and H apart. That
+    is 13 of 53.
+  - The fixture names are left out of the prompt, because they name F's
+    expected category. `results/roles/x4-index.tsv` maps each input to its
+    fixture.
+- **What invocation 4 was given.** The run was launched as in §8, from an
+  export of X at `2364767`:
+
+  | run | date (UTC) | export manifest, sha256 | prompt, sha256 | model reported | session sha256 |
+  |---|---|---|---|---|---|
+  | X, 4 | 2026-10-11T12:15:03Z | SPEC.md `a18af470…`, mermaid-12.1.0-flowchart.md `50490edd…`, X1's extract2.py `a35dbe68…` and CHOICES.md `9abb4675…` | `results/roles/x4-prompt.txt`, `3e399b60…` | claude-opus-5-5 | `f1a25aff…` |
+
+- **What X did in invocation 4** (its CHOICES.md, "Invocation 4"):
+  - **Entry 41.** X now reports every unit on its own, which matches H.
+    This replaces X1's choices 32 and 33.
+  - **Entry 42.** S-ORDER's objects are now the keys of the inverted
+    pairs. S-ORDER is compared by category only, so this changes no
+    comparison.
+  - **Entry 43.** X kept its I4 reading (choice 31).
+- **V5 with invocation 4's extractor: 50 of 53 agree.** The three
+  disagreements are all I4. In each, H reports I4 and X does not:
+
+  | V-fixture | H only | X only |
+  |---|---|---|
+  | `i4-d-node-vs-subgraph` | I4 `billing` | — |
+  | `i4-f-move-vs-wrap` | I4 `api` | G1 `api` |
+  | `i4-f-subgraph-vs-node` | I4 `auth` | — |
+
+  X's reason: it reads "or a kind other than its decided kind" as a second
+  object of "no input gives".
+  - In `i4-f-move-vs-wrap`, the base gives `api` a kind other than its
+    decided kind, so I4 does not apply and the node's return is a G1.
+  - In the other two, the kind is a model conflict, and X counts the
+    clash once, as the I2 collision both report.
+
+  Neither side is plainly a bug. This is a reading for the owner to rule
+  on. H is unchanged, and X has not been invoked again.
+- **What V5 cannot see.** Invocation 4's extractor keeps X1's choices 5
+  and 6:
+  - an opener of `mermaid-example`, or with `Mermaid` in upper case, is not
+    a Mermaid fence;
+  - a bare `=======` line is a conflict marker.
+
+  H reads both the other way: §3's pattern for the fence, and R-marker for
+  the marker. No V-fixture holds either case, so V5 cannot test them, and
+  invocation 4's prompt could not raise them.
+
+### Corrections and additions
+
+- **How X1's disagreements were first found.** The three put to
+  invocation 2 (choices 5, 6 and 33) were found by reading X1's final
+  message, under "Choices most likely to disagree with the reference
+  extractor", and its CHOICES.md. They were not found by V5, which was
+  first run with X after invocation 2. The two put to invocation 3
+  (choices 32 and 31) came from that V5 run.
+- **Correction to §8.** §8 says X's committed session streams differ in
+  bytes from the hashes it lists. They do not: no stream held a host path,
+  so scrubbing left them unchanged. Each committed stream's sha256 equals
+  its launch record's `session_sha256` (X runs 1 to 4).
+- **F run 1's hash.** `results/roles/f-launch.json` records
+  `sealed_sha256` `1eeedc17…`. That is void run 1's (§9), not the sealed
+  hash. The record is kept as written.
+- **R-v3fix's history (§10).** Before `f9708f4`, `vfix.py v3` passed a
+  V-fixture only on an exact match: H's set of (category, objects) equal
+  to `expect.json`'s records, and H's exposure equal to `exposed`.
+  - The 12 V-fixtures that `vfix.py v3` lists as differing from F's
+    expectation would have failed that criterion.
+  - `f9708f4` changed the gate after F's run 2 had delivered its
+    V-fixtures. The text it follows is §11.2's V3: "Each category fires on
+    its V-fixtures and stays silent on clean ones."
+  - V3 now plants a fixture against each of the gate's three tests, and
+    V4 has a mutant for each.
+- **G0 has no stratum-F V-fixture.** F's three G0 fixtures are all stratum
+  D.
+- **S-ORDER above the pair cap.** H decides every pair of a sequence up to
+  400 items (`ORDER_CAP`). Above that, it decides only the adjacent pairs
+  of each state's own sequence. X decides every pair of the merged
+  sequence up to 1,500 items, and above that only the adjacent merged
+  pairs. So H and X can differ on S-ORDER for a sequence of more than 400
+  items. No V-fixture has one. S-ORDER is reported only (tier "—") and is
+  compared by category alone, so it cannot move an A or B line.
+- **The trailing "Blind roles" placeholder is removed.** Its "Not yet
+  launched" stopped being true at §8, and §8 to §11 log each launch.
