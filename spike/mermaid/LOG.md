@@ -555,3 +555,43 @@ where they are wrong; it does not rewrite them.
   compared by category alone, so it cannot move an A or B line.
 - **The trailing "Blind roles" placeholder is removed.** Its "Not yet
   launched" stopped being true at §8, and §8 to §11 log each launch.
+
+### Syntax census, taken before Arm 0
+
+Before the owner rules on X's fence and `=======` readings, a census
+asks whether either can touch the population. It is
+`harness/syntax_census.py`, and its transcript is
+`results/census/syntax-census.txt`.
+- It reads trees and blobs of the archived corpora, at and before each
+  pin, through §7.4's selection.
+- It runs no arm, no merge and not R, and it reads no outcome.
+- It prints totals only.
+- It covers all 123 corpus rows. The population is 47 selected stratum-D
+  paths (537 versions) and 1,671 stratum-F paths (5,003 versions).
+
+- **(a) Fence openers that §3 accepts and X's opener does not.**
+  - In the 537 versions of selected D paths:
+    - `mermaid-example`: 1 fence, in 1 version;
+    - a case variant of `mermaid`: 0;
+    - counted apart, other text after `mermaid` on the opener line, which
+      X's opener also refuses: 7 fences, in 7 versions.
+  - Effect on the population: in 8 versions, of 3 selected paths in one
+    corpus, the diagram differs under X's opener. Applied to selection, X's
+    opener would drop those 3 paths, which §3 selects, and would add 6
+    paths that §3 excludes.
+  - At the pins, 180 `.md` blobs hold a §3 Mermaid fence. Of these, 90
+    hold 1,153 `mermaid-example` fences, 2 hold 5 openers with other text
+    after `mermaid`, and none holds a case variant. Almost all of these
+    blobs are outside the population: they hold more than one fence.
+- **(b) Lines that are exactly `=======`.** There are 0 such lines in any
+  blob that holds a Mermaid fence, at the pins (180 blobs) or among the
+  population's versions (298 blobs). That holds inside and outside fences,
+  with or without a `<<<<<<<` line. No stratum-F version holds one either.
+  To check that the pattern finds such lines at all, the same pattern was
+  run over `.md` files at each mirror's HEAD (not the pins), outside the
+  committed script: it found 8.
+
+So the `=======` reading cannot change any case in the population. The
+fence reading can, on at most 3 selected paths of one corpus (8 versions).
+X's opener would also change which paths are selected. §3's pattern is
+the frozen text and decides selection either way.

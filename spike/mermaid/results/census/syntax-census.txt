@@ -1,0 +1,45 @@
+# syntax census, 2026-10-11T15:12:58Z
+# nodespec HEAD: efe8e51f9533aff918ea7081aeaa9eb668027b9f
+# archive, private map and private table: held by the owner (paths not recorded)
+# reads trees and blobs only: no arm, no merge, no R, no outcome
+
+corpus rows read: 123
+pin / a: fences / case variant: 0
+pin / a: fences / mermaid-example: 1153
+pin / a: fences / other text after mermaid: 5
+pin / b: lines / inside a fence, blob with a <<<<<<< line: 0
+pin / b: lines / inside a fence, blob without a <<<<<<< line: 0
+pin / b: lines / outside a fence, blob with a <<<<<<< line: 0
+pin / b: lines / outside a fence, blob without a <<<<<<< line: 0
+pin / blobs / holding a §3 Mermaid fence: 180
+pin / blobs holding / a:case variant: 0
+pin / blobs holding / a:mermaid-example: 90
+pin / blobs holding / a:other text after mermaid: 2
+pin / blobs holding / b:inside a fence: 0
+pin / blobs holding / b:outside a fence: 0
+population / a: fences / case variant: 0
+population / a: fences / mermaid-example: 1
+population / a: fences / other text after mermaid: 7
+population / a: paths / selected, with a version whose diagram differs under X's opener: 3
+population / a: selection / paths selected by X only: 6
+population / a: selection / paths selected by §3 only: 3
+population / a: versions / whose diagram differs under X's opener: 8
+population / b: F versions / holding a ======= line: 0
+population / b: lines / inside a fence, blob with a <<<<<<< line: 0
+population / b: lines / inside a fence, blob without a <<<<<<< line: 0
+population / b: lines / outside a fence, blob with a <<<<<<< line: 0
+population / b: lines / outside a fence, blob without a <<<<<<< line: 0
+population / blobs / holding a §3 Mermaid fence: 298
+population / blobs holding / a:case variant: 0
+population / blobs holding / a:mermaid-example: 1
+population / blobs holding / a:other text after mermaid: 7
+population / blobs holding / b:inside a fence: 0
+population / blobs holding / b:outside a fence: 0
+population / paths / selected, stratum D: 47
+population / paths / selected, stratum F: 1671
+population / versions / stratum D: 537
+population / versions / stratum F: 5003
+
+paths touched by (a), selected or selected under X's opener: 9, in 1 corpora
+population paths touched by (b): 0, in 0 corpora
+# exit status 0
