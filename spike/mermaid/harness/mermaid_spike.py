@@ -483,7 +483,14 @@ def cmd_sealed(a, tr, bound):
             expect_tiers(json.load(open(os.path.join(fx, "expect.json"))))
             good.append(fx)
         except (Malformed, ValueError) as e:
-            malformed.append({"name": os.path.basename(fx), "reason": str(e)})
+            try:
+                exp = json.load(open(os.path.join(fx, "expect.json")))
+                assert isinstance(exp.get("records"), list) and all(
+                    isinstance(r, dict) and isinstance(r.get("category"), str) for r in exp["records"])
+                group = fixture_group(exp)
+            except (ValueError, AssertionError, AttributeError):
+                group = None  # the records do not parse either: both groups are blocked
+            malformed.append({"name": os.path.basename(fx), "reason": str(e), "group": group})
             print(f"sealed fixture {os.path.basename(fx)} is malformed, logged and not lined: {e}")
     R = RB.RCache()
     ext = EXTRACTOR if bound else a.extractor
@@ -491,6 +498,10 @@ def cmd_sealed(a, tr, bound):
     d = outdir(a, bound, RESULTS)
     jdump({"sealed": out, "malformed": malformed}, os.path.join(d, "sealed.json"))
     print(json.dumps({"sealed": out, "malformed": malformed}, sort_keys=True, indent=1))
+    if not out:
+        # A sealed run that lined no fixture checked nothing: never a pass.
+        print("no sealed fixture could be lined: the sealed check did not run", file=sys.stderr)
+        return 1
     return 0
 
 

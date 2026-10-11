@@ -1579,10 +1579,62 @@ def s_rereview():
     check("R-select: a D path with two fences is not selected, even when one is a flowchart (§3)",
           "doc.md" not in sel["selected"] and sel["selected"].get("one.md") == "D", sel)
 
+
+def s_sealed_unreadable():
+    """A sealed fixture the tiers parser cannot read blocks its group's
+    verdict; a sealed run that lines nothing is not a pass."""
+    x = os.path.join(tmpdir("xs"), "x.py")
+    with open(x, "w") as f:
+        f.write("import json\nprint(json.dumps({'exposed': True, 'records': [{'category': 'I1', "
+                "'objects': ['db', 'worker'], 'tier': 'B'}]}))\n")
+    I1r = [{"category": "I1", "objects": ["db", "worker"]}]
+    found = _case(1, records=[{"category": "I1", "objects": ["db", "worker"], "tier": "A"}], exposed=True)
+    cases = _base() + [found]
+    res = {}
+    for label, tiers in (("parsed", ["B"]), ("malformed", "B")):
+        tp, h = _sealed_tar(tmpdir("t"), tiers, I1r)
+        out, td = tmpdir("o"), tmpdir("tr")
+        rc, o = cli(["sealed", "--tar", tp, "--nonce-hex", "01" * 32, "--sealed-sha256", h, "--out-dir", out,
+                     "--extractor", x, "--transcript-dir", td])
+        sj = json.load(open(os.path.join(out, "sealed.json"))) if os.path.exists(os.path.join(out, "sealed.json")) else {}
+        res[label] = (rc, sj, AG.verdict(dict(_sum(cases, sealed=sj.get("sealed", [])),
+                                              sealed_malformed=sj.get("malformed", []))))
+    rc, sj, v = res["parsed"]
+    check("sealed, parsed: F says B, H says A, X agrees with F: identity VOID, the FOUND is found in a voided group",
+          v["identity"]["verdict"] == "NO VERDICT" and v["identity"]["reason"] == "VOID"
+          and len(v["lists"]["found_in_voided_group"]["identity"]) == 1, v["identity"])
+    rc, sj, v = res["malformed"]
+    check("sealed, malformed: the run lines nothing and does not exit 0",
+          rc != 0 and not sj.get("sealed") and [m["name"] for m in sj.get("malformed", [])] == ["fx"], (rc, sj))
+    check("sealed, malformed: the fixture's group is read from its records (identity)",
+          [m.get("group") for m in sj.get("malformed", [])] == ["identity"], sj.get("malformed"))
+    check("sealed, malformed: the identity FOUND is reported as found in a group with an unreadable sealed fixture",
+          v["identity"]["verdict"] == "NO VERDICT" and "unreadable" in v["identity"]["reason"]
+          and len(v["lists"]["found_in_group_with_unreadable_sealed_fixture"]["identity"]) == 1, v["identity"])
+    check("sealed, malformed: an identity fixture leaves the structure group's NOT FOUND standing",
+          v["structure"]["verdict"] == "NOT FOUND", v["structure"])
+    v = AG.verdict(dict(_sum(_base()), sealed_malformed=[{"name": "q", "reason": "r", "group": None}]))
+    check("sealed: a fixture whose records do not parse blocks both groups",
+          v["identity"]["verdict"] == "NO VERDICT" and "unreadable" in v["identity"]["reason"]
+          and v["structure"]["verdict"] == "NO VERDICT" and "unreadable" in v["structure"]["reason"])
+    cs = _base()
+    cs[0] = _case(0, records=[G2])
+    v = AG.verdict(dict(_sum(cs), sealed_malformed=[{"name": "q", "reason": "r", "group": "structure"}]))
+    check("sealed: a structure FOUND in a group with an unreadable fixture is never a clean FOUND",
+          v["structure"]["verdict"] == "NO VERDICT" and
+          len(v["lists"]["found_in_group_with_unreadable_sealed_fixture"]["structure"]) == 1, v["structure"])
+    tp, h = _sealed_tar(tmpdir("all"), "A", I1r, more=[("fy", 3, [{"category": "G2", "objects": []}])])
+    out = tmpdir("o")
+    rc, o = cli(["sealed", "--tar", tp, "--nonce-hex", "01" * 32, "--sealed-sha256", h, "--out-dir", out,
+                 "--extractor", x, "--transcript-dir", tmpdir("tr")])
+    sj = json.load(open(os.path.join(out, "sealed.json")))
+    check("sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged",
+          rc != 0 and not sj["sealed"] and sorted(m["name"] for m in sj["malformed"]) == ["fx", "fy"], (rc, sj))
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable]
 
 
 def main():

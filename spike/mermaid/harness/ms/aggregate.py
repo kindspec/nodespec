@@ -139,7 +139,22 @@ def verdict(summary):
             else:
                 blocked[g].append(dict(_robj(c, r), failed=why))
 
+    # A sealed fixture the tiers parser could not read cannot be judged by
+    # §10.4's VOID and disputed rules, so its group is blocked: a non-FOUND
+    # verdict there is NO VERDICT, and a FOUND is reported as found in a
+    # group with an unreadable sealed fixture, never as a clean FOUND. A
+    # fixture whose records did not parse either blocks both groups.
+    unreadable = {"identity": [], "structure": []}
+    for m in summary.get("sealed_malformed", []):
+        for g in ([m["group"]] if m.get("group") in unreadable else ["identity", "structure"]):
+            unreadable[g].append(m["name"])
+    found_unreadable = {"identity": [], "structure": []}
+    for g in ("identity", "structure"):
+        if unreadable[g] and found[g]:
+            found_unreadable[g], found[g] = found[g], []
+
     out = {"lists": {"blocked": blocked, "p_anomalies": anomalies, "with_refusals": refusals,
+                     "found_in_group_with_unreadable_sealed_fixture": found_unreadable,
                      "with_near_misses": near, "found_in_voided_group": voided,
                      "disputed_fixtures": {g: [f["name"] for f in v] for g, v in disputed.items()},
                      "malformed_sealed_fixtures": summary.get("sealed_malformed", []),
@@ -163,6 +178,8 @@ def verdict(summary):
         ident.update(verdict="FOUND", arms=sorted({r["arm"] for r in found["identity"]}), found=found["identity"])
     elif void["identity"]:
         ident.update(verdict="NO VERDICT", reason="VOID")
+    elif unreadable["identity"]:
+        ident.update(verdict="NO VERDICT", reason="unreadable sealed fixture: " + ", ".join(unreadable["identity"]))
     elif disputed["identity"]:
         ident.update(verdict="NO VERDICT", reason="disputed sealed fixture: "
                      + ", ".join(f["name"] for f in disputed["identity"]))
@@ -200,6 +217,8 @@ def verdict(summary):
             reasons.append("a blocked structure record among the decided cases")
         if disputed["structure"]:
             reasons.append("disputed sealed fixture: " + ", ".join(f["name"] for f in disputed["structure"]))
+        if unreadable["structure"]:
+            reasons.append("unreadable sealed fixture: " + ", ".join(unreadable["structure"]))
         if reasons:
             st.update(verdict="NO VERDICT", reason="; ".join(reasons))
         else:
