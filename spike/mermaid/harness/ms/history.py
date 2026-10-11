@@ -283,6 +283,24 @@ def _changed_paths(repo, a, b, selected):
 
 # ------------------------------------------------------------------ arm M-PR
 
+def _pr_touches(repo, pr, selected):
+    """R-prs, as the archive applies it (corpus.pr_relevance): do the pull
+    request's own commits touch a selected path? With its head absent, does
+    its merge commit?"""
+    sel = sorted(selected)
+    if not sel:
+        return False
+    head, c = pr.get("head"), pr.get("merge")
+    if head and repo.has_commit(head):
+        mb = repo.merge_bases(head, c + "^") if c and repo.has_commit(c) and repo.parents(c) else []
+        rng = [f"{mb[0]}..{head}"] if mb else [head]
+        return bool(repo.out("log", "-1", "--format=%H", *rng, "--", *sel, check=False).strip())
+    if c and repo.has_commit(c):
+        return bool(repo.out("log", "-1", "--format=%H", "--full-history", f"{c}^!", "--", *sel,
+                             check=False).strip())
+    return False
+
+
 def pr_cases(repo, pin, selected, prs):
     """§8.2 M-PR. prs: the archived list, each {"number", "head", "merge",
     "commits": [sha, oldest first]}. Returns (cases, counts)."""
@@ -293,7 +311,13 @@ def pr_cases(repo, pin, selected, prs):
     for pr in sorted(prs, key=lambda x: x["number"]):
         counts["prs"] += 1
         if pr.get("commits") is None:
-            counts["its commits touch no selected path"] = counts.get("its commits touch no selected path", 0) + 1
+            # The archive skips the commit list of a pull request whose own
+            # commits touch no selected path (R-prs). Re-check that here, so
+            # a list missing for a pull request that can matter is counted
+            # apart and never read as one that cannot.
+            key = ("commit list missing, though its commits touch a selected path"
+                   if _pr_touches(repo, pr, selected) else "its commits touch no selected path")
+            counts[key] = counts.get(key, 0) + 1
             continue
         c, head, k = pr.get("merge"), pr.get("head"), len(pr.get("commits") or [])
         if not c or not repo.has_commit(c) or not repo.is_ancestor(c, pin) or len(repo.parents(c)) != 1:

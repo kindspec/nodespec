@@ -406,6 +406,8 @@ M = [
      '    if extra:\n        bad.append(f"plugins {extra}")', '    if False:\n        bad.append(f"plugins {extra}")', "v3"),
     ("C2 an init with a hook accepted", "harness/ms/roles.py",
      '    if ev.get("hooks"):', '    if False:', "v3"),
+    ("C2 a missing commit list never re-checked for relevance", "harness/ms/history.py",
+     '                   if _pr_touches(repo, pr, selected) else', '                   if False else', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",

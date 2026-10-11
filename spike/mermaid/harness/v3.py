@@ -1752,6 +1752,11 @@ def s_archive_prs():
     cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"}, lst)
     check("M-PR: a listed pull request with no commit list is counted, never evaluated",
           counts.get("its commits touch no selected path") == 1, counts)
+    lost = [dict(e, commits=None) if e["number"] == 1 else e for e in lst]
+    cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"}, lost)
+    check("M-PR: a commit list missing for a pull request whose commits touch a selected path is counted apart",
+          counts.get("commit list missing, though its commits touch a selected path") == 1
+          and counts.get("its commits touch no selected path") == 1, counts)
 
 
 def s_commit2_readings():
