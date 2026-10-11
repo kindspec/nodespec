@@ -1171,22 +1171,24 @@ class _Ctx:
 def s_p_x():
     """§10.5 with §8.3: X never sees the truth, so it is compared with H's
     records before P's truth filter."""
-    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n"
-    v1 = v0 + "  C[Gamma]\n"
-    v2 = "flowchart TD\n  A[Alpha]\n  D[Delta]\n  B[Beta]\n  C[Gamma]\n"
+    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  A --> B\n  C[Gamma]\n"
+    v1 = v0 + "  A --> B\n"
+    v2 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  C[Gamma]\n  A --> B\n"
     t = RP.replay(v0, v1, v2)
-    d = tmpdir("xp")
-    x = os.path.join(d, "x.py")
+    prep = C.prepare("F", v0, v1, t, R)
+    res = C.outcome(prep, [v0, v1, t], G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R,
+                    path="c.mmd", truth=v2)
+    x = os.path.join(tmpdir("xp"), "x.py")
     with open(x, "w") as f:
-        f.write("import json\nprint(json.dumps({'exposed': False, 'records': [{'category': 'S-ORDER', "
-                "'objects': []}]}))\n")
+        f.write("import json\nprint(%r)\n" % json.dumps({"exposed": bool(prep.get("exposed")), "records": [
+            {"category": r["category"], "objects": r["objects"], "tier": r["tier"]} for r in res["records_unfiltered"]]}))
     c = AR.evaluate(_Ctx(), {"arm": "P", "path": "c.mmd"}, "F", [v0, v1, t],
                     lambda: G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R, x, truth=v2)
-    check("P: H's unfiltered records hold the S-ORDER X reports", any(
-        r["category"] == "S-ORDER" for r in c.get("x_records", [])) and c["outcome"] == "JUDGED")
+    check("P: H's unfiltered records hold a record the truth filter removes",
+          len(res["records_unfiltered"]) > len(res["records"]), (res["records_unfiltered"], res["records"]))
     check("P: X agrees with H's records before the truth filter", c.get("x_agree") is True, c.get("x_detail"))
-    check("P: the truth filter still removes the record from H's P records",
-          not any(r["category"] == "S-ORDER" for r in c["records"]), c["records"])
+    check("P: the truth filter still removes it from H's P records",
+          len(c["records"]) < len(c.get("records_unfiltered", [])), c["records"])
 
 
 def s_aggregate_scope():
@@ -1726,10 +1728,56 @@ def s_archive_prs():
     check("M-PR: a listed pull request with no commit list is counted, never evaluated",
           counts.get("its commits touch no selected path") == 1, counts)
 
+
+def s_commit2_readings():
+    """Readings settled with F's V-fixtures and X's output (LOG §8-§10)."""
+    import mermaid_spike as CLI
+    b = "flowchart TD\n  a[A] --> b[B]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n  c[C]\n"
+    p, r = run_case("F", b, b.replace("  x1[x1]\n", "  x1[x1]\n  n1[N1]\n"), b + "  n2[N2]\n")
+    check("R-order: two legs adding statements in different places make no S-ORDER", r and not has(r, "S-ORDER"), cats(r))
+    o = "flowchart TD\n  c[C]\n  a[A] --> b[B]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n"
+    p, r = run_case("F", b, o, b + "  n2[N2]\n")
+    check("R-order: a relative order one leg inverts and the merge keeps is no S-ORDER", r and not has(r, "S-ORDER"), cats(r))
+    B = {("exist", "a"): ("node",), ("order", ("v", "a", "b")): True, ("exist", "b"): ("node",)}
+    M = dict(B)
+    M[("order", ("v", "a", "b"))] = False
+    recs = OR.judge(B, B, B, M, set())[0]
+    check("R-order: a decided relative order inverted in the merge is one S-ORDER record for the vertex map",
+          [x["category"] for x in recs] == ["S-ORDER"], recs)
+    o = "flowchart LR\n  dlq --> x\n  style dlq fill:#fdd\n  a\n  b\n  c\n"
+    t = "flowchart LR\n  a\n  b\n  c\n  y --> dlq\n  style dlq stroke:#a00\n"
+    p, r = run_case("F", "flowchart LR\n  a\n  b\n  c\n", o, t)
+    check("MC: a model conflict that is part of a collision is not also an MC (§5.3: outside §5.2)",
+          has(r, "I2") and not has(r, "MC"), cats(r))
+    good = {"records": [{"category": "S-ORDER", "objects": []}, {"category": "I1", "objects": ["a"]}],
+            "tiers": ["\u2014", "A"]}
+    check("R-tiers: tiers parallel to records, with the reported-only dash, parse", CLI.expect_tiers(good) == ["\u2014", "A"])
+    for bad in ({"records": [{"category": "I1", "objects": []}], "tiers": []},
+                {"records": [], "tiers": ["A"]}, {"records": [{"category": "I1"}], "tiers": "A"}):
+        try:
+            CLI.expect_tiers(bad)
+            ok = False
+        except CLI.Malformed:
+            ok = True
+        check(f"R-tiers: malformed tiers refused ({bad['tiers']!r} for {len(bad['records'])} record(s))", ok)
+    ln = CLI.sealed_lines([{"fixture": "f", "expect": {"records": [{"category": "I1", "objects": ["a"]},
+                                                               {"category": "G4", "objects": ["a"]}],
+                                                      "tiers": ["B", "A"]},
+                            "records": [{"category": "I1", "objects": ["a"], "tier": "B"},
+                                        {"category": "G4", "objects": ["a"], "tier": "A"}]}])
+    got = {(x["group"], x["line"]): x["f"] for x in ln}
+    check("R-sealed: per-record tiers give each group its own lines",
+          got == {("identity", "A"): False, ("identity", "B"): True, ("structure", "A"): True, ("structure", "B"): False}, got)
+    v = XR.x_view({"exposure": {"exposed": False}, "records": [{"category": "G0", "objects": ["/some/merged.md"], "tier": "B"}]})
+    check("R-x-names: X's G0 object, a file path, is read as the path", v["records"][0]["objects"] == ["path"])
+    check("R-x-compare: objects are compared only for I1-I4, G0-G4",
+          XR.norm_records([{"category": "C", "objects": ["q"]}]) == {("C", ())} and
+          XR.norm_records([{"category": "G4", "objects": ["q"]}]) == {("G4", ("q",))})
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings]
 
 
 def main():

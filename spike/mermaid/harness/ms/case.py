@@ -97,7 +97,7 @@ def outcome(prep, inputs, merge, R, path="", truth=None):
     if d is None:
         # G0, always tier B (§5.4); the merged state is not judged further.
         res.update(outcome="G0", why=why)
-        res["records"] = [{"category": "G0", "objects": ["path:" + path], "tier": "B", "units": [],
+        res["records"] = [{"category": "G0", "objects": ["path"], "tier": "B", "units": [],
                            "detail": why}]
         return res
     r = R.get(d)

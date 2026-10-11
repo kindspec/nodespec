@@ -143,7 +143,7 @@ def lint_failures(model, db, stratum=None, fence_ok=True, path=None):
     state's diagram (None for a merged file whose diagram is not judged)."""
     out = set()
     if stratum == "D" and not fence_ok:
-        out.add(("L6", "path:" + (path or "")))
+        out.add(("L6", "path"))
     if model is None or db is None:
         return out
     nodes = {u[1] for u, v in model.items() if u[0] == "exist" and "node" in v}
@@ -209,7 +209,9 @@ def judge(B, O, T, M, lint_new):
     recs = []
     ident = set()
     names = {"dangling": "I1", "collision": "I2", "delete/modify": "I3"}
+    in_refusal = set()
     for kind, k, us in refusals(B, O, T, dec, mc):
+        in_refusal.update(us)
         if kind == "dangling":
             objs = {k}
             for u in us:
@@ -229,6 +231,8 @@ def judge(B, O, T, M, lint_new):
             recs.append(_rec("I4", {k}, "A", [u], f"merged kinds {mk}, decided {d}"))
             ident.add(k)
 
+    order_hits = []
+
     def related(u, v):
         return bool(refers(u, v) & ident)
 
@@ -240,7 +244,10 @@ def judge(B, O, T, M, lint_new):
             continue
         p = u[0]
         if p == "order":
-            recs.append(_rec("S-ORDER", set(), "-", [u], "statement order"))
+            # R-order: a decided relative order inverted in the merge; a pair
+            # missing from the decided or the merged model is not compared.
+            if d is not None and m is not None:
+                order_hits.append(u)
             continue
         if p == "exist":
             kinds = set(d or ()) | set(m or ())
@@ -273,14 +280,16 @@ def judge(B, O, T, M, lint_new):
         elif p in ("class", "styles"):
             recs.append(_rec("D", {keyed_by(u)}, "D", [u], f"{d!r} -> {m!r}"))
     for u in sorted(mc, key=repr):
+        if u in in_refusal:
+            continue  # §5.3: MC is "a model conflict outside §5.2"; this one is part of a refusal case
         m = M.get(u)
         legs = (O.get(u), T.get(u))
         if u[0] == "exist":
             continue
         cls = CLASS_OF[u[0]]
         if cls == "order":
-            if m not in legs:
-                recs.append(_rec("S-ORDER", set(), "-", [u], "statement order (conflict)"))
+            if m is not None and m not in legs:
+                order_hits.append(u)
             continue
         if m in legs:
             recs.append(_rec("MC-ineligible", set(), "-", [u], "merged value is a leg's"))
@@ -295,6 +304,10 @@ def judge(B, O, T, M, lint_new):
         tier = {"G2": "A", "G3": "A", "G4": "A", "C": "C", "D": "D"}[grp]
         recs.append(_rec("MC", objs, tier, [u], f"group {grp}; legs {legs!r}, merged {m!r}"))
         recs[-1]["group"] = grp
+    for seq in sorted({u[1][0] for u in order_hits}):
+        us = sorted((u for u in order_hits if u[1][0] == seq), key=repr)
+        recs.append(_rec("S-ORDER", set(), "-", us, f"{len(us)} inverted pair(s) in the "
+                         + ("vertex map" if seq == "v" else "edge list")))
     # §5.4: an A record one of whose objects newly fails a lint is tier B.
     failing = {o for _, o in lint_new}
     for r in recs:

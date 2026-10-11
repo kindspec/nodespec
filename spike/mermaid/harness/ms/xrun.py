@@ -25,10 +25,19 @@ CATS = {"I1", "I2", "I3", "I4", "G0", "G1", "G2", "G3", "G4", "MC", "C", "D", "S
 TIMEOUT = 120
 
 
+# §5.3's "A record's objects" defines objects for I1-I4, G0 and G1-G4 only;
+# for MC, C, D, S-LINKSTYLE and S-ORDER the text gives none, so those are
+# compared by category alone (R-x-compare).
+OBJECTS_DEFINED = {"I1", "I2", "I3", "I4", "G0", "G1", "G2", "G3", "G4"}
+
+
 def norm_records(recs):
     out = set()
     for r in recs:
         if not isinstance(r, dict) or r.get("category") not in CATS:
+            continue
+        if r["category"] not in OBJECTS_DEFINED:
+            out.add((r["category"], ()))
             continue
         objs = r.get("objects")
         if isinstance(objs, str):
@@ -84,7 +93,14 @@ def x_view(o):
         exp = o["exposure"]["exposed"]
     else:
         return None
-    return {"exposed": exp, "records": o["records"], "raw_keys": sorted(o)}
+    recs = []
+    for r in o["records"]:
+        if isinstance(r, dict) and r.get("category") == "G0":
+            # §5.3: G0's object is the path. X names it by the merged file's
+            # path on disk, H by "path"; both mean the case's one path.
+            r = dict(r, objects=["path"])
+        recs.append(r)
+    return {"exposed": exp, "records": recs, "raw_keys": sorted(o)}
 
 
 def compare(h_records, h_exposed, x_out, x_fail):

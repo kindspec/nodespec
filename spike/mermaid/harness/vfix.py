@@ -40,6 +40,11 @@ from ms import xrun as XR  # noqa: E402
 import mermaid_spike as CLI  # noqa: E402
 
 
+PREFIX = {"i1": "I1", "i2": "I2", "i3": "I3", "i4": "I4", "g0": "G0", "g1": "G1", "g2": "G2", "g3": "G3",
+          "g4": "G4", "mc": "MC", "c": "C", "d": "D", "sl": "S-LINKSTYLE", "so": "S-ORDER", "e": "E",
+          "x": "exposed-E", "clean": "clean"}
+
+
 def fixtures(d):
     return sorted(os.path.dirname(p) for p in glob.glob(os.path.join(d, "*", "expect.json")))
 
@@ -55,7 +60,7 @@ def main():
         print(f"no V-fixture under {a.dir}: {a.step.upper()} cannot pass over zero fixtures")
         return 1
     R = RB.RCache()
-    fails, n = [], 0
+    fails, notes, n = [], [], 0
     for f in fx:
         name = os.path.basename(f)
         exp = json.load(open(os.path.join(f, "expect.json")))
@@ -81,21 +86,48 @@ def main():
                 elif s.status != "in":
                     print(f"  {name} {label}: out of the subset ({s.status}: {s.reason})")
         elif a.step == "v3":
-            want = XR.norm_records(exp.get("records", []))
-            got = XR.norm_records(r["records"])
-            if want != got or bool(exp.get("exposed")) != r["exposed"]:
-                fails.append(f"{name}: H {sorted(got)} exposed {r['exposed']}; expected {sorted(want)} "
-                             f"exposed {exp.get('exposed')}")
+            # §11.2 V3: "Each category fires on its V-fixtures and stays silent
+            # on clean ones" (R-v3fix). A fixture's category is the one F
+            # wrote it for, read from its directory name as F's coverage table
+            # lists it; that category must fire (an E outcome is E; an
+            # exposed-and-refused fixture must be exposed and E); a clean
+            # fixture must give no record F's tiers would line, and no E.
+            # The A and B lines of F's tiers must match H's. Every other
+            # difference with F's expectation is listed for the log.
+            cat = PREFIX.get(name.split("-")[0])
+            hcats = {x["category"] for x in r["records"] if x["category"] in XR.CATS}
+            if r.get("outcome") == "E":
+                hcats.add("E")
+            fcats = {x["category"] for x in exp.get("records", [])}
+            if cat is None:
+                fails.append(f"{name}: no category for its name")
+            elif cat == "clean":
+                if hcats - {"S-ORDER"} or r["exposed"] != bool(exp.get("exposed")):
+                    fails.append(f"{name}: clean, but H gives {sorted(hcats)} exposed {r['exposed']}")
+            elif cat == "exposed-E":
+                if not (r["exposed"] and "E" in hcats):
+                    fails.append(f"{name}: should be exposed and E; H exposed {r['exposed']}, {sorted(hcats)}")
+            elif cat not in hcats:
+                fails.append(f"{name}: {cat} does not fire; H gives {sorted(hcats)}")
             try:
                 for ln in CLI.sealed_lines([r]):
                     if ln["h"] != ln["f"]:
-                        fails.append(f"{name}: line {ln['line']}: H {'qualifies' if ln['h'] else 'does not'}, "
-                                     f"tiers {exp.get('tiers')}")
+                        fails.append(f"{name}: {ln['group']} line {ln['line']}: H "
+                                     f"{'qualifies' if ln['h'] else 'does not'}, F's tiers {exp.get('tiers')}")
             except CLI.Malformed as e:
                 fails.append(f"{name}: expect.json: {e}")
+            want, got = XR.norm_records(exp.get("records", [])), XR.norm_records(r["records"])
+            if r.get("outcome") == "E":
+                got.add(("E", ()))
+            want = {(c, o if c in XR.OBJECTS_DEFINED else ()) for c, o in want} | {
+                ("E", ()) for x in exp.get("records", []) if x["category"] == "E"}
+            if want != got or bool(exp.get("exposed")) != r["exposed"]:
+                notes.append(f"{name}: H only {sorted(got - want)[:4]}; F only {sorted(want - got)[:4]}")
         elif a.step == "v5":
             if not r.get("x_agree"):
                 fails.append(f"{name}: {r.get('x_detail')}")
+    for x in notes:
+        print("  differs from F's expectation:", x)
     for x in fails:
         print("  FAIL ", x)
     print(f"\n{a.step.upper()}: {n} checked, {len(fails)} failed")
