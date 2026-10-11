@@ -17,7 +17,7 @@ deliberate, not an oversight.
                             MIT, Copyright (c) 2014 - 2022 Knut Sveidqvist
                             (Mermaid's own documentation, unmodified)
   spike/*/results/          CC-BY-4.0
-  spike/*/x/                MIT (X, the second extractor)
+  spike/*/x/                CC-BY-4.0 (X, the second extractor, as its file header says)
   spike/*/v-fixtures/       CC0-1.0 (F's V-fixtures)
   spike/*/LOG.md            CC-BY-4.0
 
