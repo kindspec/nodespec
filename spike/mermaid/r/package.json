@@ -1,0 +1,10 @@
+{
+  "name": "nodespec-mermaid-spike-r",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "jsdom": "26.1.0",
+    "mermaid": "12.1.0"
+  }
+}

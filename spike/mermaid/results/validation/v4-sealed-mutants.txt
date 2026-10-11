@@ -1,0 +1,14 @@
+# V4's mutants for the unreadable-sealed-fixture gates (SU1-SU7, and RR4b repointed), run with v4.mutant()
+# nodespec HEAD: f0da99321141a2669fee55dc0c333fb0ea300dd6
+# 2026-10-11T04:08:32Z
+
+MUTATION 147 RR4b a malformed sealed fixture stops the run: KILLED by v3 [2d9229047f780a42 -> 51b712ab2420c33c] (6 red; first: sealed: a fixture whose tiers the parser cannot read is logged as malformed, not refused (LOG §3, §4)
+MUTATION 148 SU1 an unreadable sealed fixture blocks nothing: KILLED by v3 [69394634325e439a -> f8107d04be43e5d7] (3 red; first: sealed, malformed: the identity FOUND is reported as found in a group with an unreadable sealed fixt)
+MUTATION 149 SU2 a fixture with unparsed records blocks only identity: KILLED by v3 [69394634325e439a -> 267eca693fcda2ec] (1 red; first: sealed: a fixture whose records do not parse blocks both groups)
+MUTATION 150 SU3 a FOUND in a blocked group stays a clean FOUND: KILLED by v3 [69394634325e439a -> 9af999a2da2ea29e] (2 red; first: sealed, malformed: the identity FOUND is reported as found in a group with an unreadable sealed fixt)
+MUTATION 151 SU4 a non-FOUND identity verdict is not blocked: KILLED by v3 [69394634325e439a -> 16b0299285df4f84] (2 red; first: sealed, malformed: the identity FOUND is reported as found in a group with an unreadable sealed fixt)
+MUTATION 152 SU5 a non-FOUND structure verdict is not blocked: KILLED by v3 [69394634325e439a -> e7e3f95c8d2706b7] (2 red; first: sealed: a fixture whose records do not parse blocks both groups)
+MUTATION 153 SU6 a sealed run that lines nothing exits 0: KILLED by v3 [2d9229047f780a42 -> 2a0a2b0a4ec68479] (2 red; first: sealed, malformed: the run lines nothing and does not exit 0  [(0, {'malformed': [{'group': 'identit)
+MUTATION 154 SU7 a malformed fixture's group read as structure: KILLED by v3 [2d9229047f780a42 -> cc3d5f706f574b48] (3 red; first: sealed, malformed: the fixture's group is read from its records (identity)  [[{'group': 'structure',)
+{'killed': 8, 'survived': 0, 'broken': 0}
+# exit status 0

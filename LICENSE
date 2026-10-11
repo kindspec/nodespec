@@ -9,6 +9,15 @@ deliberate, not an oversight.
   spike/*/census/README.md  CC-BY-4.0
   spike/*/census/*          MIT
   spike/*/census/v4/cases/  CC0-1.0
+  spike/*/harness/README.md CC-BY-4.0
+  spike/*/harness/,
+  spike/*/r/                MIT
+  spike/*/blind/x/SPEC.md   CC-BY-4.0 (cut from the pre-registration)
+  spike/*/blind/mermaid-12.1.0-flowchart.md
+                            MIT, Copyright (c) 2014 - 2022 Knut Sveidqvist
+                            (Mermaid's own documentation, unmodified)
+  spike/*/results/          CC-BY-4.0
+  spike/*/LOG.md            CC-BY-4.0
 
 Full texts are in LICENSES/.
 
