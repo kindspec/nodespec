@@ -1,5 +1,5 @@
-# v3, 2026-10-11T12:44:27Z
-# nodespec HEAD: ce2319b9e944d1c10ba72c59cef13b8d54d7e6bc
+# v3, 2026-10-11T17:12:25Z
+# nodespec HEAD: ed0e4d8c66cd45de16051a71253c528f3b98ca28
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -329,8 +329,13 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  R-v3fix: a fixture whose category does not fire fails
   PASS  R-v3fix: a clean fixture on which H reports a record fails
   PASS  R-v3fix: tiers whose A and B lines H does not match fail
+== s_v5_rulings: V5 with the owner's rulings (vfix.py v5, LOG §11): it passes only when
+  PASS  V5 rulings: a disagreement equal to a ruled one passes
+  PASS  V5 rulings: a disagreement not ruled fails
+  PASS  V5 rulings: a disagreement that differs from the ruled one fails
+  PASS  V5 rulings: a ruled disagreement that no longer occurs fails
   PASS  V3 wrote nothing under results/
 
-289 checks, 0 failed
+293 checks, 0 failed
 V3: PASS
 # exit status 0

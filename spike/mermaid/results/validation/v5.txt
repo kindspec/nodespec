@@ -1,12 +1,12 @@
-# v5, 2026-10-11T12:47:18Z
-# nodespec HEAD: ce2319b9e944d1c10ba72c59cef13b8d54d7e6bc
+# v5, 2026-10-11T17:15:18Z
+# nodespec HEAD: ed0e4d8c66cd45de16051a71253c528f3b98ca28
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
-  FAIL  i4-d-node-vs-subgraph: H only [('I4', ('billing',))]; X only []
-  FAIL  i4-f-move-vs-wrap: H only [('I4', ('api',))]; X only [('G1', ('api',))]
-  FAIL  i4-f-subgraph-vs-node: H only [('I4', ('auth',))]; X only []
+  ruled disagreement: i4-d-node-vs-subgraph: ruled (LOG §11): H only [('I4', ('billing',))]; X only []
+  ruled disagreement: i4-f-move-vs-wrap: ruled (LOG §11): H only [('I4', ('api',))]; X only [('G1', ('api',))]
+  ruled disagreement: i4-f-subgraph-vs-node: ruled (LOG §11): H only [('I4', ('auth',))]; X only []
 
-V5: 53 checked, 3 failed
-V5: FAIL
-# exit status 1
+V5: 53 checked, 0 failed
+V5: PASS
+# exit status 0
