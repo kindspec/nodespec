@@ -595,3 +595,19 @@ So the `=======` reading cannot change any case in the population. The
 fence reading can, on at most 3 selected paths of one corpus (8 versions).
 X's opener would also change which paths are selected. §3's pattern is
 the frozen text and decides selection either way.
+
+### Fence and `=======` readings, declared before Arm 0
+
+- **Fences.** The syntax census found 3 selected stratum-D paths (8
+  versions) where X's opener differs from §3's. §3 decides the fence:
+  `^ {0,3}(`{3,}|~{3,})[ \t]*mermaid(-example)?\b`, case-insensitively.
+  H follows it. X differs only because §3 was not in its §10.3 allotment
+  (SPEC.md). No ruling is needed, and neither X nor H changes. An X/H
+  disagreement on those paths is a disagreement, handled by §10.5
+  unchanged:
+  - a FOUND candidate there becomes disputed;
+  - a tier-A disagreement there blocks a structure NOT FOUND.
+
+  Such a disagreement is reported with this cause: X's allotment.
+- **`=======`.** The census found no `=======` line in any population blob
+  that holds a Mermaid fence, so X's marker reading cannot change any case.
