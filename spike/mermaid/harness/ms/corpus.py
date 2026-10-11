@@ -131,10 +131,15 @@ def open_corpus(label, bundle_dir, work_dir, pin, want=None):
     return dest
 
 
-def fetch_pr_list(repo_name, api):
-    """§7.6 and §8.2: every merged pull request (number, head sha, merge
-    commit sha, commit count, and the commit list read across every page).
-    api(path) -> parsed JSON page; injectable so V3 can plant one."""
+def fetch_pr_list(repo_name, api, relevant=None):
+    """§7.6 and §8.2: every merged pull request: number, head sha and merge
+    commit sha. For each one `relevant(entry)` accepts (all, when it is
+    None) the commit count and the commit list are read too, the list
+    across every page. R-prs: a pull request whose own commits touch no
+    selected path can yield no M-PR case (§8.2 keeps a case only if a
+    selected path changed on both legs), so its commits are not fetched;
+    it is listed with commits null and counted. api(path) -> parsed JSON;
+    injectable so V3 can plant one."""
     out, page = [], 1
     while True:
         prs = api(f"repos/{repo_name}/pulls?state=closed&per_page=100&page={page}")
@@ -143,6 +148,14 @@ def fetch_pr_list(repo_name, api):
         for p in prs:
             if not p.get("merged_at"):
                 continue
+            e = {"number": p["number"], "head": p["head"]["sha"], "merge": p["merge_commit_sha"]}
+            if relevant is not None and not relevant(e):
+                e.update(commit_count=None, commits=None, skipped="its commits touch no selected path")
+                out.append(e)
+                continue
+            count = p.get("commits")
+            if count is None:
+                count = api(f"repos/{repo_name}/pulls/{p['number']}").get("commits")
             commits, cp = [], 1
             while True:
                 cs = api(f"repos/{repo_name}/pulls/{p['number']}/commits?per_page=100&page={cp}")
@@ -152,19 +165,35 @@ def fetch_pr_list(repo_name, api):
                 if len(cs) < 100:
                     break
                 cp += 1
-            out.append({"number": p["number"], "head": p["head"]["sha"], "merge": p["merge_commit_sha"],
-                        "commit_count": p.get("commits", len(commits)), "commits": commits})
+            e.update(commit_count=count if count is not None else len(commits), commits=commits)
+            out.append(e)
         if len(prs) < 100:
             break
         page += 1
     return out
 
 
-def gh_api(path):
-    r = subprocess.run(["gh", "api", path], capture_output=True, text=True)
-    if r.returncode != 0:
-        raise RuntimeError(f"gh api {path}: {r.stderr.strip()[:200]}")
-    return json.loads(r.stdout)
+def gh_api(path, tries=6):
+    """`gh api`, waiting out a rate limit and retrying a transient failure."""
+    import time
+    for i in range(tries):
+        r = subprocess.run(["gh", "api", path], capture_output=True, text=True)
+        if r.returncode == 0:
+            return json.loads(r.stdout)
+        err = r.stderr.lower()
+        if "rate limit" in err:
+            q = subprocess.run(["gh", "api", "rate_limit", "--jq", ".resources.core.reset"],
+                               capture_output=True, text=True)
+            try:
+                wait = max(30, int(q.stdout.strip()) - int(time.time()) + 5)
+            except ValueError:
+                wait = 600
+            time.sleep(min(wait, 3700))
+            continue
+        if "404" in err or "not found" in err:
+            raise RuntimeError(f"gh api {path}: not found")
+        time.sleep(10 * (i + 1))
+    raise RuntimeError(f"gh api {path}: failed {tries} times: {r.stderr.strip()[:200]}")
 
 
 class ArchiveFailed(Exception):
@@ -172,7 +201,30 @@ class ArchiveFailed(Exception):
     corpus may belong to a private individual (H6)."""
 
 
-def archive(name, label, out_dir, api=gh_api, url=None):
+def pr_relevance(mirror, pin):
+    """R-prs: a function telling whether a merged pull request's own
+    commits (merge base of its head and its merge commit's parent, to its
+    head) touch a path §7.4 selects at the pin; when its head is not in the
+    clone, whether its merge commit does."""
+    from . import history as HI
+    repo = HI.Repo(mirror)
+    sel = sorted(HI.select(repo, pin)["selected"])
+    if not sel:
+        return lambda e: False
+    touching = set(repo.out("log", "--all", "--format=%H", "--full-history", "--", *sel).split())
+
+    def rel(e):
+        head, c = e.get("head"), e.get("merge")
+        if head and repo.has_commit(head):
+            base = c + "^" if c and repo.has_commit(c) and len(repo.parents(c)) >= 1 else c
+            mb = repo.merge_bases(head, base) if base else []
+            rng = [f"{mb[0]}..{head}"] if mb else [head]
+            return bool(repo.out("log", "-1", "--format=%H", *rng, "--", *sel, check=False).strip())
+        return bool(c) and c in touching
+    return rel
+
+
+def archive(name, label, out_dir, api=gh_api, url=None, pin=None):
     """Fetch a corpus (name: owner/name) with its refs/pull/*/head refs,
     bundle it, and save its merged pull-request list under file names derived
     from its public label. Returns {"file", "sha256", "prs_file",
@@ -202,7 +254,8 @@ def archive(name, label, out_dir, api=gh_api, url=None):
         run(["git", "-C", mirror, "fetch", "-q", "origin", "+refs/pull/*/head:refs/pull/*/head"], check=False)
         bundle = os.path.join(out_dir, tag + ".bundle")
         run(["git", "-C", mirror, "bundle", "create", "-q", bundle, "--all"])
-        prs = fetch_pr_list(name, api)
+        relevant = pr_relevance(mirror, pin) if pin else None
+        prs = fetch_pr_list(name, api, relevant)
     except ArchiveFailed:
         raise
     except Exception as x:  # noqa: BLE001 -- any failure is reported scrubbed

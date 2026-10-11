@@ -582,7 +582,7 @@ def cmd_archive(a, tr, bound):
     if inside(a.out, REPO):
         raise SystemExit("refusing: archives live outside the repository")
     try:
-        res = K.archive(name, a.corpus, a.out)
+        res = K.archive(name, a.corpus, a.out, pin=ident[(rows[0]["stratum"], a.corpus)]["pin"])
     except K.ArchiveFailed as e:
         raise SystemExit(f"archive of {a.corpus} failed: {e}")
     print(json.dumps({a.corpus: res}, sort_keys=True))

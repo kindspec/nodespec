@@ -1670,10 +1670,55 @@ def s_roles():
     toks = RO.HEX64.findall("hash: " + "a" * 64 + " and " + "b" * 64)
     check("roles: two 64-hex tokens in F's result are counted, never recorded as the hash", len(toks) == 2)
 
+
+def s_archive_prs():
+    """R-prs: the archive fetches commit lists only for pull requests whose
+    own commits touch a selected path; the others are listed and counted."""
+    pl = Plant("aprs")
+    fc = "flowchart TD\n  A --> B\n"
+    pl.commit({"g.mmd": fc, "notes.txt": "n\n"}, "base")
+    pl.g("checkout", "-q", "-b", "pr1")
+    h1 = pl.commit({"g.mmd": fc + "  B --> C\n"}, "touches the flowchart")
+    pl.g("checkout", "-q", "main")
+    pl.g("checkout", "-q", "-b", "pr2")
+    h2 = pl.commit({"notes.txt": "n2\n"}, "touches only notes")
+    pl.g("checkout", "-q", "main")
+    pl.g("merge", "-q", "--no-ff", "--no-edit", "pr1")
+    m1 = pl.g("rev-parse", "HEAD")
+    pl.g("merge", "-q", "--no-ff", "--no-edit", "pr2")
+    m2 = pl.g("rev-parse", "HEAD")
+    pin = m2
+    rel = K.pr_relevance(pl.path, pin)
+    check("archive: a pull request whose commits touch a selected path is relevant",
+          rel({"number": 1, "head": h1, "merge": m1}) is True)
+    check("archive: a pull request whose commits touch no selected path is not",
+          rel({"number": 2, "head": h2, "merge": m2}) is False)
+    calls = []
+
+    def api(path):
+        calls.append(path)
+        if "/pulls?" in path:
+            return [{"number": 1, "merged_at": "x", "head": {"sha": h1}, "merge_commit_sha": m1},
+                    {"number": 2, "merged_at": "x", "head": {"sha": h2}, "merge_commit_sha": m2}] \
+                if path.endswith("page=1") else []
+        if path.endswith("/pulls/1"):
+            return {"commits": 1}
+        if "/pulls/1/commits" in path:
+            return [{"sha": h1}] if path.endswith("page=1") else []
+        raise AssertionError(f"unexpected call {path}")
+    lst = K.fetch_pr_list("o/r", api, rel)
+    by = {e["number"]: e for e in lst}
+    check("archive: the relevant pull request's count and commits are read; the other's are not",
+          by[1]["commits"] == [h1] and by[1]["commit_count"] == 1 and by[2]["commits"] is None
+          and not any("/pulls/2" in c for c in calls), lst)
+    cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"}, lst)
+    check("M-PR: a listed pull request with no commit list is counted, never evaluated",
+          counts.get("its commits touch no selected path") == 1, counts)
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs]
 
 
 def main():

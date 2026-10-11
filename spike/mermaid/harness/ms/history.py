@@ -292,6 +292,9 @@ def pr_cases(repo, pin, selected, prs):
     cases = []
     for pr in sorted(prs, key=lambda x: x["number"]):
         counts["prs"] += 1
+        if pr.get("commits") is None:
+            counts["its commits touch no selected path"] = counts.get("its commits touch no selected path", 0) + 1
+            continue
         c, head, k = pr.get("merge"), pr.get("head"), len(pr.get("commits") or [])
         if not c or not repo.has_commit(c) or not repo.is_ancestor(c, pin) or len(repo.parents(c)) != 1:
             counts["not reachable or not one parent"] += 1
