@@ -1,0 +1,7 @@
+flowchart LR
+  subgraph legacy [Legacy]
+    soap[SOAP API]
+    batch[Nightly batch]
+  end
+  client[Client] --> soap
+  batch --> dw[(Warehouse)]

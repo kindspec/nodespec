@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "D",
+      "objects": [
+        "blocked"
+      ]
+    }
+  ],
+  "tiers": [
+    "D"
+  ],
+  "why": "T retires the \"blocked\" marking: it deletes classDef blocked and class review blocked, and the sentence about red boxes. O only moves classDef blocked to the end. §5.1: the class definition blocked is decided absent (T), and so is the assignment (review, blocked). Both legs delete the classDef line, so git merges clean with O's moved copy: the definition is back, §5.3 D, tier D (object: the class name). The assignment stays deleted, as decided. Not exposed: classes are not keys (§4.1)."
+}

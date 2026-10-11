@@ -1,0 +1,7 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [],
+  "tiers": [],
+  "why": "O relabels compile; T adds an SBOM step and a sentence. The edits touch different units and lines. Every unit merges to its decided value (§5.1). Git merges clean: no record. Not exposed."
+}

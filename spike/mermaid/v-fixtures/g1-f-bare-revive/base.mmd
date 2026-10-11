@@ -1,0 +1,8 @@
+flowchart TD
+  ui --> api
+  api --> recommender
+  api --> search
+  recommender --> features
+  search --> index
+  recommender --> index
+  index --> store

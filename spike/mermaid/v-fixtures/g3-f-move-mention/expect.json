@@ -1,0 +1,18 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G3",
+      "objects": [
+        "auth",
+        "core",
+        "identity"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "T moves auth from the public box into the identity box. O adds a session-check edge from users to auth inside the core box; in O, auth is in two boxes and stays in public, which closes first (Appendix A). §5.1: auth's holder decided identity (only T changes it). Git merges clean; auth is now in core and identity, core closes first, so the holder is core: §5.3 G3, objects auth and both holders. Tier A: L3 already holds for auth in O. Nodes are declared above the boxes and no edge moves, so no order changes. Not exposed."
+}

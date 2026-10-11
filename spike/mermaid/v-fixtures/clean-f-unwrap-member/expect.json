@@ -1,0 +1,7 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [],
+  "tiers": [],
+  "why": "O unwraps the legacy box (deletes its subgraph and end lines). T adds ftp inside it. ftp's holder in T is legacy, decided absent, so the unit is undecided (§4.2); soap and batch are decided unheld and merge so. Not exposed. Git merges clean: no record."
+}

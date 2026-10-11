@@ -1,0 +1,7 @@
+flowchart LR
+  api[API] --> pg
+  subgraph Data layer
+    pg[(Postgres)]
+    redis[(Redis)]
+  end
+  api --> redis

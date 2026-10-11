@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "Hole #3: both legs add key cache with different labels and edges. §5.5 exposed: both legs add the same key with a differing unit (§5.2 collision). Both append at the end of the fence, so git writes a conflict: §5.3 E. Git working."
+}

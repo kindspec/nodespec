@@ -1,0 +1,17 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "MC",
+      "objects": [
+        "profile",
+        "verify"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "T routes verify through a consent screen, removing verify --> profile (count 0). O adds a product-tour chain that restates verify --> profile (count 2). §5.1 model conflict (B 1, O 2, T 0), outside §5.2. Git merges clean with count 1, neither leg's value: eligible §5.3 MC, relation, group G2. Tier A (one statement, no L5). Not exposed."
+}

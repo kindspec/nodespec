@@ -1,0 +1,5 @@
+flowchart LR
+  src[Source repo] --> build[Build]
+  build --> test[Test]
+  test --> publish[Publish]
+  build --> cache[(Build cache)]

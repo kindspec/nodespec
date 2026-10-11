@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "C",
+      "objects": [
+        "jobs"
+      ]
+    }
+  ],
+  "tiers": [
+    "C"
+  ],
+  "why": "O redraws jobs as a cylinder (it is a table). T adds a scheduler edge that restates jobs[Jobs] with the old rectangle (no change to T's model). §5.1: jobs's shape decided cylinder (only O changes it). Git merges clean and Mermaid keeps the last shape, the rectangle (Appendix A, twiceShape): §5.3 C, tier C. The label is the same in every statement, so no G4. Not exposed."
+}

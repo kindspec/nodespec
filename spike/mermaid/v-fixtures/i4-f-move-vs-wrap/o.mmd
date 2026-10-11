@@ -1,0 +1,8 @@
+flowchart LR
+  client([Client])
+  db[(Database)]
+  cache[(Cache)]
+  api[API]
+  client --> api
+  api --> db
+  api --> cache

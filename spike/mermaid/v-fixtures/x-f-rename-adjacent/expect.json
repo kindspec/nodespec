@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "Hole #2 in bare style: O renames auth to authn; T adds auth --> audit on the line right after one O changed. §5.5 exposed: O removes key auth, which T's new edge refers to (§5.2 dangling). The edits touch adjacent lines, so git writes a conflict: §5.3 E. Git working."
+}

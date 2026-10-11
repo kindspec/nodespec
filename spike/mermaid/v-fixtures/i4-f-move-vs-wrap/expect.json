@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "I4",
+      "objects": [
+        "api"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "O only moves the declaration api[API] below the stores (no unit changes). T deletes that declaration and turns api into a subgraph box; its edges now name the subgraph (Appendix A). §5.1: the kind of key api is decided subgraph (only T changes it). Both legs delete the same line, so git merges clean and keeps O's moved copy: the merged chart has a node statement api and a subgraph api, two kinds (Appendix A, subEqNode). No input gives api two kinds, so §5.3 I4. The node api's label and shape are part of that wrong kind and are not reported again. Not a §5.2 case (no key removed, nothing added twice), so not exposed (§5.5). Tier B: api used as two kinds is a new L4 failure."
+}

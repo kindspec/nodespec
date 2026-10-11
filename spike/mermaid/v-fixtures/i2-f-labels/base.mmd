@@ -1,0 +1,6 @@
+flowchart LR
+  app[App server]
+  db[(Primary DB)]
+  replica[(Read replica)]
+  app --> db
+  db --> replica

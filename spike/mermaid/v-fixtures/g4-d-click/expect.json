@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G4",
+      "objects": [
+        "db"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O moves db's runbook link to the postgres page. T adds a cache box with its link and repeats db's old link below it (T's model unchanged for db). §5.1: db's click target decided as O set it. Git merges clean, and the last click for db, T's copy, wins: §5.3 G4. Tier A (no lint reads click). Not exposed."
+}

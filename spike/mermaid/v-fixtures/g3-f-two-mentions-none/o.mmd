@@ -1,0 +1,10 @@
+flowchart TB
+  subgraph core [Core]
+    sched[Scheduler]
+  end
+  exec[Executor]
+  subgraph obs [Observability]
+    metrics[(Metrics)]
+    exec --> metrics
+  end
+  sched --> exec

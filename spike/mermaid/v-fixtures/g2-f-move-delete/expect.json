@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G2",
+      "objects": [
+        "cache",
+        "db"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O moves cache --> db below the api edges; T deletes it (the cache became read-only). §5.1: the edge count is 1 in B and O and 0 in T, so it is decided 0. Both legs delete the same line, so git merges clean and keeps O's moved copy: count 1 against 0, §5.3 G2 (extra). Tier A: one statement for the edge (no L5) and both ends declared (no L1). Not exposed: no key is removed."
+}

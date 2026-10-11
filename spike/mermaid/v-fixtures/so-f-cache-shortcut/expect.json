@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-ORDER",
+      "objects": [
+        "cache",
+        "db"
+      ]
+    }
+  ],
+  "tiers": [
+    "—"
+  ],
+  "why": "O adds a cache-hit shortcut near the top, so cache is mentioned before db; T declares db at the top. Per pair (§5.1), cache before db is decided (O). Git merges clean with T's line first, so db precedes cache: §5.3 S-ORDER, reported only. No unit differs. Not exposed."
+}

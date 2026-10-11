@@ -1,0 +1,9 @@
+flowchart TD
+  client --> gateway
+  gateway --> users
+  users --> audit
+  class audit watch
+  gateway --> billing
+  billing --> invoices
+  classDef external fill:#eef,stroke:#88a
+  classDef watch stroke:#c00,stroke-width:2px

@@ -1,0 +1,17 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G2",
+      "objects": [
+        "api",
+        "db"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "The base draws api --> db twice, once in a chain and once alone. O removes the lone copy; T shortens the chain to client --> api. Each leg keeps one api --> db, so §5.1 decides the count 1. Git applies both removals and the merged chart has no api --> db: §5.3 G2 (lost). Tier A: the merged file has no duplicate edge and every node is declared. Not exposed."
+}

@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "D",
+      "objects": [
+        "legacy"
+      ]
+    }
+  ],
+  "tiers": [
+    "D"
+  ],
+  "why": "O moves the style statement for legacy to the end, next to the class definitions. T deletes it: legacy is no longer flagged red. §5.1: legacy's style unit decided empty (only T changes it). Both legs delete the same line, so git merges clean with O's moved copy: §5.3 D, tier D. Not exposed."
+}

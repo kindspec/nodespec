@@ -1,0 +1,7 @@
+flowchart TB
+  req --> router
+  router -.->|hit| cache
+  router --> handler
+  handler --> db
+  handler --> cache
+  db --> replica

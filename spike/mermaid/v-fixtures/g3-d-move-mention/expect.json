@@ -1,0 +1,18 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G3",
+      "objects": [
+        "load",
+        "transform",
+        "validator"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "T moves validator from Collection into Load. O adds validator -.-> enrich inside Transform; in O, validator is in two boxes and stays in collect, which closes first. §5.1: holder decided load (only T changes it). Git merges clean; validator is now in transform and load, transform closes first, so its holder is transform: §5.3 G3. Tier A: L3 already holds for validator in O. Not exposed."
+}

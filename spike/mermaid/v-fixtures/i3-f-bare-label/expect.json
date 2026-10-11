@@ -1,0 +1,23 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "fax"
+      ]
+    },
+    {
+      "category": "I3",
+      "objects": [
+        "fax"
+      ]
+    }
+  ],
+  "tiers": [
+    "A",
+    "A"
+  ],
+  "why": "O deletes node fax (every statement naming it). T adds labels and shapes to three nodes, fax among them. §5.1: fax decided absent (O); its label and shape decided as T set them. §5.2 delete/modify: one leg removes fax, the other changes units keyed by it, so §5.3 I3. The same units are decided-present units that refer to fax (§4.2: a unit keyed by k refers to k), so §5.2 dangling also holds and I1 is recorded too, objects [fax]. Git merges clean and the merged chart shows an orphan fax box. Tier A: fax has a node statement in the merged file (no L1) and one label (no L2). Exposed (§5.5)."
+}

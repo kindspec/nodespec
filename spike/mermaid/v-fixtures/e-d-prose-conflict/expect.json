@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "The fence alone would merge clean and wrong: each leg deletes one of the two edges naming stale_cache, so a decided-present node would vanish (G1). But the legs also change the same prose line differently, and git leaves a conflict in the file. §5.3: for stratum D a conflict anywhere in the file makes the path E, so the only record is E. Not exposed."
+}

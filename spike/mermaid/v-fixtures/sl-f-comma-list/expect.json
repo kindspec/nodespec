@@ -1,0 +1,41 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "b",
+        "c"
+      ]
+    },
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "d",
+        "e"
+      ]
+    },
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "b",
+        "waf"
+      ]
+    },
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "b",
+        "d"
+      ]
+    }
+  ],
+  "tiers": [
+    "D",
+    "D",
+    "D",
+    "D"
+  ],
+  "why": "linkStyle 1,3 dashes the two asynchronous edges, b --> c and d --> e. O adds a monitor edge at the top and T a WAF edge after the first edge; each shifts both targets by one and renumbers to 2,4, the same line change, so git merges clean. §5.1: b --> c and d --> e decided dashed, the new edges decided plain. In the merged chart indices 2 and 4 are b --> waf and b --> d: two edges lose the style and two gain it, four §5.3 S-LINKSTYLE records, tier D. The monitor edge names b before its declaration; b stays the same node. Not exposed."
+}

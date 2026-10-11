@@ -1,0 +1,17 @@
+flowchart TB
+  gw[API gateway]
+  auth[Auth]
+  users[Users]
+  idp[Identity provider]
+  subgraph public [Public zone]
+    gw
+    auth
+  end
+  subgraph core [Core]
+    users
+  end
+  subgraph identity [Identity]
+    idp
+  end
+  gw --> auth --> users
+  auth --> idp

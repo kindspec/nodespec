@@ -1,0 +1,23 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "ftp"
+      ]
+    },
+    {
+      "category": "I3",
+      "objects": [
+        "ftp"
+      ]
+    }
+  ],
+  "tiers": [
+    "A",
+    "A"
+  ],
+  "why": "O deletes node ftp; T restyles it with a style statement on a separate line. §5.1: ftp decided absent (O); its style unit decided as T set it. §5.2 delete/modify, so §5.3 I3; the restyled unit is keyed by ftp, so it also refers to ftp (§4.2) and §5.2 dangling gives I1, objects [ftp]. Git merges clean; the surviving style statement leaves ftp in the merged chart. Tier A: bare style, so (L1, ftp) holds in the base. Exposed (§5.5)."
+}

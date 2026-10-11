@@ -1,0 +1,24 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "paypal",
+        "refunds"
+      ]
+    },
+    {
+      "category": "I3",
+      "objects": [
+        "paypal"
+      ]
+    }
+  ],
+  "tiers": [
+    "A",
+    "A"
+  ],
+  "why": "O drops PayPal (both lines naming paypal). T relabels paypal to \"PayPal Checkout\" in a new edge to a new refunds node. §5.1: paypal decided absent (O); its label decided \"PayPal Checkout\" (T); edge (paypal, refunds) decided 1 (T). §5.2 delete/modify (label of a removed key) gives §5.3 I3 [paypal]; §5.2 dangling (the edge, and the label unit keyed by paypal) gives I1 [paypal, refunds]. Git merges clean. Tier A: the merged file still declares paypal once with one label, so no new L1 or L2 on paypal or refunds. Exposed (§5.5)."
+}

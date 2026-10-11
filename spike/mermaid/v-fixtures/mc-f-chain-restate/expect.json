@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "MC",
+      "objects": [
+        "build",
+        "test"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O replaces build --> test with build --> lint --> test (count 0). T adds the deploy path as a chain that restates build --> test (count 2). §5.1: B 1, O 0, T 2, a model conflict; no key is removed or added twice, so it is outside §5.2. Git merges clean with count 1, neither leg's value: an eligible §5.3 MC of class relation, group G2. Tier A: the merged file has one statement for the edge (no new L5). Not exposed."
+}

@@ -1,0 +1,9 @@
+flowchart LR
+  api[Orders API]
+  cache[(Redis)]
+  db[(Postgres)]
+  search[(OpenSearch)]
+  api --> cache
+  cache --> db
+  api --> db
+  api --> search

@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I2",
+      "objects": [
+        "cache"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "Hole #3 with differing labels. Both legs add key cache, O as a Redis cache in front of the app, T as a Memcached tier in front of the database. §5.2 collision: the label unit differs. Git merges clean; Mermaid keeps the last label, so one node \"Redis cache\" carries both edges: §5.3 I2. Tier B (§5.4): two different labels for cache is a new L2 failure. Exposed (§5.5)."
+}

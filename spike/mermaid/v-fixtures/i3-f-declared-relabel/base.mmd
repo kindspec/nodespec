@@ -1,0 +1,10 @@
+flowchart TB
+  checkout[Checkout] --> pay{Payment method}
+  pay -->|card| stripe[Stripe]
+  pay -->|invoice| sap[SAP billing]
+  pay -->|wallet| paypal[PayPal]
+  stripe --> done([Paid])
+  sap --> done
+  paypal --> done
+  classDef vendor fill:#f4f4ff,stroke:#669
+  class stripe,sap vendor

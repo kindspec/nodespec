@@ -1,0 +1,6 @@
+flowchart LR
+  gw[Gateway] --> auth[Auth]
+  gw --> orders[Orders]
+  orders --> inv[(Inventory)]
+  orders --> pay[Payments]
+  pay --> ledger[(Ledger)]

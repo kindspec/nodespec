@@ -1,0 +1,7 @@
+flowchart LR
+  web --> auth
+  auth --> legacy_sso
+  auth --> users
+  web --> catalog
+  catalog --> search
+  legacy_sso --> users

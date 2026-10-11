@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G3",
+      "objects": [
+        "exec",
+        "obs"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "exec is declared in core and named by an edge in obs; core closes first, so it is held by core. O moves the declaration out of core, so in O it is held by obs. T moves the edge out of obs, so in T it stays in core. §5.1: holder decided obs (only O changes it). Git merges clean and exec is in no box: holder none, §5.3 G3 (objects: the member and the decided holder; the merged holder is none). Tier A. Not exposed."
+}

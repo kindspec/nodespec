@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G4",
+      "objects": [
+        "deny"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "O relabels deny to \"401 or 403\". T adds an audit edge that restates deny with its old label. §5.1: deny's label decided \"401 or 403\" (only O changes it). Git merges clean and Mermaid keeps the last label, T's \"403 Forbidden\": §5.3 G4. Tier B: deny now has two different labels in one file, a new L2 failure. Not exposed."
+}

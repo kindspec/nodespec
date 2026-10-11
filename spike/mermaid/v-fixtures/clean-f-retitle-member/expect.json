@@ -1,0 +1,7 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [],
+  "tiers": [],
+  "why": "O retitles the untitled-id subgraph \"Data layer\" to \"Storage tier\": key title:Data layer is removed and title:Storage tier added (§4.1). T adds s3 inside the box. §4.2: s3's membership holder in T is title:Data layer, a key decided absent, so that unit is undecided and yields no record; holders of pg and redis are decided title:Storage tier and merge so. Membership is not a reference, so no §5.2 case and not exposed (§5.5). Git merges clean: no record."
+}
