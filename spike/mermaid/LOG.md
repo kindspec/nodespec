@@ -275,6 +275,38 @@ wording, this entry is the statement of record. Where §4 changed a decision,
   sealed run then checks against that parser, and logs any fixture that
   fails it (R-tiers, R-sealed).
 
+## 2026-10-11 — §7. A sealed fixture that cannot be read
+
+Under §4, a sealed fixture the `tiers` parser could not read got no line.
+So §10.4's VOID and disputed rules never saw it. A planted case showed the
+effect. A fixture F marks tier B, H marks A, and X agrees with F. Read
+correctly, it voids the identity group. With `tiers` written `"B"`
+instead of `["B"]`, it was logged and the identity FOUND stood clean. A
+sealed run of only such fixtures exited 0 having checked nothing.
+
+The harness's reading (README R-sealed) is now:
+
+- An unreadable sealed fixture blocks its group, or both groups if its
+  records do not parse either.
+- In a blocked group, a non-FOUND verdict is NO VERDICT, and a FOUND is
+  reported as found in a group with an unreadable sealed fixture, never as a
+  clean FOUND.
+- A sealed run that lines no fixture exits non-zero.
+
+V3 checks:
+
+- the parsed case: VOID, with the FOUND reported in a voided group;
+- the malformed case: no line, a non-zero exit, and the FOUND reported in a
+  blocked group;
+- the all-malformed case;
+- the block on both groups.
+
+V4 has a mutant for each gate (SU1 to SU7). At `f0da993`:
+
+- V3: `252 checks, 0 failed`.
+- The eight new and repointed mutants: 8 killed, 0 survived, 0 BROKEN
+  (`v4-sealed-mutants.txt`).
+
 ## Blind roles
 
 Not yet launched. Each launch is logged here with its export manifest,

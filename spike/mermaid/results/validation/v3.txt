@@ -1,5 +1,5 @@
-# v3, 2026-10-10T16:18:55Z
-# nodespec HEAD: 8a9b8e7c60753efb77206fcbf734c0725368f194
+# v3, 2026-10-11T04:06:21Z
+# nodespec HEAD: f0da99321141a2669fee55dc0c333fb0ea300dd6
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -279,8 +279,17 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  authors: a leg's last changer is never a merge commit
   PASS  authors: identities from every ref join before any lookup
   PASS  R-select: a D path with two fences is not selected, even when one is a flowchart (§3)
+== s_sealed_unreadable: A sealed fixture the tiers parser cannot read blocks its group's
+  PASS  sealed, parsed: F says B, H says A, X agrees with F: identity VOID, the FOUND is found in a voided group
+  PASS  sealed, malformed: the run lines nothing and does not exit 0
+  PASS  sealed, malformed: the fixture's group is read from its records (identity)
+  PASS  sealed, malformed: the identity FOUND is reported as found in a group with an unreadable sealed fixture
+  PASS  sealed, malformed: an identity fixture leaves the structure group's NOT FOUND standing
+  PASS  sealed: a fixture whose records do not parse blocks both groups
+  PASS  sealed: a structure FOUND in a group with an unreadable fixture is never a clean FOUND
+  PASS  sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged
   PASS  V3 wrote nothing under results/
 
-244 checks, 0 failed
+252 checks, 0 failed
 V3: PASS
 # exit status 0

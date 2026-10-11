@@ -1,0 +1,9 @@
+# the probe sealedmal.py, unchanged, at nodespec f0da99321141a2669fee55dc0c333fb0ea300dd6
+# note: the probe reads sealed.json only when the sealed run exits 0. The malformed run now exits 1 (it lines
+# nothing), so the probe passes no malformed list to the verdict. V3 s_sealed_unreadable reads sealed.json either way:
+# there the identity FOUND is reported as found in a group with an unreadable sealed fixture.
+
+tiers ["B"] (parsed): sealed exit 0; lines 2; malformed []
+   identity: NO VERDICT VOID; found_in_voided_group 1
+tiers "B" (malformed): sealed exit 1; lines 0; malformed []
+   identity: FOUND ; found_in_voided_group 0
