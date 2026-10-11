@@ -1,0 +1,1712 @@
+This is a new invocation of the second-extractor role. Your working directory holds your extractor and CHOICES.md as of your first invocation. On each input below, your extractor's output differs from another reader's. Both outputs are shown, yours first, without saying which is right. Decide each from SPEC.md alone. You may keep or change your extractor. Record each decision and its reason in CHOICES.md under the heading 'Invocation 4'.
+
+## Input 1
+
+Command: `python3 -I extract2.py D base.md o.md t.md merged.md`
+
+### base.md
+
+````
+# Checkout services
+
+```mermaid
+graph LR
+  checkout --> fraud_check
+  checkout --> inventory
+  inventory --> warehouse
+  fraud_check --> risk_api
+  warehouse --> shipping
+```
+
+Every call has a two-second timeout.
+````
+
+### o.md
+
+````
+# Checkout services
+
+```mermaid
+graph LR
+  checkout --> inventory
+  inventory --> warehouse
+  fraud_check --> risk_api
+  warehouse --> shipping
+```
+
+Every call has a two-second timeout. Checkout no longer calls fraud screening
+itself; the payment provider does it.
+````
+
+### t.md
+
+````
+# Checkout services
+
+```mermaid
+graph LR
+  checkout --> fraud_check
+  checkout --> inventory
+  inventory --> warehouse
+  warehouse --> shipping
+```
+
+Every call has a two-second timeout.
+````
+
+### merged.md
+
+````
+# Checkout services
+
+```mermaid
+graph LR
+  checkout --> inventory
+  inventory --> warehouse
+  warehouse --> shipping
+```
+
+Every call has a two-second timeout. Checkout no longer calls fraud screening
+itself; the payment provider does it.
+````
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": true, "edge": {"from": "checkout", "kind": ["solid", "none", "arrow"], "label": "", "to": "fraud_check"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "checkout", "kind": ["solid", "none", "arrow"], "label": "", "to": "inventory"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "fraud_check", "kind": ["solid", "none", "arrow"], "label": "", "to": "risk_api"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "inventory", "kind": ["solid", "none", "arrow"], "label": "", "to": "warehouse"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "warehouse", "kind": ["solid", "none", "arrow"], "label": "", "to": "shipping"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "checkout", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "checkout", "property": "label", "unit": "scalar", "value": "checkout"}, {"absent": false, "key": "checkout", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "checkout", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "fraud_check", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "fraud_check", "property": "label", "unit": "scalar", "value": "fraud_check"}, {"absent": false, "key": "fraud_check", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "fraud_check", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "inventory", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "inventory", "property": "label", "unit": "scalar", "value": "inventory"}, {"absent": false, "key": "inventory", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "inventory", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "risk_api", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "risk_api", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "risk_api", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "risk_api", "unit": "kind", "value": null}, {"absent": false, "key": "shipping", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "shipping", "property": "label", "unit": "scalar", "value": "shipping"}, {"absent": false, "key": "shipping", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "shipping", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "warehouse", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "warehouse", "property": "label", "unit": "scalar", "value": "warehouse"}, {"absent": false, "key": "warehouse", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "warehouse", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": false, "reasons": []}, "extractor": "extract2", "mode": "markdown", "new_lint_failures": [], "outcome": "decided", "path": "merged.md", "records": [{"category": "G1", "detail": "absent", "group": "structure", "key": "fraud_check", "objects": ["fraud_check"], "tier": "A"}], "refusal_cases": [], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "D", "tiers": {"A": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": false,
+ "records": [
+  {
+   "category": "G1",
+   "objects": [
+    "fraud_check"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'fraud_check')"
+   ],
+   "detail": "decided ('node',), merged None"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "fraud_check"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'fraud_check')"
+   ],
+   "detail": "holder '' -> None"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "fraud_check"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'fraud_check')"
+   ],
+   "detail": "'fraud_check' -> None"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "fraud_check"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'fraud_check')"
+   ],
+   "detail": "'none' -> None"
+  }
+ ]
+}
+```
+
+## Input 2
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart TD
+  ui --> api
+  api --> recommender
+  api --> search
+  recommender --> features
+  search --> index
+  recommender --> index
+  index --> store
+```
+
+### o.mmd
+
+```
+flowchart TD
+  ui --> api
+  api --> search
+  search --> index
+  index --> store
+```
+
+### t.mmd
+
+```
+flowchart TD
+  recommender --> index
+  ui --> api
+  api --> recommender
+  api --> search
+  recommender --> features
+  search --> index
+  index --> store
+```
+
+### merged.mmd
+
+```
+flowchart TD
+  recommender --> index
+  ui --> api
+  api --> search
+  search --> index
+  index --> store
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": true, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "recommender"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "search"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "index", "kind": ["solid", "none", "arrow"], "label": "", "to": "store"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "recommender", "kind": ["solid", "none", "arrow"], "label": "", "to": "features"}, "unit": "edge-count", "value": 0}, {"absent": true, "edge": {"from": "recommender", "kind": ["solid", "none", "arrow"], "label": "", "to": "index"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "search", "kind": ["solid", "none", "arrow"], "label": "", "to": "index"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "ui", "kind": ["solid", "none", "arrow"], "label": "", "to": "api"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "api", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "api", "property": "label", "unit": "scalar", "value": "api"}, {"absent": false, "key": "api", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "api", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "features", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "features", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "features", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "features", "unit": "kind", "value": null}, {"absent": false, "key": "index", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "index", "property": "label", "unit": "scalar", "value": "index"}, {"absent": false, "key": "index", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "index", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "recommender", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "recommender", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "recommender", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "recommender", "unit": "kind", "value": null}, {"absent": false, "key": "search", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "search", "property": "label", "unit": "scalar", "value": "search"}, {"absent": false, "key": "search", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "search", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "store", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "store", "property": "label", "unit": "scalar", "value": "store"}, {"absent": false, "key": "store", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "store", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "ui", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "ui", "property": "label", "unit": "scalar", "value": "ui"}, {"absent": false, "key": "ui", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "ui", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": false, "reasons": []}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "G1", "detail": "present", "group": "structure", "key": "recommender", "objects": ["recommender"], "tier": "A"}, {"category": "G2", "class": "relation", "count": 1, "decided": {"absent": true, "value": 0}, "detail": "extra", "group": "structure", "merged": {"absent": false, "value": 1}, "objects": ["index", "recommender"], "tier": "A", "unit": {"edge": {"from": "recommender", "kind": ["solid", "none", "arrow"], "label": "", "to": "index"}, "unit": "edge-count"}}], "refusal_cases": [], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"A": 2}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": false,
+ "records": [
+  {
+   "category": "G2",
+   "objects": [
+    "index",
+    "recommender"
+   ],
+   "tier": "A",
+   "units": [
+    "('ecount', ('recommender', 'index', 'solid:none>arrow', ''))"
+   ],
+   "detail": "extra 1"
+  },
+  {
+   "category": "G1",
+   "objects": [
+    "recommender"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'recommender')"
+   ],
+   "detail": "decided None, merged ('node',)"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "recommender"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'recommender')"
+   ],
+   "detail": "holder None -> ''"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "recommender"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'recommender')"
+   ],
+   "detail": "None -> 'recommender'"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "recommender"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'recommender')"
+   ],
+   "detail": "None -> 'none'"
+  }
+ ]
+}
+```
+
+## Input 3
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart LR
+  web --> auth
+  auth --> legacy_sso
+  auth --> users
+  web --> catalog
+  catalog --> search
+  legacy_sso --> users
+```
+
+### o.mmd
+
+```
+flowchart LR
+  web --> auth
+  auth --> users
+  web --> catalog
+  catalog --> search
+  legacy_sso --> users
+```
+
+### t.mmd
+
+```
+flowchart LR
+  web --> auth
+  auth --> legacy_sso
+  auth --> users
+  web --> catalog
+  catalog --> search
+```
+
+### merged.mmd
+
+```
+flowchart LR
+  web --> auth
+  auth --> users
+  web --> catalog
+  catalog --> search
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": true, "edge": {"from": "auth", "kind": ["solid", "none", "arrow"], "label": "", "to": "legacy_sso"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "auth", "kind": ["solid", "none", "arrow"], "label": "", "to": "users"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "catalog", "kind": ["solid", "none", "arrow"], "label": "", "to": "search"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "legacy_sso", "kind": ["solid", "none", "arrow"], "label": "", "to": "users"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "web", "kind": ["solid", "none", "arrow"], "label": "", "to": "auth"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "web", "kind": ["solid", "none", "arrow"], "label": "", "to": "catalog"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "auth", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "auth", "property": "label", "unit": "scalar", "value": "auth"}, {"absent": false, "key": "auth", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "auth", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "catalog", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "catalog", "property": "label", "unit": "scalar", "value": "catalog"}, {"absent": false, "key": "catalog", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "catalog", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "legacy_sso", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "legacy_sso", "property": "label", "unit": "scalar", "value": "legacy_sso"}, {"absent": false, "key": "legacy_sso", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "legacy_sso", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "search", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "search", "property": "label", "unit": "scalar", "value": "search"}, {"absent": false, "key": "search", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "search", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "users", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "users", "property": "label", "unit": "scalar", "value": "users"}, {"absent": false, "key": "users", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "users", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "web", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "web", "property": "label", "unit": "scalar", "value": "web"}, {"absent": false, "key": "web", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "web", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": false, "reasons": []}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "G1", "detail": "absent", "group": "structure", "key": "legacy_sso", "objects": ["legacy_sso"], "tier": "A"}], "refusal_cases": [], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"A": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": false,
+ "records": [
+  {
+   "category": "G1",
+   "objects": [
+    "legacy_sso"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'legacy_sso')"
+   ],
+   "detail": "decided ('node',), merged None"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "legacy_sso"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'legacy_sso')"
+   ],
+   "detail": "holder '' -> None"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "legacy_sso"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'legacy_sso')"
+   ],
+   "detail": "'legacy_sso' -> None"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "legacy_sso"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'legacy_sso')"
+   ],
+   "detail": "'none' -> None"
+  }
+ ]
+}
+```
+
+## Input 4
+
+Command: `python3 -I extract2.py D base.md o.md t.md merged.md`
+
+### base.md
+
+````
+# Release train
+
+Every change rides the same path to production. The canary stage holds a
+release for thirty minutes while error rates are compared.
+
+```mermaid
+graph TD
+  commit --> ci
+  ci --> build
+  build --> staging
+  staging --> canary
+  canary --> prod
+  build --> artifacts
+```
+
+Artifacts are kept for ninety days.
+````
+
+### o.md
+
+````
+# Release train
+
+Every change rides the same path to production. Canary releases were
+retired in favour of feature flags.
+
+```mermaid
+graph TD
+  commit --> ci
+  ci --> build
+  build --> staging
+  staging --> prod
+  build --> artifacts
+```
+
+Artifacts are kept for ninety days.
+````
+
+### t.md
+
+````
+# Release train
+
+Every change rides the same path to production. The canary stage holds a
+release for thirty minutes while error rates are compared.
+
+```mermaid
+graph TD
+  commit --> ci
+  ci --> build
+  build --> staging
+  staging --> canary
+  canary --> prod
+  build --> artifacts
+  canary --> rollback
+```
+
+Artifacts are kept for ninety days. A failed canary triggers an automatic
+rollback.
+````
+
+### merged.md
+
+````
+# Release train
+
+Every change rides the same path to production. Canary releases were
+retired in favour of feature flags.
+
+```mermaid
+graph TD
+  commit --> ci
+  ci --> build
+  build --> staging
+  staging --> prod
+  build --> artifacts
+  canary --> rollback
+```
+
+Artifacts are kept for ninety days. A failed canary triggers an automatic
+rollback.
+````
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": false, "edge": {"from": "build", "kind": ["solid", "none", "arrow"], "label": "", "to": "artifacts"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "build", "kind": ["solid", "none", "arrow"], "label": "", "to": "staging"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "canary", "kind": ["solid", "none", "arrow"], "label": "", "to": "prod"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "canary", "kind": ["solid", "none", "arrow"], "label": "", "to": "rollback"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "ci", "kind": ["solid", "none", "arrow"], "label": "", "to": "build"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "commit", "kind": ["solid", "none", "arrow"], "label": "", "to": "ci"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "staging", "kind": ["solid", "none", "arrow"], "label": "", "to": "canary"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "staging", "kind": ["solid", "none", "arrow"], "label": "", "to": "prod"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "artifacts", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "artifacts", "property": "label", "unit": "scalar", "value": "artifacts"}, {"absent": false, "key": "artifacts", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "artifacts", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "build", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "build", "property": "label", "unit": "scalar", "value": "build"}, {"absent": false, "key": "build", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "build", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "canary", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "canary", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "canary", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "canary", "unit": "kind", "value": null}, {"absent": false, "key": "ci", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "ci", "property": "label", "unit": "scalar", "value": "ci"}, {"absent": false, "key": "ci", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "ci", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "commit", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "commit", "property": "label", "unit": "scalar", "value": "commit"}, {"absent": false, "key": "commit", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "commit", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "prod", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "prod", "property": "label", "unit": "scalar", "value": "prod"}, {"absent": false, "key": "prod", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "prod", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "rollback", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "rollback", "property": "label", "unit": "scalar", "value": "rollback"}, {"absent": false, "key": "rollback", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "rollback", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "staging", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "staging", "property": "label", "unit": "scalar", "value": "staging"}, {"absent": false, "key": "staging", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "staging", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "canary", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"edge": {"from": "canary", "kind": ["solid", "none", "arrow"], "label": "", "to": "rollback"}, "unit": "edge-count"}}]}, "extractor": "extract2", "mode": "markdown", "new_lint_failures": [], "outcome": "decided", "path": "merged.md", "records": [{"category": "I1", "group": "identity", "key": "canary", "objects": ["canary", "rollback"], "tier": "A", "units": [{"edge": {"from": "canary", "kind": ["solid", "none", "arrow"], "label": "", "to": "rollback"}, "unit": "edge-count"}]}], "refusal_cases": [{"case": "dangling", "key": "canary", "units": [{"edge": {"from": "canary", "kind": ["solid", "none", "arrow"], "label": "", "to": "rollback"}, "unit": "edge-count"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "D", "tiers": {"A": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "canary",
+    "rollback"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'canary')",
+    "('ecount', ('canary', 'rollback', 'solid:none>arrow', ''))"
+   ],
+   "detail": "dangling"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "canary"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'canary')"
+   ],
+   "detail": "holder None -> ''"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "canary"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'canary')"
+   ],
+   "detail": "None -> 'canary'"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "canary"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'canary')"
+   ],
+   "detail": "None -> 'none'"
+  }
+ ]
+}
+```
+
+## Input 5
+
+Command: `python3 -I extract2.py D base.md o.md t.md merged.md`
+
+### base.md
+
+````
+# Web tier
+
+The frontend and backend deploy separately.
+
+```mermaid
+flowchart TB
+  subgraph fe [Frontend]
+    spa[Single-page app]
+    ssr[SSR server]
+  end
+  subgraph be [Backend]
+    api[REST API]
+    jobs[Job runner]
+  end
+  spa --> api
+  ssr --> api
+  api --> jobs
+```
+
+See `deploy/` for the manifests.
+````
+
+### o.md
+
+````
+# Web tier
+
+The frontend and backend deploy separately.
+
+```mermaid
+flowchart TB
+  subgraph ui [Frontend]
+    spa[Single-page app]
+    ssr[SSR server]
+  end
+  subgraph be [Backend]
+    api[REST API]
+    jobs[Job runner]
+  end
+  spa --> api
+  ssr --> api
+  api --> jobs
+```
+
+See `deploy/` for the manifests.
+````
+
+### t.md
+
+````
+# Web tier
+
+The frontend and backend deploy separately.
+
+```mermaid
+flowchart TB
+  subgraph fe [Frontend]
+    spa[Single-page app]
+    ssr[SSR server]
+  end
+  subgraph be [Backend]
+    api[REST API]
+    jobs[Job runner]
+  end
+  spa --> api
+  ssr --> api
+  api --> jobs
+  cdn[CDN] --> fe
+```
+
+See `deploy/` for the manifests.
+````
+
+### merged.md
+
+````
+# Web tier
+
+The frontend and backend deploy separately.
+
+```mermaid
+flowchart TB
+  subgraph ui [Frontend]
+    spa[Single-page app]
+    ssr[SSR server]
+  end
+  subgraph be [Backend]
+    api[REST API]
+    jobs[Job runner]
+  end
+  spa --> api
+  ssr --> api
+  api --> jobs
+  cdn[CDN] --> fe
+```
+
+See `deploy/` for the manifests.
+````
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "jobs"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "cdn", "kind": ["solid", "none", "arrow"], "label": "", "to": "fe"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "spa", "kind": ["solid", "none", "arrow"], "label": "", "to": "api"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "ssr", "kind": ["solid", "none", "arrow"], "label": "", "to": "api"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "api", "kind": "node", "unit": "membership", "value": "be"}, {"absent": false, "key": "api", "property": "label", "unit": "scalar", "value": "REST API"}, {"absent": false, "key": "api", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "api", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "be", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": false, "key": "be", "property": "title", "unit": "scalar", "value": "Backend"}, {"absent": false, "key": "be", "unit": "kind", "value": ["subgraph"]}, {"absent": false, "key": "cdn", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "cdn", "property": "label", "unit": "scalar", "value": "CDN"}, {"absent": false, "key": "cdn", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "cdn", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "fe", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": true, "key": "fe", "property": "title", "unit": "scalar", "value": null}, {"absent": true, "key": "fe", "unit": "kind", "value": null}, {"absent": false, "key": "jobs", "kind": "node", "unit": "membership", "value": "be"}, {"absent": false, "key": "jobs", "property": "label", "unit": "scalar", "value": "Job runner"}, {"absent": false, "key": "jobs", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "jobs", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "spa", "property": "label", "unit": "scalar", "value": "Single-page app"}, {"absent": false, "key": "spa", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "spa", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "ssr", "property": "label", "unit": "scalar", "value": "SSR server"}, {"absent": false, "key": "ssr", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "ssr", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "ui", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": false, "key": "ui", "property": "title", "unit": "scalar", "value": "Frontend"}, {"absent": false, "key": "ui", "unit": "kind", "value": ["subgraph"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "fe", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"edge": {"from": "cdn", "kind": ["solid", "none", "arrow"], "label": "", "to": "fe"}, "unit": "edge-count"}}]}, "extractor": "extract2", "mode": "markdown", "new_lint_failures": [["L1", "fe"]], "outcome": "decided", "path": "merged.md", "records": [{"category": "I1", "group": "identity", "key": "fe", "new_lints": [["L1", "fe"]], "objects": ["cdn", "fe"], "tier": "B", "units": [{"edge": {"from": "cdn", "kind": ["solid", "none", "arrow"], "label": "", "to": "fe"}, "unit": "edge-count"}]}], "refusal_cases": [{"case": "dangling", "key": "fe", "units": [{"edge": {"from": "cdn", "kind": ["solid", "none", "arrow"], "label": "", "to": "fe"}, "unit": "edge-count"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "D", "tiers": {"B": 1}, "undecided_memberships": [{"key": "spa", "kind": "node", "unit": "membership"}, {"key": "ssr", "kind": "node", "unit": "membership"}]}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "cdn",
+    "fe"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'fe')",
+    "('ecount', ('cdn', 'fe', 'solid:none>arrow', ''))"
+   ],
+   "detail": "dangling",
+   "lints": [
+    "L1:fe"
+   ]
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "fe"
+   ],
+   "tier": "B",
+   "units": [
+    "('nhold', 'fe')"
+   ],
+   "detail": "holder None -> ''",
+   "lints": [
+    "L1:fe"
+   ]
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "fe"
+   ],
+   "tier": "B",
+   "units": [
+    "('ntext', 'fe')"
+   ],
+   "detail": "None -> 'fe'",
+   "lints": [
+    "L1:fe"
+   ]
+  },
+  {
+   "category": "C",
+   "objects": [
+    "fe"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'fe')"
+   ],
+   "detail": "None -> 'none'"
+  }
+ ]
+}
+```
+
+## Input 6
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart LR
+  %% order pipeline
+  web --> orders
+  orders --> orders_db
+  orders --> payments
+  payments --> ledger
+  ledger --> orders_db
+  worker --> payments
+```
+
+### o.mmd
+
+```
+flowchart LR
+  %% order pipeline
+  web --> orders
+  orders --> orders_pg
+  orders --> payments
+  payments --> ledger
+  ledger --> orders_pg
+  worker --> payments
+```
+
+### t.mmd
+
+```
+flowchart LR
+  %% order pipeline
+  web --> orders
+  orders --> orders_db
+  orders --> payments
+  payments --> ledger
+  ledger --> orders_db
+  worker --> payments
+  worker --> orders_db
+```
+
+### merged.mmd
+
+```
+flowchart LR
+  %% order pipeline
+  web --> orders
+  orders --> orders_pg
+  orders --> payments
+  payments --> ledger
+  ledger --> orders_pg
+  worker --> payments
+  worker --> orders_db
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": true, "edge": {"from": "ledger", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "ledger", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_pg"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "orders", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "orders", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_pg"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "orders", "kind": ["solid", "none", "arrow"], "label": "", "to": "payments"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "payments", "kind": ["solid", "none", "arrow"], "label": "", "to": "ledger"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "web", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "payments"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "ledger", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "ledger", "property": "label", "unit": "scalar", "value": "ledger"}, {"absent": false, "key": "ledger", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "ledger", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "orders", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "orders", "property": "label", "unit": "scalar", "value": "orders"}, {"absent": false, "key": "orders", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "orders", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "orders_db", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "orders_db", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "orders_db", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "orders_db", "unit": "kind", "value": null}, {"absent": false, "key": "orders_pg", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "orders_pg", "property": "label", "unit": "scalar", "value": "orders_pg"}, {"absent": false, "key": "orders_pg", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "orders_pg", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "payments", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "payments", "property": "label", "unit": "scalar", "value": "payments"}, {"absent": false, "key": "payments", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "payments", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "web", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "web", "property": "label", "unit": "scalar", "value": "web"}, {"absent": false, "key": "web", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "web", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "worker", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "worker", "property": "label", "unit": "scalar", "value": "worker"}, {"absent": false, "key": "worker", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "worker", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "orders_db", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count"}}]}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "I1", "group": "identity", "key": "orders_db", "objects": ["orders_db", "worker"], "tier": "A", "units": [{"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count"}]}], "refusal_cases": [{"case": "dangling", "key": "orders_db", "units": [{"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders_db"}, "unit": "edge-count"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"A": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "orders_db",
+    "worker"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'orders_db')",
+    "('ecount', ('worker', 'orders_db', 'solid:none>arrow', ''))"
+   ],
+   "detail": "dangling"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "orders_db"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'orders_db')"
+   ],
+   "detail": "holder None -> ''"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "orders_db"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'orders_db')"
+   ],
+   "detail": "None -> 'orders_db'"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "orders_db"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'orders_db')"
+   ],
+   "detail": "None -> 'none'"
+  }
+ ]
+}
+```
+
+## Input 7
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  db[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> db
+  api --> queue
+```
+
+### o.mmd
+
+```
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  pg[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> pg
+  api --> queue
+```
+
+### t.mmd
+
+```
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  db[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> db
+  api --> queue
+  worker[Worker]
+  queue --> worker
+  worker --> db
+```
+
+### merged.mmd
+
+```
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  pg[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> pg
+  api --> queue
+  worker[Worker]
+  queue --> worker
+  worker --> db
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": true, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "pg"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "queue"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "queue", "kind": ["solid", "none", "arrow"], "label": "", "to": "worker"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "user", "kind": ["solid", "none", "arrow"], "label": "", "to": "web"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "web", "kind": ["solid", "none", "arrow"], "label": "", "to": "api"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "api", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "api", "property": "label", "unit": "scalar", "value": "API"}, {"absent": false, "key": "api", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "api", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "db", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "db", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "db", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "db", "unit": "kind", "value": null}, {"absent": false, "key": "pg", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "pg", "property": "label", "unit": "scalar", "value": "Postgres"}, {"absent": false, "key": "pg", "property": "shape", "unit": "scalar", "value": "cylinder"}, {"absent": false, "key": "pg", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "queue", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "queue", "property": "label", "unit": "scalar", "value": "Job queue"}, {"absent": false, "key": "queue", "property": "shape", "unit": "scalar", "value": "subroutine"}, {"absent": false, "key": "queue", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "user", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "user", "property": "label", "unit": "scalar", "value": "User"}, {"absent": false, "key": "user", "property": "shape", "unit": "scalar", "value": "stadium"}, {"absent": false, "key": "user", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "web", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "web", "property": "label", "unit": "scalar", "value": "Web app"}, {"absent": false, "key": "web", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "web", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "worker", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "worker", "property": "label", "unit": "scalar", "value": "Worker"}, {"absent": false, "key": "worker", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "worker", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "db", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count"}}]}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [["L1", "db"]], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "I1", "group": "identity", "key": "db", "new_lints": [["L1", "db"]], "objects": ["db", "worker"], "tier": "B", "units": [{"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count"}]}, {"category": "S-ORDER", "group": "other", "objects": ["merged.mmd"], "sequence": "nodes", "tier": "-"}], "refusal_cases": [{"case": "dangling", "key": "db", "units": [{"edge": {"from": "worker", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"-": 1, "B": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "db",
+    "worker"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'db')",
+    "('ecount', ('worker', 'db', 'solid:none>arrow', ''))"
+   ],
+   "detail": "dangling",
+   "lints": [
+    "L1:db"
+   ]
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "db"
+   ],
+   "tier": "B",
+   "units": [
+    "('nhold', 'db')"
+   ],
+   "detail": "holder None -> ''",
+   "lints": [
+    "L1:db"
+   ]
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "db"
+   ],
+   "tier": "B",
+   "units": [
+    "('ntext', 'db')"
+   ],
+   "detail": "None -> 'db'",
+   "lints": [
+    "L1:db"
+   ]
+  },
+  {
+   "category": "C",
+   "objects": [
+    "db"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'db')"
+   ],
+   "detail": "None -> 'none'"
+  },
+  {
+   "category": "S-ORDER",
+   "objects": [],
+   "tier": "-",
+   "units": [
+    "('order', ('v', 'db', 'worker'))"
+   ],
+   "detail": "1 inverted pair(s) in the vertex map"
+  }
+ ]
+}
+```
+
+## Input 8
+
+Command: `python3 -I extract2.py D base.md o.md t.md merged.md`
+
+### base.md
+
+````
+# File delivery
+
+Uploads are scanned before delivery to partners.
+
+```mermaid
+flowchart LR
+  upload --> scan
+  scan --> ftp
+  scan --> s3
+  ftp --> partner
+  s3 --> partner
+```
+
+Contact the integrations team to add a partner.
+````
+
+### o.md
+
+````
+# File delivery
+
+Uploads are scanned before delivery to partners. FTP delivery has been
+switched off.
+
+```mermaid
+flowchart LR
+  upload --> scan
+  scan --> s3
+  s3 --> partner
+```
+
+Contact the integrations team to add a partner.
+````
+
+### t.md
+
+````
+# File delivery
+
+Uploads are scanned before delivery to partners.
+
+```mermaid
+flowchart LR
+  upload --> scan
+  scan --> ftp
+  scan --> s3
+  ftp --> partner
+  s3 --> partner
+  style ftp stroke:#f66,stroke-width:3px
+```
+
+Contact the integrations team to add a partner. FTP is deprecated and is
+drawn in red.
+````
+
+### merged.md
+
+````
+# File delivery
+
+Uploads are scanned before delivery to partners. FTP delivery has been
+switched off.
+
+```mermaid
+flowchart LR
+  upload --> scan
+  scan --> s3
+  s3 --> partner
+  style ftp stroke:#f66,stroke-width:3px
+```
+
+Contact the integrations team to add a partner. FTP is deprecated and is
+drawn in red.
+````
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": true, "edge": {"from": "ftp", "kind": ["solid", "none", "arrow"], "label": "", "to": "partner"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "s3", "kind": ["solid", "none", "arrow"], "label": "", "to": "partner"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "scan", "kind": ["solid", "none", "arrow"], "label": "", "to": "ftp"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "scan", "kind": ["solid", "none", "arrow"], "label": "", "to": "s3"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "upload", "kind": ["solid", "none", "arrow"], "label": "", "to": "scan"}, "unit": "edge-count", "value": 1}, {"absent": true, "key": "ftp", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "ftp", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "ftp", "property": "shape", "unit": "scalar", "value": null}, {"absent": false, "key": "ftp", "property": "styles", "unit": "scalar", "value": ["stroke:#f66", "stroke-width:3px"]}, {"absent": true, "key": "ftp", "unit": "kind", "value": null}, {"absent": false, "key": "partner", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "partner", "property": "label", "unit": "scalar", "value": "partner"}, {"absent": false, "key": "partner", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "partner", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "s3", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "s3", "property": "label", "unit": "scalar", "value": "s3"}, {"absent": false, "key": "s3", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "s3", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "scan", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "scan", "property": "label", "unit": "scalar", "value": "scan"}, {"absent": false, "key": "scan", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "scan", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "upload", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "upload", "property": "label", "unit": "scalar", "value": "upload"}, {"absent": false, "key": "upload", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "upload", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "ftp", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"key": "ftp", "property": "styles", "unit": "scalar"}}]}, "extractor": "extract2", "mode": "markdown", "new_lint_failures": [], "outcome": "decided", "path": "merged.md", "records": [{"category": "I1", "group": "identity", "key": "ftp", "objects": ["ftp"], "tier": "A", "units": [{"key": "ftp", "property": "styles", "unit": "scalar"}]}, {"category": "I3", "group": "identity", "key": "ftp", "objects": ["ftp"], "removed_by": "o", "tier": "A", "units": [{"key": "ftp", "property": "styles", "unit": "scalar"}]}], "refusal_cases": [{"case": "dangling", "key": "ftp", "units": [{"key": "ftp", "property": "styles", "unit": "scalar"}]}, {"case": "delete/modify", "key": "ftp", "removed_by": "o", "units": [{"key": "ftp", "property": "styles", "unit": "scalar"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "D", "tiers": {"A": 2}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "ftp"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'ftp')",
+    "('styles', 'ftp')"
+   ],
+   "detail": "dangling"
+  },
+  {
+   "category": "I3",
+   "objects": [
+    "ftp"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'ftp')",
+    "('styles', 'ftp')"
+   ],
+   "detail": "delete/modify"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "ftp"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'ftp')"
+   ],
+   "detail": "holder None -> ''"
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "ftp"
+   ],
+   "tier": "A",
+   "units": [
+    "('ntext', 'ftp')"
+   ],
+   "detail": "None -> 'ftp'"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "ftp"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'ftp')"
+   ],
+   "detail": "None -> 'none'"
+  }
+ ]
+}
+```
+
+## Input 9
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart TD
+  intake --> triage
+  triage --> email
+  triage --> fax
+  triage --> portal
+  email --> archive
+  fax --> archive
+  portal --> archive
+```
+
+### o.mmd
+
+```
+flowchart TD
+  intake --> triage
+  triage --> email
+  triage --> portal
+  email --> archive
+  portal --> archive
+```
+
+### t.mmd
+
+```
+flowchart TD
+  intake[Intake desk]
+  triage{Triage}
+  fax[Fax gateway]
+  intake --> triage
+  triage --> email
+  triage --> fax
+  triage --> portal
+  email --> archive
+  fax --> archive
+  portal --> archive
+```
+
+### merged.mmd
+
+```
+flowchart TD
+  intake[Intake desk]
+  triage{Triage}
+  fax[Fax gateway]
+  intake --> triage
+  triage --> email
+  triage --> portal
+  email --> archive
+  portal --> archive
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [{"base": {"absent": false, "value": "fax"}, "key": "fax", "o": {"absent": true, "value": null}, "property": "label", "t": {"absent": false, "value": "Fax gateway"}, "unit": "scalar"}, {"base": {"absent": false, "value": "none"}, "key": "fax", "o": {"absent": true, "value": null}, "property": "shape", "t": {"absent": false, "value": "square"}, "unit": "scalar"}], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": false, "edge": {"from": "email", "kind": ["solid", "none", "arrow"], "label": "", "to": "archive"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "fax", "kind": ["solid", "none", "arrow"], "label": "", "to": "archive"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "intake", "kind": ["solid", "none", "arrow"], "label": "", "to": "triage"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "portal", "kind": ["solid", "none", "arrow"], "label": "", "to": "archive"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "triage", "kind": ["solid", "none", "arrow"], "label": "", "to": "email"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "triage", "kind": ["solid", "none", "arrow"], "label": "", "to": "fax"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "triage", "kind": ["solid", "none", "arrow"], "label": "", "to": "portal"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "archive", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "archive", "property": "label", "unit": "scalar", "value": "archive"}, {"absent": false, "key": "archive", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "archive", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "email", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "email", "property": "label", "unit": "scalar", "value": "email"}, {"absent": false, "key": "email", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "email", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "fax", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "fax", "unit": "kind", "value": null}, {"absent": false, "key": "intake", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "intake", "property": "label", "unit": "scalar", "value": "Intake desk"}, {"absent": false, "key": "intake", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "intake", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "portal", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "portal", "property": "label", "unit": "scalar", "value": "portal"}, {"absent": false, "key": "portal", "property": "shape", "unit": "scalar", "value": "none"}, {"absent": false, "key": "portal", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "triage", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "triage", "property": "label", "unit": "scalar", "value": "Triage"}, {"absent": false, "key": "triage", "property": "shape", "unit": "scalar", "value": "diamond"}, {"absent": false, "key": "triage", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "fax", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"key": "fax", "property": "label", "unit": "scalar"}}, {"by": "t", "key": "fax", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"key": "fax", "property": "shape", "unit": "scalar"}}]}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "I3", "group": "identity", "key": "fax", "objects": ["fax"], "removed_by": "o", "tier": "A", "units": [{"key": "fax", "property": "label", "unit": "scalar"}, {"key": "fax", "property": "shape", "unit": "scalar"}]}], "refusal_cases": [{"case": "delete/modify", "key": "fax", "removed_by": "o", "units": [{"key": "fax", "property": "label", "unit": "scalar"}, {"key": "fax", "property": "shape", "unit": "scalar"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"A": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I3",
+   "objects": [
+    "fax"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'fax')",
+    "('ntext', 'fax')",
+    "('shape', 'fax')"
+   ],
+   "detail": "delete/modify"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "fax"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'fax')"
+   ],
+   "detail": "holder None -> ''"
+  }
+ ]
+}
+```
+
+## Input 10
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart TB
+  checkout[Checkout] --> pay{Payment method}
+  pay -->|card| stripe[Stripe]
+  pay -->|invoice| sap[SAP billing]
+  pay -->|wallet| paypal[PayPal]
+  stripe --> done([Paid])
+  sap --> done
+  paypal --> done
+  classDef vendor fill:#f4f4ff,stroke:#669
+  class stripe,sap vendor
+```
+
+### o.mmd
+
+```
+flowchart TB
+  checkout[Checkout] --> pay{Payment method}
+  pay -->|card| stripe[Stripe]
+  pay -->|invoice| sap[SAP billing]
+  stripe --> done([Paid])
+  sap --> done
+  classDef vendor fill:#f4f4ff,stroke:#669
+  class stripe,sap vendor
+```
+
+### t.mmd
+
+```
+flowchart TB
+  checkout[Checkout] --> pay{Payment method}
+  pay -->|card| stripe[Stripe]
+  pay -->|invoice| sap[SAP billing]
+  pay -->|wallet| paypal[PayPal]
+  stripe --> done([Paid])
+  sap --> done
+  paypal --> done
+  classDef vendor fill:#f4f4ff,stroke:#669
+  class stripe,sap vendor
+  paypal[PayPal Checkout] --> refunds[Refunds desk]
+```
+
+### merged.mmd
+
+```
+flowchart TB
+  checkout[Checkout] --> pay{Payment method}
+  pay -->|card| stripe[Stripe]
+  pay -->|invoice| sap[SAP billing]
+  stripe --> done([Paid])
+  sap --> done
+  classDef vendor fill:#f4f4ff,stroke:#669
+  class stripe,sap vendor
+  paypal[PayPal Checkout] --> refunds[Refunds desk]
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [{"base": {"absent": false, "value": "PayPal"}, "key": "paypal", "o": {"absent": true, "value": null}, "property": "label", "t": {"absent": false, "value": "PayPal Checkout"}, "unit": "scalar"}], "decided": [{"absent": false, "class": "vendor", "key": "sap", "unit": "class", "value": true}, {"absent": false, "class": "vendor", "key": "stripe", "unit": "class", "value": true}, {"absent": false, "classDef": "vendor", "property": "styles", "unit": "scalar", "value": ["fill:#f4f4ff", "stroke:#669"]}, {"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": false, "edge": {"from": "checkout", "kind": ["solid", "none", "arrow"], "label": "", "to": "pay"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "pay", "kind": ["solid", "none", "arrow"], "label": "card", "to": "stripe"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "pay", "kind": ["solid", "none", "arrow"], "label": "invoice", "to": "sap"}, "unit": "edge-count", "value": 1}, {"absent": true, "edge": {"from": "pay", "kind": ["solid", "none", "arrow"], "label": "wallet", "to": "paypal"}, "unit": "edge-count", "value": 0}, {"absent": true, "edge": {"from": "paypal", "kind": ["solid", "none", "arrow"], "label": "", "to": "done"}, "unit": "edge-count", "value": 0}, {"absent": false, "edge": {"from": "paypal", "kind": ["solid", "none", "arrow"], "label": "", "to": "refunds"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "sap", "kind": ["solid", "none", "arrow"], "label": "", "to": "done"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "stripe", "kind": ["solid", "none", "arrow"], "label": "", "to": "done"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "checkout", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "checkout", "property": "label", "unit": "scalar", "value": "Checkout"}, {"absent": false, "key": "checkout", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "checkout", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "done", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "done", "property": "label", "unit": "scalar", "value": "Paid"}, {"absent": false, "key": "done", "property": "shape", "unit": "scalar", "value": "stadium"}, {"absent": false, "key": "done", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "pay", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "pay", "property": "label", "unit": "scalar", "value": "Payment method"}, {"absent": false, "key": "pay", "property": "shape", "unit": "scalar", "value": "diamond"}, {"absent": false, "key": "pay", "unit": "kind", "value": ["node"]}, {"absent": true, "key": "paypal", "kind": "node", "unit": "membership", "value": null}, {"absent": true, "key": "paypal", "property": "shape", "unit": "scalar", "value": null}, {"absent": true, "key": "paypal", "unit": "kind", "value": null}, {"absent": false, "key": "refunds", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "refunds", "property": "label", "unit": "scalar", "value": "Refunds desk"}, {"absent": false, "key": "refunds", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "refunds", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "sap", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "sap", "property": "label", "unit": "scalar", "value": "SAP billing"}, {"absent": false, "key": "sap", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "sap", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "stripe", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "stripe", "property": "label", "unit": "scalar", "value": "Stripe"}, {"absent": false, "key": "stripe", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "stripe", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"by": "t", "key": "paypal", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"edge": {"from": "paypal", "kind": ["solid", "none", "arrow"], "label": "", "to": "refunds"}, "unit": "edge-count"}}, {"by": "t", "key": "paypal", "removed_by": "o", "rule": "removed-and-referenced", "unit": {"key": "paypal", "property": "label", "unit": "scalar"}}]}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "I1", "group": "identity", "key": "paypal", "objects": ["paypal", "refunds"], "tier": "A", "units": [{"edge": {"from": "paypal", "kind": ["solid", "none", "arrow"], "label": "", "to": "refunds"}, "unit": "edge-count"}]}, {"category": "I3", "group": "identity", "key": "paypal", "objects": ["paypal"], "removed_by": "o", "tier": "A", "units": [{"key": "paypal", "property": "label", "unit": "scalar"}]}], "refusal_cases": [{"case": "dangling", "key": "paypal", "units": [{"edge": {"from": "paypal", "kind": ["solid", "none", "arrow"], "label": "", "to": "refunds"}, "unit": "edge-count"}]}, {"case": "delete/modify", "key": "paypal", "removed_by": "o", "units": [{"key": "paypal", "property": "label", "unit": "scalar"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"A": 2}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I1",
+   "objects": [
+    "paypal",
+    "refunds"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'paypal')",
+    "('ecount', ('paypal', 'refunds', 'solid:none>arrow', ''))"
+   ],
+   "detail": "dangling"
+  },
+  {
+   "category": "I3",
+   "objects": [
+    "paypal"
+   ],
+   "tier": "A",
+   "units": [
+    "('exist', 'paypal')",
+    "('ntext', 'paypal')"
+   ],
+   "detail": "delete/modify"
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "paypal"
+   ],
+   "tier": "A",
+   "units": [
+    "('nhold', 'paypal')"
+   ],
+   "detail": "holder None -> ''"
+  },
+  {
+   "category": "C",
+   "objects": [
+    "paypal"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'paypal')"
+   ],
+   "detail": "None -> 'square'"
+  }
+ ]
+}
+```
+
+## Input 11
+
+Command: `python3 -I extract2.py D base.md o.md t.md merged.md`
+
+### base.md
+
+````
+# Shop services
+
+```mermaid
+flowchart TB
+  web[Storefront] --> cart[Cart service]
+  cart --> orders[Order service]
+  orders --> mq[[Event bus]]
+```
+
+Each service owns its own database.
+````
+
+### o.md
+
+````
+# Shop services
+
+```mermaid
+flowchart TB
+  web[Storefront] --> cart[Cart service]
+  cart --> orders[Order service]
+  orders --> billing[Billing service]
+  orders --> mq[[Event bus]]
+```
+
+Each service owns its own database.
+````
+
+### t.md
+
+````
+# Shop services
+
+```mermaid
+flowchart TB
+  web[Storefront] --> cart[Cart service]
+  cart --> orders[Order service]
+  orders --> mq[[Event bus]]
+  subgraph billing [Billing]
+    invoicer[Invoicer]
+    dunning[Dunning]
+  end
+  mq --> billing
+```
+
+Each service owns its own database.
+````
+
+### merged.md
+
+````
+# Shop services
+
+```mermaid
+flowchart TB
+  web[Storefront] --> cart[Cart service]
+  cart --> orders[Order service]
+  orders --> billing[Billing service]
+  orders --> mq[[Event bus]]
+  subgraph billing [Billing]
+    invoicer[Invoicer]
+    dunning[Dunning]
+  end
+  mq --> billing
+```
+
+Each service owns its own database.
+````
+
+### Your extractor's output
+
+```json
+{"conflicts": [{"base": {"absent": true, "value": null}, "key": "billing", "o": {"absent": false, "value": ["node"]}, "t": {"absent": false, "value": ["subgraph"]}, "unit": "kind"}], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "TB"}, {"absent": false, "edge": {"from": "cart", "kind": ["solid", "none", "arrow"], "label": "", "to": "orders"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "mq", "kind": ["solid", "none", "arrow"], "label": "", "to": "billing"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "orders", "kind": ["solid", "none", "arrow"], "label": "", "to": "billing"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "orders", "kind": ["solid", "none", "arrow"], "label": "", "to": "mq"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "web", "kind": ["solid", "none", "arrow"], "label": "", "to": "cart"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "billing", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "billing", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": false, "key": "billing", "property": "label", "unit": "scalar", "value": "Billing service"}, {"absent": false, "key": "billing", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "billing", "property": "title", "unit": "scalar", "value": "Billing"}, {"absent": false, "key": "cart", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "cart", "property": "label", "unit": "scalar", "value": "Cart service"}, {"absent": false, "key": "cart", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "cart", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "dunning", "kind": "node", "unit": "membership", "value": "billing"}, {"absent": false, "key": "dunning", "property": "label", "unit": "scalar", "value": "Dunning"}, {"absent": false, "key": "dunning", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "dunning", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "invoicer", "kind": "node", "unit": "membership", "value": "billing"}, {"absent": false, "key": "invoicer", "property": "label", "unit": "scalar", "value": "Invoicer"}, {"absent": false, "key": "invoicer", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "invoicer", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "mq", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "mq", "property": "label", "unit": "scalar", "value": "Event bus"}, {"absent": false, "key": "mq", "property": "shape", "unit": "scalar", "value": "subroutine"}, {"absent": false, "key": "mq", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "orders", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "orders", "property": "label", "unit": "scalar", "value": "Order service"}, {"absent": false, "key": "orders", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "orders", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "web", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "web", "property": "label", "unit": "scalar", "value": "Storefront"}, {"absent": false, "key": "web", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "web", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"key": "billing", "rule": "both-add-differing", "units": [{"key": "billing", "kind": "node", "unit": "membership"}, {"key": "billing", "kind": "subgraph", "unit": "membership"}, {"key": "billing", "property": "label", "unit": "scalar"}, {"key": "billing", "property": "shape", "unit": "scalar"}, {"key": "billing", "property": "title", "unit": "scalar"}, {"key": "billing", "unit": "kind"}]}]}, "extractor": "extract2", "mode": "markdown", "new_lint_failures": [["L4", "billing"]], "outcome": "decided", "path": "merged.md", "records": [{"category": "I2", "group": "identity", "key": "billing", "new_lints": [["L4", "billing"]], "objects": ["billing"], "tier": "B", "units": [{"key": "billing", "kind": "node", "unit": "membership"}, {"key": "billing", "kind": "subgraph", "unit": "membership"}, {"key": "billing", "property": "label", "unit": "scalar"}, {"key": "billing", "property": "shape", "unit": "scalar"}, {"key": "billing", "property": "title", "unit": "scalar"}, {"key": "billing", "unit": "kind"}]}], "refusal_cases": [{"case": "collision", "key": "billing", "units": [{"key": "billing", "kind": "node", "unit": "membership"}, {"key": "billing", "kind": "subgraph", "unit": "membership"}, {"key": "billing", "property": "label", "unit": "scalar"}, {"key": "billing", "property": "shape", "unit": "scalar"}, {"key": "billing", "property": "title", "unit": "scalar"}, {"key": "billing", "unit": "kind"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "D", "tiers": {"B": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I2",
+   "objects": [
+    "billing"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'billing')",
+    "('exist', 'billing')",
+    "('nhold', 'billing')",
+    "('ntext', 'billing')",
+    "('shape', 'billing')",
+    "('shold', 'billing')",
+    "('stitle', 'billing')"
+   ],
+   "detail": "collision",
+   "lints": [
+    "L4:billing"
+   ]
+  },
+  {
+   "category": "I4",
+   "objects": [
+    "billing"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'billing')"
+   ],
+   "detail": "merged kinds ('node', 'subgraph'), decided MC",
+   "lints": [
+    "L4:billing"
+   ]
+  }
+ ]
+}
+```
+
+## Input 12
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart LR
+  client([Client])
+  api[API]
+  db[(Database)]
+  cache[(Cache)]
+  client --> api
+  api --> db
+  api --> cache
+```
+
+### o.mmd
+
+```
+flowchart LR
+  client([Client])
+  db[(Database)]
+  cache[(Cache)]
+  api[API]
+  client --> api
+  api --> db
+  api --> cache
+```
+
+### t.mmd
+
+```
+flowchart LR
+  client([Client])
+  db[(Database)]
+  cache[(Cache)]
+  client --> api
+  api --> db
+  api --> cache
+  subgraph api [API]
+    routes[Routes] --> handlers[Handlers]
+  end
+```
+
+### merged.mmd
+
+```
+flowchart LR
+  client([Client])
+  db[(Database)]
+  cache[(Cache)]
+  api[API]
+  client --> api
+  api --> db
+  api --> cache
+  subgraph api [API]
+    routes[Routes] --> handlers[Handlers]
+  end
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "cache"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "api", "kind": ["solid", "none", "arrow"], "label": "", "to": "db"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "client", "kind": ["solid", "none", "arrow"], "label": "", "to": "api"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "routes", "kind": ["solid", "none", "arrow"], "label": "", "to": "handlers"}, "unit": "edge-count", "value": 1}, {"absent": true, "key": "api", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "api", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": true, "key": "api", "property": "label", "unit": "scalar", "value": null}, {"absent": true, "key": "api", "property": "shape", "unit": "scalar", "value": null}, {"absent": false, "key": "api", "property": "title", "unit": "scalar", "value": "API"}, {"absent": false, "key": "api", "unit": "kind", "value": ["subgraph"]}, {"absent": false, "key": "cache", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "cache", "property": "label", "unit": "scalar", "value": "Cache"}, {"absent": false, "key": "cache", "property": "shape", "unit": "scalar", "value": "cylinder"}, {"absent": false, "key": "cache", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "client", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "client", "property": "label", "unit": "scalar", "value": "Client"}, {"absent": false, "key": "client", "property": "shape", "unit": "scalar", "value": "stadium"}, {"absent": false, "key": "client", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "db", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "db", "property": "label", "unit": "scalar", "value": "Database"}, {"absent": false, "key": "db", "property": "shape", "unit": "scalar", "value": "cylinder"}, {"absent": false, "key": "db", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "handlers", "kind": "node", "unit": "membership", "value": "api"}, {"absent": false, "key": "handlers", "property": "label", "unit": "scalar", "value": "Handlers"}, {"absent": false, "key": "handlers", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "handlers", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "routes", "kind": "node", "unit": "membership", "value": "api"}, {"absent": false, "key": "routes", "property": "label", "unit": "scalar", "value": "Routes"}, {"absent": false, "key": "routes", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "routes", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": false, "reasons": []}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [["L4", "api"]], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "G1", "detail": "present", "group": "structure", "key": "api", "new_lints": [["L4", "api"]], "objects": ["api"], "tier": "B"}], "refusal_cases": [], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"B": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": false,
+ "records": [
+  {
+   "category": "I4",
+   "objects": [
+    "api"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'api')"
+   ],
+   "detail": "merged kinds ('node', 'subgraph'), decided ('subgraph',)",
+   "lints": [
+    "L4:api"
+   ]
+  },
+  {
+   "category": "G3",
+   "objects": [
+    "api"
+   ],
+   "tier": "B",
+   "units": [
+    "('nhold', 'api')"
+   ],
+   "detail": "holder None -> ''",
+   "lints": [
+    "L4:api"
+   ]
+  },
+  {
+   "category": "G4",
+   "objects": [
+    "api"
+   ],
+   "tier": "B",
+   "units": [
+    "('ntext', 'api')"
+   ],
+   "detail": "None -> 'API'",
+   "lints": [
+    "L4:api"
+   ]
+  },
+  {
+   "category": "C",
+   "objects": [
+    "api"
+   ],
+   "tier": "C",
+   "units": [
+    "('shape', 'api')"
+   ],
+   "detail": "None -> 'square'"
+  }
+ ]
+}
+```
+
+## Input 13
+
+Command: `python3 -I extract2.py F base.mmd o.mmd t.mmd merged.mmd`
+
+### base.mmd
+
+```
+flowchart LR
+  login[Login form] --> session[Session store]
+  login --> mfa{MFA?}
+  mfa -->|yes| otp[OTP check]
+  mfa -->|no| home[Home]
+  otp --> home
+```
+
+### o.mmd
+
+```
+flowchart LR
+  subgraph auth [Authentication]
+    login[Login form] --> session[Session store]
+    login --> mfa{MFA?}
+    mfa -->|yes| otp[OTP check]
+  end
+  mfa -->|no| home[Home]
+  otp --> home
+```
+
+### t.mmd
+
+```
+flowchart LR
+  login[Login form] --> session[Session store]
+  login --> mfa{MFA?}
+  mfa -->|yes| otp[OTP check]
+  mfa -->|no| home[Home]
+  otp --> home
+  home --> auth[Auth service]
+```
+
+### merged.mmd
+
+```
+flowchart LR
+  subgraph auth [Authentication]
+    login[Login form] --> session[Session store]
+    login --> mfa{MFA?}
+    mfa -->|yes| otp[OTP check]
+  end
+  mfa -->|no| home[Home]
+  otp --> home
+  home --> auth[Auth service]
+```
+
+### Your extractor's output
+
+```json
+{"conflicts": [{"base": {"absent": true, "value": null}, "key": "auth", "o": {"absent": false, "value": ["subgraph"]}, "t": {"absent": false, "value": ["node"]}, "unit": "kind"}], "decided": [{"absent": false, "diagram": true, "property": "direction", "unit": "scalar", "value": "LR"}, {"absent": false, "edge": {"from": "home", "kind": ["solid", "none", "arrow"], "label": "", "to": "auth"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "login", "kind": ["solid", "none", "arrow"], "label": "", "to": "mfa"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "login", "kind": ["solid", "none", "arrow"], "label": "", "to": "session"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "mfa", "kind": ["solid", "none", "arrow"], "label": "no", "to": "home"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "mfa", "kind": ["solid", "none", "arrow"], "label": "yes", "to": "otp"}, "unit": "edge-count", "value": 1}, {"absent": false, "edge": {"from": "otp", "kind": ["solid", "none", "arrow"], "label": "", "to": "home"}, "unit": "edge-count", "value": 1}, {"absent": false, "key": "auth", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "auth", "kind": "subgraph", "unit": "membership", "value": null}, {"absent": false, "key": "auth", "property": "label", "unit": "scalar", "value": "Auth service"}, {"absent": false, "key": "auth", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "auth", "property": "title", "unit": "scalar", "value": "Authentication"}, {"absent": false, "key": "home", "kind": "node", "unit": "membership", "value": null}, {"absent": false, "key": "home", "property": "label", "unit": "scalar", "value": "Home"}, {"absent": false, "key": "home", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "home", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "login", "kind": "node", "unit": "membership", "value": "auth"}, {"absent": false, "key": "login", "property": "label", "unit": "scalar", "value": "Login form"}, {"absent": false, "key": "login", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "login", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "mfa", "kind": "node", "unit": "membership", "value": "auth"}, {"absent": false, "key": "mfa", "property": "label", "unit": "scalar", "value": "MFA?"}, {"absent": false, "key": "mfa", "property": "shape", "unit": "scalar", "value": "diamond"}, {"absent": false, "key": "mfa", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "otp", "kind": "node", "unit": "membership", "value": "auth"}, {"absent": false, "key": "otp", "property": "label", "unit": "scalar", "value": "OTP check"}, {"absent": false, "key": "otp", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "otp", "unit": "kind", "value": ["node"]}, {"absent": false, "key": "session", "kind": "node", "unit": "membership", "value": "auth"}, {"absent": false, "key": "session", "property": "label", "unit": "scalar", "value": "Session store"}, {"absent": false, "key": "session", "property": "shape", "unit": "scalar", "value": "square"}, {"absent": false, "key": "session", "unit": "kind", "value": ["node"]}], "exposure": {"exposed": true, "reasons": [{"key": "auth", "rule": "both-add-differing", "units": [{"key": "auth", "kind": "node", "unit": "membership"}, {"key": "auth", "kind": "subgraph", "unit": "membership"}, {"key": "auth", "property": "label", "unit": "scalar"}, {"key": "auth", "property": "shape", "unit": "scalar"}, {"key": "auth", "property": "title", "unit": "scalar"}, {"key": "auth", "unit": "kind"}]}]}, "extractor": "extract2", "mode": "raw", "new_lint_failures": [["L4", "auth"]], "outcome": "decided", "path": "merged.mmd", "records": [{"category": "I2", "group": "identity", "key": "auth", "new_lints": [["L4", "auth"]], "objects": ["auth"], "tier": "B", "units": [{"key": "auth", "kind": "node", "unit": "membership"}, {"key": "auth", "kind": "subgraph", "unit": "membership"}, {"key": "auth", "property": "label", "unit": "scalar"}, {"key": "auth", "property": "shape", "unit": "scalar"}, {"key": "auth", "property": "title", "unit": "scalar"}, {"key": "auth", "unit": "kind"}]}], "refusal_cases": [{"case": "collision", "key": "auth", "units": [{"key": "auth", "kind": "node", "unit": "membership"}, {"key": "auth", "kind": "subgraph", "unit": "membership"}, {"key": "auth", "property": "label", "unit": "scalar"}, {"key": "auth", "property": "shape", "unit": "scalar"}, {"key": "auth", "property": "title", "unit": "scalar"}, {"key": "auth", "unit": "kind"}]}], "states": {"base": {"in_subset": true, "reason": null, "status": "ok"}, "merged": {"in_subset": true, "reason": null, "status": "ok"}, "o": {"in_subset": true, "reason": null, "status": "ok"}, "t": {"in_subset": true, "reason": null, "status": "ok"}}, "stratum": "F", "tiers": {"B": 1}, "undecided_memberships": []}
+```
+
+### The other reader's output
+
+```json
+{
+ "outcome": "JUDGED",
+ "exposed": true,
+ "records": [
+  {
+   "category": "I2",
+   "objects": [
+    "auth"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'auth')",
+    "('exist', 'auth')",
+    "('nhold', 'auth')",
+    "('ntext', 'auth')",
+    "('shape', 'auth')",
+    "('shold', 'auth')",
+    "('stitle', 'auth')"
+   ],
+   "detail": "collision",
+   "lints": [
+    "L4:auth"
+   ]
+  },
+  {
+   "category": "I4",
+   "objects": [
+    "auth"
+   ],
+   "tier": "B",
+   "units": [
+    "('exist', 'auth')"
+   ],
+   "detail": "merged kinds ('node', 'subgraph'), decided MC",
+   "lints": [
+    "L4:auth"
+   ]
+  }
+ ]
+}
+```

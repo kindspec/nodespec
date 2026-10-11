@@ -39,20 +39,16 @@ the subset) unless I was confident about R.
 
    Otherwise the whole file is the diagram, and so is any `.mmd` or
    `.mermaid` file.
-5. **What counts as a Mermaid fence.** An opening line matching §3's
-   pattern, case-insensitively: `^ {0,3}(`{3,}|~{3,})[ \t]*mermaid(-example)?\b`.
-   So `mermaid-example` is a Mermaid fence, and so is `Mermaid`. An unclosed
-   fence runs to the end of the file. Fences inside other fenced blocks are
-   skipped.
+5. **What counts as a Mermaid fence.** A CommonMark fence (three or more
+   backticks or tildes, up to three spaces of indent) whose info string is
+   exactly `mermaid`. `mermaid-example` is not one. An unclosed fence runs to
+   the end of the file. Fences inside other fenced blocks are skipped.
 6. **Conflict markers (E).** A line starting `<<<<<<<`, `>>>>>>>` or
-   `|||||||` followed by a space or end of line. A line that is exactly
-   `=======` is not a marker on its own. In Markdown it underlines a setext
-   heading, and the inputs may already hold one, so counting it would make a
-   clean merge E. Git never writes `=======` without a `<<<<<<<` line before
-   it, so a real conflict is still caught by that line. A marker anywhere in
-   the merged file makes it E, for every stratum. §5.3 says this explicitly
-   for stratum D, and its first sentence ("its merged file holds a conflict
-   marker") reads as the whole file for all strata.
+   `|||||||` followed by a space or end of line, or a line that is exactly
+   `=======`. A marker anywhere in the merged file makes it E, for every
+   stratum. §5.3 says this explicitly for stratum D, and its first sentence
+   ("its merged file holds a conflict marker") reads as the whole file for
+   all strata.
 7. **`git ls-files -u` is not consulted.** The extractor sees only the four
    files, so an unmerged index entry with no marker in the file cannot be
    seen.
@@ -236,31 +232,21 @@ the subset) unless I was confident about R.
 
 ## Records (§5.3, §5.4)
 
-31. **I4.** Two conditions, either one enough, and the merged model holds the
-    key:
-    - no input gives the key two kinds, and the merged model gives it two
-      kinds. The decided kind may be a conflict, so a key that both legs add,
-      one as a node and one as a subgraph, and that the merged model holds as
-      both, is I4 and also I2;
-    - the decided kind is present, every input that holds the key gives it
-      exactly the decided kind, and the merged kind differs.
-
-    I4 suppresses G1 for that key (choice 33).
+31. **I4.** Read as: no input gives the key two kinds, and no input gives it a
+    kind other than its decided kind. Then the merged kinds differ from the
+    decided kinds and are not absent. I4 suppresses G1 and G2 for that key.
 32. **When a key's presence differs**, between decided and merged, for one
     kind:
     - a node gives G1;
-    - a user-id edge gives G2 `lost` or `extra`.
+    - a user-id edge gives G2 `lost` or `extra`;
+    - a subgraph gives G4 on its title.
 
-    The other units on that key are still compared one by one, as usual. A
-    node decided absent but present in the merged model can therefore also
-    give G3 for its membership, G4 for its label and C for its shape. A
-    subgraph gives G4 on its title, G3 on its membership and D on its
-    `direction`. A user-id edge also gives G2 `changed` (choice 34), G4 and D
-    for its own units.
-33. **Suppression under I1–I4.** §5.3 says G1 is "outside I1–I4", so G1 is
-    skipped for every I-record object. Only G1 carries that clause. G2, G3,
-    G4, C, D and MC are made as usual for units keyed by an I record's key.
-    Choice 32 still applies on its own terms.
+    The other units of that kind on that key are then not reported again.
+33. **Suppression under I1–I4.** §5.3 says G1 is "outside I1–I4". I extend
+    that: no G, C, D or MC record is made for a unit keyed by an I record's
+    primary key (the removed, colliding, deleted or clashing key). G1 is also
+    skipped for every I-record object. Without this, one dangling node would
+    be counted again as G4/C/D on its own label, shape and styles.
 34. **G2 for user-id edges.** A changed `from`, `to` or `type` is G2 with
     `detail: "changed"`. Edge counts give `lost` or `extra` with the size of
     the difference.
@@ -306,89 +292,50 @@ the subset) unless I was confident about R.
     - A record is demoted from A to B when any `(lint, object)` on its objects
       is absent from all three inputs.
 
-## Revisions
+## Invocation 4
 
-- **Choice 5, Mermaid fence.**
-  - Old: the info string had to be exactly `mermaid`, matched with case, so
-    `mermaid-example` was not a Mermaid fence.
-  - New: the opening line matches §3's pattern without regard to case, so
-    `mermaid-example` (and `Mermaid`) open a Mermaid fence.
-  - Decided by §3: "**A Mermaid fence** opens on a line matching,
-    case-insensitively, `^ {0,3}(`{3,}|~{3,})[ \t]*mermaid(-example)?\b`".
-- **Choice 33 (and the last sentence of choice 31), the I1–I4 clause.**
-  - Old: no G, C, D or MC record for a unit keyed by an I record's key, and I4
-    also suppressed G2.
-  - New: only G1 is suppressed, for every I-record object. G2, G3, G4, C, D
-    and MC are reported as usual.
-  - Decided by §5.3: "**G1 Node.** A decided-present node is absent, or a
-    decided-absent node is present, outside I1–I4." The G2 ("An edge key's
-    merged count differs from the decided count"), G3 and G4 entries carry no
-    such clause.
-- **Choice 6, conflict markers.**
-  - Old: a line that is exactly `=======` was a conflict marker.
-  - New: it is not one on its own. Only `<<<<<<<`, `>>>>>>>` and `|||||||`
-    lines (followed by a space or end of line) are markers.
-  - The text does not define a conflict marker: §5.3 says only "its merged
-    file holds a conflict marker" and "For stratum D, a conflict anywhere in
-    the file makes it E". So this is a choice, not a reading the text forces.
-    The reason: in Markdown a line of `=` underlines a setext heading, and the
-    inputs may already hold one. Counting it would make a clean merge E. A
-    real git conflict always has a `<<<<<<<` line before its `=======`, so
-    dropping the bare `=======` loses no conflict.
-- **Choice 32, other units when a key's presence differs.**
-  - Old: when a key's presence for a kind differed between decided and merged,
-    that kind's other units on the key were not reported. This applied to
-    label, shape, membership, link, styles and classes for a node; `direction`
-    and membership for a subgraph; and `from`, `to`, `type`, `edgeLabel` and
-    `linkstyle` for a user-id edge. Only a subgraph's title was still
-    compared.
-  - New: nothing is suppressed for this reason. Each unit is compared with
-    its decided value on its own, so a decided-absent node present in the
-    merged model gives G1 and also G3, G4 and C (and D) for each unit that
-    differs. Undecided memberships are still skipped (§4.2).
-  - Decided by §4.2: "The oracle decides each unit separately: a key's
-    existence, and its kind; a scalar value: `(key, property)`; … a
-    membership: `(key)` mapped to its holder". The label, shape and
-    membership units each have a decided value (absent) and a merged value.
-    §5.3 then says "**G3 Membership.** A membership differs from the decided
-    holder", "**G4 Label.** A text unit differs from the decided value" and
-    "**C, shape.** A shape unit differs from the decided value". None of
-    these makes an exception for a key whose existence differs.
-  - This did not need to extend to G2 and D, since neither was quoted. I
-    applied it to them too, because the same §4.2 sentence covers their
-    units, and §5.3's "**D, style.** A style unit differs" has no exception
-    either.
-  - A key with an I1–I4 record: kept as choice 33 already reads it. Only G1
-    says "outside I1–I4", so G1 alone is suppressed for I-record objects. G3,
-    G4, C and the rest are reported for that key, since their definitions do
-    not mention I1–I4. This is consistent with the new reading of choice 32,
-    so the code did not change for this case.
-- **Choice 31, I4.**
-  - Old: both conditions had to hold. No input gives the key two kinds,
-    *and* no input gives it a kind other than its decided kind. So the decided
-    kind had to be present. A key that both legs add, one as a node and one as
-    a subgraph, has a conflicting decided kind, so it gave only I2 even when
-    the merged model held it as both.
-  - New: the sentence is read as two parallel cases, either one enough:
-    - "no input gives two kinds" pairs with "has two kinds in the merged
-      model". This needs no decided kind.
-    - "a kind other than its decided kind" pairs with "a different kind".
-      This needs a decided kind, and it is the old test.
+41. **Units on a key whose presence differs, or that an I record names
+    (inputs 1–10, 12). Changed. This replaces choices 32 and 33.** §4.2 says
+    the oracle decides each unit separately. §5.3 defines G3, G4 and C per
+    unit: "a membership differs", "a text unit differs", "a shape unit
+    differs". The only exclusion the spec states is on G1, which applies
+    "outside I1–I4". Nothing says G1 or an I record absorbs the node's
+    membership, label or shape. So each of those units, when its decided value
+    and merged value differ, now gets its own G3, G4, C or D record. Decided
+    absent against merged present counts as a difference. For example, in
+    input 1 `fraud_check` gets G1 + G3 + G4 + C, and in input 4 `canary` gets
+    I1 + G3 + G4 + C. Two things are kept:
+    - G1 is still skipped for I-record objects, because §5.3 says so.
+    - A user-id edge's own `from`, `to` and `type` are still not reported
+      next to its G2 lost/extra. §4.1 makes the edge a single relation unit
+      keyed by its id, so these are facets of the one count, not separate
+      units. Its `edgeLabel` is a text unit (§4.1 "each edge label") and gets
+      G4 like any other.
 
-    The example key is now I4 as well as I2. G1 stays suppressed for it
-    (choice 33).
-  - Decided by §5.3: "**I4 Kind clash.** A key that no input gives two kinds,
+    Units that are model conflicts get no G/C record. G and C compare against
+    a decided value, and MC is "outside §5.2", so conflicts keyed by a refusal
+    key stay silent. That is why `fax` in input 9 gets I3 + G3 only (its label
+    and shape are conflicts), and why `paypal` in input 10 gets no G4. The
+    tier-B demotion now also applies to these G3/G4 records (inputs 5 and 7,
+    L1 on `fe` and `db`).
+42. **S-ORDER objects (input 7). Changed.** §5.3 says a record's objects are
+    "the keys it concerns". Only G0 is given the path. I used to give S-ORDER
+    the path, and the other reader gives it no objects at all. Neither one is
+    the keys concerned. The objects are now the keys of every inverted pair:
+    the node ids for the vertex map, and the edge id or the two ends for the
+    edge list. In input 7 that is `["db", "worker"]`. This has no effect on
+    tier, since S-ORDER is "—".
+43. **I4 when an input already gives the key another kind (inputs 11, 12,
+    13). Kept (choice 31).** §5.3 reads "A key that no input gives two kinds,
     or a kind other than its decided kind, has two kinds or a different kind
-    in the merged model. A clash already present in an input is not a
-    record." The "or" joins the two cases. In the example no input gives the
-    key two kinds and the merged model does, so the clash is not "already
-    present in an input". §5.2 defines a collision separately ("a key is
-    absent in `B`, both legs add it, and some unit keyed by it differs
-    between `O` and `T`, its kind included"). Nothing makes I2 and I4
-    exclusive, so both are recorded.
-  - Kept: a merged key that is absent is not an I4 ("has two kinds or a
-    different kind" names a kind the merged model holds). That case stays
-    G1. The text does not say whether the second case allows an input that
-    already gives the decided pair of kinds. I kept the old test, which
-    requires each input to give exactly the decided kind, so a clash already
-    in an input is never a record.
+    in the merged model". The phrase "or a kind other than its decided kind"
+    is a second object of "no input gives".
+    - **Input 12.** `api` is a node in B, and the decided kind is
+      `subgraph`. So an input gives a kind other than the decided one, and
+      I4's precondition fails. The node's presence then differs, which gives
+      G1 (§5.3: a decided-absent node is present). Under choice 41 its G3, G4
+      and C come with it.
+    - **Inputs 11 and 13.** The kind is a model conflict, so there is no
+      decided kind for the inputs to match. The legs' clash is the I2
+      collision, which both readers report. A second I4 would count the same
+      collision twice.

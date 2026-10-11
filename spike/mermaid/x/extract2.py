@@ -69,10 +69,8 @@ BR_RE = re.compile(r"<br\s*/?>", re.I)
 ENTITY_RE = re.compile(r"#[A-Za-z0-9_]+;")
 STYLE_LINE_RE = re.compile(r"style.*:\S*#.*;")
 CLASSDEF_LINE_RE = re.compile(r"classDef.*:\S*#.*;")
-# A bare "=======" line is not a marker on its own: in Markdown it underlines
-# a heading, and git never writes one without a "<<<<<<<" line before it.
-CONFLICT_RE = re.compile(r"^(<{7}|>{7}|\|{7})(?: |$)", re.M)
-FENCE_OPEN_RE = re.compile(r"^( {0,3})(`{3,}|~{3,})[ \t]*mermaid(?:-example)?\b", re.I)
+CONFLICT_RE = re.compile(r"^(<{7}|>{7}|\|{7})(?: |$)|^={7}$", re.M)
+FENCE_OPEN_RE = re.compile(r"^( {0,3})(`{3,}|~{3,})[ \t]*mermaid[ \t]*$")
 
 RESERVED_IDS = {"subgraph", "graph", "flowchart", "flowchart-elk", "style",
                 "class", "classDef", "linkStyle", "click", "direction",
@@ -827,6 +825,8 @@ class Parser:
 #   ("linkstyle", edgekey)              linkStyle styles of an edge key
 # where edgekey = (from key, to key, (line, start head, end head), label).
 
+NODE_PROPS = {"label", "shape", "link", "linkTarget", "styles"}
+SUB_PROPS = {"title", "dir"}
 EDGE_PROPS = {"from", "to", "type", "edgeLabel", "linkstyle"}
 TEXT_PROPS = {"label", "title", "edgeLabel", "link", "linkTarget"}
 
@@ -1276,7 +1276,7 @@ def build_records(orc, M, path, new_lints):
     mk = lambda k: M.units.get(("kind", k), ABSENT)
 
     # identity group
-    i_objects = set()
+    i_objects, i_primary = set(), set()
     for k in sorted(orc.dangling):
         objs = {k}
         for u in orc.dangling[k]:
@@ -1286,35 +1286,39 @@ def build_records(orc, M, path, new_lints):
         add("I1", "identity", "A", objs, key=k,
             units=[unit_json(u) for u in sorted(orc.dangling[k], key=sort_key)])
         i_objects |= objs
+        i_primary.add(k)
     for k in sorted(orc.collision):
         add("I2", "identity", "A", [k], key=k,
             units=[unit_json(u) for u in sorted(orc.collision[k], key=sort_key)])
         i_objects.add(k)
+        i_primary.add(k)
     for k in sorted(orc.delmod):
         add("I3", "identity", "A", [k], key=k, removed_by=orc.delmod[k]["removed_by"],
             units=[unit_json(u) for u in sorted(orc.delmod[k]["changed"], key=sort_key)])
         i_objects.add(k)
+        i_primary.add(k)
 
     all_keys = sorted(set(orc.keys) | {u[1] for u in M.units if u[0] == "kind"})
     kind_diff = {}  # key -> set of kinds whose presence differs
     for k in all_keys:
         d, m = orc.dkind(k), mk(k)
-        inputs = [x.units.get(("kind", k), ABSENT) for x in (B, O, T)]
-        if m is not ABSENT:
-            # no input gives two kinds, and the merged model has two kinds
-            two = len(m) > 1 and all(x is ABSENT or len(x) == 1 for x in inputs)
-            # no input gives a kind other than the decided kind, and the merged kind differs
-            other = present(d) and m != d and all(x is ABSENT or (len(x) == 1 and x == d) for x in inputs)
-            if two or other:
-                add("I4", "identity", "A", [k], key=k, decided=jv(d), merged=jv(m))
-                i_objects.add(k)
         if d is CONFLICT:
             continue
+        inputs = [x.units.get(("kind", k), ABSENT) for x in (B, O, T)]
+        if present(d) and m is not ABSENT and m != d:
+            clean = all(x is ABSENT or (len(x) == 1 and x == d) for x in inputs)
+            if clean and (len(m) > 1 or m != d):
+                add("I4", "identity", "A", [k], key=k, decided=jv(d), merged=jv(m))
+                i_objects.add(k)
+                i_primary.add(k)
+                continue
         ds = set(d) if present(d) else set()
         ms = set(m) if m is not ABSENT else set()
         if ds != ms:
             kind_diff[k] = ds ^ ms
     for k, kinds in sorted(kind_diff.items()):
+        if k in i_primary:
+            continue
         ds = set(orc.dkind(k)) if present(orc.dkind(k)) else set()
         if "node" in kinds and k not in i_objects:
             add("G1", "structure", "A", [k], key=k,
@@ -1323,6 +1327,16 @@ def build_records(orc, M, path, new_lints):
             objs = [k] + edge_ends(k, D, M)
             lost = "edge" in ds
             add("G2", "structure", "A", objs, edge_id=k, detail="lost" if lost else "extra", count=1)
+
+    def suppressed(u):
+        # Only a user-id edge's own from/to/type are folded into its G2 lost/extra:
+        # they are the one edge unit (section 4.1). Every other unit is decided
+        # separately (section 4.2) and gets its own record.
+        k = keyed_by(u)
+        if k is None:
+            return False
+        kd = kind_diff.get(k)
+        return bool(kd) and "edge" in kd and u[0] == "prop" and u[2] in ("from", "to", "type")
 
     # structure group and the rest, unit by unit
     style_values_d = Counter()
@@ -1343,6 +1357,8 @@ def build_records(orc, M, path, new_lints):
         d = D.get(u, ABSENT)
         m = M.units.get(u, ABSENT)
         if u in orc.undecided:
+            continue
+        if suppressed(u):
             continue
         cls = unit_class(u)
         if d is CONFLICT:
@@ -1394,8 +1410,9 @@ def build_records(orc, M, path, new_lints):
     # S-ORDER
     for name, seqs in (("nodes", [x.node_order for x in (B, O, T, M)]),
                        ("edges", [x.edge_order for x in (B, O, T, M)])):
-        if order_differs(*seqs):
-            add("S-ORDER", "other", "-", [path], sequence=name)
+        inverted = order_differs(*seqs)
+        if inverted:
+            add("S-ORDER", "other", "-", order_objects(inverted), sequence=name)
 
     # tier B: an A record one of whose objects newly fails a lint (row 1)
     lint_objs = defaultdict(set)
@@ -1414,13 +1431,29 @@ def build_records(orc, M, path, new_lints):
 ORDER_PAIR_LIMIT = 1500
 
 
+def order_objects(pairs):
+    """The keys an S-ORDER record concerns: those of each inverted pair."""
+    out = set()
+    for pair in pairs:
+        for x in pair:
+            if isinstance(x, str):
+                out.add(x)
+            elif x[0] == "id":
+                out.add(x[1])
+            else:
+                ek = x[1]
+                out.update((ek[0], ek[1]))
+    return out
+
+
 def order_differs(b, o, t, m):
-    """S-ORDER: a pair the merged order puts the other way round from the decided order."""
+    """S-ORDER: the pairs the merged order puts the other way round from the decided order."""
     pos = [{x: i for i, x in enumerate(seq)} for seq in (b, o, t)]
     if len(m) > ORDER_PAIR_LIMIT:
         pairs = ((m[i], m[i + 1]) for i in range(len(m) - 1))
     else:
         pairs = ((m[i], m[j]) for i in range(len(m)) for j in range(i + 1, len(m)))
+    inverted = []
     for x, y in pairs:
         rel = []
         for p in pos:
@@ -1430,8 +1463,8 @@ def order_differs(b, o, t, m):
                 rel.append(None)
         d = decide(*rel)
         if d is False:
-            return True
-    return False
+            inverted.append((x, y))
+    return inverted
 
 
 # --------------------------------------------------------------------------
