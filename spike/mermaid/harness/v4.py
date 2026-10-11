@@ -383,9 +383,12 @@ M = [
      '        if r["category"] not in OBJECTS_DEFINED:\n            out.add((r["category"], ()))\n            continue', '        pass', "v3"),
     ("C2 a role launches with ANTHROPIC_API_KEY set", "harness/ms/roles.py",
      '    if os.environ.get("ANTHROPIC_API_KEY"):', '    if False:', "v3"),
-    ("C2 a role sees /home", "harness/ms/roles.py",
+    # The host home is bound inside the sandbox's /home: bwrap starts, and
+    # the barrier probe itself must see the leak.
+    ("C2 a role sees the host's home under /home", "harness/ms/roles.py",
      '        a += ["--tmpfs", "/tmp", "--tmpfs", "/home", "--dir", SANDBOX_HOME]',
-     '        a += ["--tmpfs", "/tmp", "--ro-bind", "/home", "/home", "--dir", SANDBOX_HOME]', "v3"),
+     '        a += ["--tmpfs", "/tmp", "--tmpfs", "/home", "--ro-bind", os.path.expanduser("~"), '
+     'os.path.expanduser("~"), "--dir", SANDBOX_HOME]', "v3"),
     ("C2 a role keeps the caller's environment", "harness/ms/roles.py",
      '         "--clearenv", "--setenv", "HOME", SANDBOX_HOME,', '         "--setenv", "HOME", SANDBOX_HOME,', "v3"),
     ("C2 an init with another model accepted", "harness/ms/roles.py",
@@ -397,6 +400,12 @@ M = [
      '        a += ["--tmpfs", "/tmp", "--tmpfs", "/home",', "v3"),
     ("C2 every pull request's commits fetched", "harness/ms/corpus.py",
      '            if relevant is not None and not relevant(e):', '            if False:', "v3"),
+    ("C2 a role with no init event accepted", "harness/ms/roles.py",
+     '    if init is None and not rec.get("refused"):', '    if False:', "v3"),
+    ("C2 an init with a plugin that is not built in accepted", "harness/ms/roles.py",
+     '    if extra:\n        bad.append(f"plugins {extra}")', '    if False:\n        bad.append(f"plugins {extra}")', "v3"),
+    ("C2 an init with a hook accepted", "harness/ms/roles.py",
+     '    if ev.get("hooks"):', '    if False:', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",

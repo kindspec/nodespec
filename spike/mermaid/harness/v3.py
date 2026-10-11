@@ -1656,6 +1656,27 @@ def s_roles():
     check("roles: another model is refused", RO.init_problems(dict(good, model="claude-other")))
     check("roles: an MCP tool is refused", RO.init_problems(dict(good, tools=good["tools"] + ["mcp__x__y"])))
     check("roles: an MCP server is refused", RO.init_problems(dict(good, mcp_servers=[{"name": "x"}])))
+    builtin = [{"name": "p", "path": "builtin", "source": "p@builtin"}]
+    check("roles: plugins built into the CLI pass", RO.init_problems(dict(good, plugins=builtin)) == [])
+    check("roles: a plugin that is not built in is refused",
+          RO.init_problems(dict(good, plugins=builtin + [{"name": "q", "path": "/x/q", "source": "q@m"}])))
+    check("roles: a hook is refused", RO.init_problems(dict(good, hooks={"PreToolUse": [{"command": "x"}]})))
+    fake = os.path.join(tmpdir("fakecli"), "claude")
+    with open(fake, "w") as f:
+        f.write("#!/bin/sh\necho '{\"type\": \"result\", \"result\": \"done\"}'\n")
+    os.chmod(fake, 0o755)
+    real = RO.claude_binary
+    RO.claude_binary = lambda: fake
+    try:
+        rr = tmpdir("noinit")
+        rec = RO.launch("X", work, "p", os.path.join(rr, "rec.json"), os.path.join(rr, "s.jsonl"), log=lambda *_: None)
+    except RO.Refused as e:
+        rec = {"error": str(e)}
+    finally:
+        RO.claude_binary = real
+    check("roles: a session with no init event is refused, its record kept",
+          rec.get("init_seen") is False and str(rec.get("refused", "")).startswith("no init event")
+          and os.path.isfile(os.path.join(rr, "rec.json")), rec)
     old = os.environ.get("ANTHROPIC_API_KEY")
     os.environ["ANTHROPIC_API_KEY"] = "planted"
     try:

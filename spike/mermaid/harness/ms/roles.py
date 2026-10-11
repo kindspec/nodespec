@@ -152,7 +152,8 @@ def barrier_probe(work, credentials, binary, repos, scratch=None):
 
 def init_problems(ev):
     """What is wrong with a session's init event: another model, any tool
-    outside the built-in list, or any MCP server."""
+    outside the built-in list, any MCP server, any plugin that is not built
+    into the CLI, or any hook."""
     bad = []
     if ev.get("model") != MODEL:
         bad.append(f"model {ev.get('model')}")
@@ -160,6 +161,11 @@ def init_problems(ev):
         bad.append(f"tools {ev.get('tools')}")
     if ev.get("mcp_servers"):
         bad.append(f"MCP servers {ev.get('mcp_servers')}")
+    extra = [p for p in ev.get("plugins") or [] if not isinstance(p, dict) or p.get("path") != "builtin"]
+    if extra:
+        bad.append(f"plugins {extra}")
+    if ev.get("hooks"):
+        bad.append(f"hooks {ev.get('hooks')}")
     return bad
 
 
@@ -241,6 +247,11 @@ def launch(role, work, prompt, record_path, session_path, credentials=None, repo
             shutil.rmtree(mcp_dir, ignore_errors=True)
     rec["exit_status"] = rc
     rec["init_seen"] = init is not None
+    if init is None and not rec.get("refused"):
+        # Without an init event, the model, tools and MCP servers the
+        # session ran with were never checked: the run does not count.
+        rec["refused"] = "no init event: the session's model, tools and MCP servers were not checked"
+        log(f"role {role}: refused: {rec['refused']}")
     if role == "F":
         toks = HEX64.findall(result or "")
         rec["result_hex64_count"] = len(toks)
