@@ -1,0 +1,17 @@
+# mermaid-spike export
+# argv: mermaid_spike.py export --role F --out <custody>/run-2/work --commit 2364767 --transcript-dir <roles>/tr
+# start: 2026-10-11T04:52:25Z
+# nodespec HEAD: 688a3f9ab69ce965b22f0540029a01037163e512
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: export: unbound run
+
+export for F at 2364767: <custody>/run-2/work
+  6a6dec6a86f506762c7b42eb858efe45ed6374bef8168876602398cd6122eee6  PRE-REGISTRATION.md
+  50490edd656dcded37ffbecd9d6c9dd0ca06bdf7fce6c1518cd81e7fd9d986fd  mermaid-12.1.0-flowchart.md
+prompt (Appendix E, verbatim): <custody>/run-2/work.prompt.txt  sha256 d5db5690a567cc1d334d9a7821d5dcc169ce981b0e342657a6f459b3d0182f89
+
+# end: 2026-10-11T04:52:25Z
+# exited: exit status 0

@@ -1,0 +1,37 @@
+You are revising a program you wrote from a specification. Work only with the files in this directory. Do not open, search for, or fetch any kindspec repository, issue or pull request, locally or over the network. If you find you can read another implementation or repository history, stop and say so.
+
+Your extract2.py and CHOICES.md are here. Two of your choices bear on the words of SPEC.md quoted below. Revise extract2.py where the text decides, and update CHOICES.md: for each change, give the choice's number, the old reading, the new one, and the quoted words that decide it. Where you decide the text does not settle a point, keep your choice and say why in CHOICES.md.
+
+1. CHOICES.md entry 32 does not report a key's other units again when the key's presence differs. §4.2 says:
+
+   > The oracle decides each unit separately:
+   >
+   > - a key's existence, and its kind;
+   > - a scalar value: `(key, property)`;
+   > - an edge key's count;
+   > - a membership: `(key)` mapped to its holder;
+   > - a class assignment: `(key, class)`.
+
+   and §5.3 says:
+
+   > - **G1 Node.** A decided-present node is absent, or a decided-absent node is
+   >   present, outside I1–I4.
+   > - **G3 Membership.** A membership differs from the decided holder.
+   > - **G4 Label.** A text unit differs from the decided value.
+
+   > - **C, shape.** A shape unit differs from the decided value.
+
+   Consider a node that is decided absent and present in the merged model: its label, shape and membership units each have a decided value (absent) and a merged value. Consider also a key with an I1–I4 record, which G1's clause covers and the other categories' definitions do not mention.
+
+2. CHOICES.md entry 31 reads I4 so that, in your words, "most real kind clashes come out as I2 collisions instead". §5.3 says:
+
+   > - **I4 Kind clash.** A key that no input gives two kinds, or a kind other than
+   >   its decided kind, has two kinds or a different kind in the merged model. A
+   >   clash already present in an input is not a record. R drops a node statement
+   >   whose id was used earlier as an edge id (probe), so this is an identity
+   >   fault, not a G1. An edge end that names a subgraph is a reference, not a
+   >   clash (Appendix A).
+
+   and §5.2 defines a collision separately. Consider a key that no input gives two kinds, which both legs add, one as a node and one as a subgraph, and which the merged model holds as both.
+
+Change nothing else.

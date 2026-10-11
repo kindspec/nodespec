@@ -1,0 +1,19 @@
+# mermaid-spike role
+# argv: mermaid_spike.py role --role X --work <roles>/x-work --record <roles>/records/x2-launch.json --session <roles>/x2-session.jsonl --scratch <roles>/x2-scratch --prompt-file <roles>/x2-prompt.txt
+# start: 2026-10-11T04:52:25Z
+# nodespec HEAD: 688a3f9ab69ce965b22f0540029a01037163e512
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: role: unbound run
+
+role X: barrier holds; starting claude-opus-5-5 in <roles>/x-work
+role X: init: model claude-opus-5-5, tools ['Bash', 'Edit', 'Glob', 'Grep', 'Read', 'Write'], no MCP server
+role X: exit 0; launch record <roles>/records/x2-launch.json
+
+# executed: 2026-10-11T04:54:28Z
+{"barrier_holds": true, "date": "2026-10-11T04:52:25Z", "exit_status": 0, "mcp_servers_reported": [], "model_reported": "claude-opus-5-5", "prompt_sha256": "9df26071dbd14d50b3840ed15ade4d65f7a82eca9791c158d1473b41fe9052f7", "refused": null, "result_hex64_count": null, "role": "X", "tools_reported": ["Bash", "Edit", "Glob", "Grep", "Read", "Write"]}
+
+# end: 2026-10-11T04:54:28Z
+# exited: exit status 0

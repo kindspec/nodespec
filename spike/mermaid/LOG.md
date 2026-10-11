@@ -307,6 +307,123 @@ V4 has a mutant for each gate (SU1 to SU7). At `f0da993`:
 - The eight new and repointed mutants: 8 killed, 0 survived, 0 BROKEN
   (`v4-sealed-mutants.txt`).
 
+## 2026-10-11 — §8. The blind roles: what each was given
+
+§11.3 commit 2. Each blind role ran with `harness/ms/roles.py`, through
+`mermaid_spike.py role`. A run is one fresh `claude -p --model
+claude-opus-5-5` session in a bubblewrap sandbox. The environment is
+cleared. `/work` is the role's export (`mermaid_spike.py export`, a
+`git archive` at `2364767` with no `.git`). The only other things visible
+are system libraries, python3, the CLI binary, and the CLI's credential
+file, read-only. Nothing else from `/home` is visible. The session has no
+MCP server (`--strict-mcp-config`, empty) and built-in tools only (Read,
+Write, Edit, Glob, Grep, Bash).
+
+Before each session, the launcher plants a file outside `/work` and checks
+that the sandbox can neither read it nor see the repository or
+`~/.claude`; every probe held. It also checks the session's init event for
+the model, the tools and the MCP servers. The network stays on, as §10.3
+allows: the barrier there is honour-system.
+
+The launch records are in `results/roles/` (paths scrubbed). The
+launcher's transcripts are in `results/transcripts/`.
+
+| run | date (UTC) | export manifest, sha256 | prompt, sha256 | model reported | session sha256 |
+|---|---|---|---|---|---|
+| X, 1 | 2026-10-11T04:25:09Z | SPEC.md `a18af470…`, mermaid-12.1.0-flowchart.md `50490edd…` | Appendix E's X prompt, `785fabf0…` | claude-opus-5-5 | `1aec348a…` |
+| X, 2 | 2026-10-11T04:52:25Z | as run 1, plus X's own extract2.py and CHOICES.md | `results/roles/x2-prompt.txt`, `9df26071…` | claude-opus-5-5 | `a801bbff…` |
+| X, 3 | 2026-10-11T05:25:57Z | as run 2, after X's run-2 edits | `results/roles/x3-prompt.txt`, `bc8e37db…` | claude-opus-5-5 | `04f316b5…` |
+| F, 1 | 2026-10-11T04:25:09Z | PRE-REGISTRATION.md `6a6dec6a…`, mermaid-12.1.0-flowchart.md `50490edd…` | Appendix E's F prompt, `d5db5690…` | claude-opus-5-5 | `ad2c7e23…` |
+| F, 2 | 2026-10-11T04:52:25Z | as F, 1 | Appendix E's F prompt, `d5db5690…` | claude-opus-5-5 | `b23652e0…` |
+
+The full sha256s are in each launch record. X's three session streams are
+committed in `results/roles/`, with absolute paths replaced by
+placeholders, so their bytes differ from the hashes above. Those hashes
+are of the streams as written. A smoke test of the launcher, with a
+one-line prompt and not a role, is in `results/roles/smoke-test/`.
+
+## 2026-10-11 — §9. F: run 1 is void, run 2 is used
+
+- **Run 1 is void, for a mechanical reason.** F's final message names
+  `sealed.tar` and `nonce.bin`. A search by file name alone found neither
+  under F's work directory. No sealed content was read in that search or
+  since. The session's `/tmp` and HOME were tmpfs, so F's tar and nonce
+  were discarded when it ended. §10.4 requires the owner to hold them, and
+  run 1 cannot meet that. Run 1 printed one sha256, `1eeedc17…`. Its work
+  directory, session stream and launch record are kept, unread, in the
+  owner's custody.
+- **Run 2** is a fresh invocation. It used the same verbatim prompt, an
+  export at the same commit, and `--scratch` inside the custody area, so
+  its `/tmp` and HOME persist. Its tar and nonce were found, by file name
+  only, under that scratch directory. Run 2's work, scratch and session
+  stream are in the owner's custody, unread. Its V-fixtures (54 entries,
+  copied byte for byte into `v-fixtures/`) and its sealed hash are the ones
+  used.
+- **The sealed hash** recorded for §11.3 commit 2 is run 2's:
+
+- sealed fixtures sha256: a338d477972ff257d5288a7a8426bfb4ab8a325a8dad55eaa6c893fa97be189a
+
+- **The harness's reading of what F's transcripts commit, and when.**
+  F's session streams hold the sealed fixtures as F wrote them, so
+  committing them before commit 6 would show the sealed fixtures to H and
+  X. Both runs' streams, run 1's included, are committed at commit 6
+  alongside the tar and the nonce. §11.1 requires every invocation's
+  transcript to be committed, and §10.4 commits the sealed material at
+  commit 6. Commit 2 records only the streams' sha256s (§8). F's launch
+  records and the launcher's transcripts hold no session output, only what
+  F was given, the barrier probe, the init check and the count of 64-hex
+  tokens in F's final message. So they are committed now, as §11.1 asks of
+  every invocation.
+
+## 2026-10-11 — §10. Matching the harness to F's and X's output
+
+These are the harness's readings, settled once F and X had delivered and
+before validation (§3, §4).
+
+- **R-tiers (§3).** F's V-fixtures write `tiers` as a list parallel to
+  `records`: one tier per record, `A` to `E`, or `—` for a record reported
+  only. A clean case has `[]` for both. The parser now reads exactly that,
+  and each group a fixture's records belong to gets its own A and B lines.
+  Under §3, the sealed run checks the sealed tar against this parser.
+- **X's output names (§4).** X prints its exposure as
+  `exposure.exposed`, and its records with `category`, `objects` and
+  `tier` (X's CHOICES.md, entry 1). `ms/xrun.py` reads that shape. G0's
+  object is the case's one path; X names it by the merged file's path on
+  disk, and H reads that as `path`.
+- **R-x-compare.** §5.3's "A record's objects" defines objects for I1–I4,
+  G0 and G1–G4 only. So MC, C, D, S-LINKSTYLE and S-ORDER are compared by
+  category alone.
+- **R-order.** Order is not a unit in §4.2. Both F and X decide it pair by
+  pair, and so now does H. Each pair of nodes, and each pair of edges in the
+  edge list, is a unit. S-ORDER fires when a decided relative order is
+  inverted in the merge, and is reported once per sequence.
+- **MC outside §5.2.** §5.3's MC is "a model conflict outside §5.2". A
+  conflict that is part of a refusal case is no longer also reported as an
+  MC.
+- **R-v3fix.** §11.2 V3's V-fixture half reads "each category fires on its
+  V-fixtures and stays silent on clean ones":
+  - each fixture's category, as F's coverage table names it by the
+    directory name, fires in H;
+  - each clean fixture gives no linable record;
+  - H's A and B lines match F's tiers.
+
+  `vfix.py v3` lists every other difference from F's expectation.
+- **X invocations 2 and 3** (§10.1, prompts in `results/roles/`). Each
+  prompt quotes the frozen text and does not describe H.
+  - **Invocation 2** quoted §3's fence pattern (`mermaid(-example)?`),
+    §5.3's G1-only "outside I1–I4" clause, and §5.3's E rule. X changed
+    choices 5, 6 and 33. A bare `=======` is no longer a marker; X records
+    the reason as Markdown's setext headings.
+  - **Invocation 3** quoted §4.2's "decides each unit separately", §5.3's
+    G3, G4 and C definitions, and §5.3's I4. X changed choices 32 and 31.
+  - After invocation 3, V5 agrees on all 53 V-fixtures.
+- **Differences from F's expectations that stand.** `vfix.py v3` lists
+  them. Where §4.2 decides each unit separately, H reports G3, G4 and C on
+  a key that also has a G1 or an I1–I4 record (F's reading 3 does not).
+  Where §5.1 makes the deleted key's unit a model conflict, H gives no I1
+  in `i3-f-bare-label` (F's reading 1 expects one). F's README says such
+  differences are to be logged, not forced.
+
 ## Blind roles
 
 Not yet launched. Each launch is logged here with its export manifest,
