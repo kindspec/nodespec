@@ -414,6 +414,10 @@ M = [
      '                if hcats - {"S-ORDER"} or r["exposed"] != bool(exp.get("exposed")):', '                if False:', "v3"),
     ("C2 vfix v3: A and B lines need not match F's tiers", "harness/vfix.py",
      '                    if ln["h"] != ln["f"]:', '                    if False:', "v3"),
+    ("C2 V5: an unruled disagreement passes", "harness/vfix.py",
+     '                if d is not None and d in ruled:', '                if True:', "v3"),
+    ("C2 V5: a ruled disagreement that disappears passes", "harness/vfix.py",
+     '    for d in sorted(ruled - seen):', '    for d in []:', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",

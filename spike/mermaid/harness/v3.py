@@ -1836,10 +1836,49 @@ def s_vfix_gates():
     check("R-v3fix: tiers whose A and B lines H does not match fail", rc == 1 and " line " in out, out[-300:])
 
 
+def s_v5_rulings():
+    """V5 with the owner's rulings (vfix.py v5, LOG §11): it passes only when
+    its disagreements are exactly the ruled ones."""
+    base = ("flowchart LR\n  a[A]\n  b[(B)]\n  c[(C)]\n  d[(D)]\n"
+            "  a --> b\n  b --> c\n  a --> c\n  a --> d\n")
+    o = base.replace("  b --> c\n", "") + "  b --> c\n"
+    t = base.replace("  b --> c\n", "")
+    d = os.path.join(tmpdir("v5rul"), "fx")
+    os.makedirs(os.path.join(d, "g2-planted"))
+    for n, txt in (("base", base), ("o", o), ("t", t)):
+        with open(os.path.join(d, "g2-planted", n + ".mmd"), "w", encoding="utf-8") as f:
+            f.write(txt)
+    with open(os.path.join(d, "g2-planted", "expect.json"), "w", encoding="utf-8") as f:
+        json.dump({"stratum": "F", "exposed": False, "records": [{"category": "G2", "objects": ["b", "c"]}],
+                   "tiers": ["A"]}, f)
+
+    def run(x_records, rulings):
+        w = tmpdir("v5rulx")
+        xp = os.path.join(w, "x.py")
+        with open(xp, "w") as f:
+            f.write("import json\nprint(json.dumps({'exposure': {'exposed': False}, 'records': %r}))\n" % (x_records,))
+        rp = os.path.join(w, "rulings.json")
+        with open(rp, "w") as f:
+            json.dump({"rulings": rulings}, f)
+        r = subprocess.run([sys.executable, "-I", "-S", "-B", os.path.join(HERE, "vfix.py"), "v5", "--dir", d,
+                            "--extractor", xp, "--rulings", rp], capture_output=True, text=True, timeout=300)
+        return r.returncode, r.stdout + r.stderr
+    ruling = {"fixture": "g2-planted", "h_only": [["G2", ["b", "c"]]], "x_only": [], "exposed": [False, False]}
+    rc, out = run([], [ruling])
+    check("V5 rulings: a disagreement equal to a ruled one passes", rc == 0 and "V5: PASS" in out, out[-300:])
+    rc, out = run([], [])
+    check("V5 rulings: a disagreement not ruled fails", rc == 1 and "V5: FAIL" in out, out[-300:])
+    rc, out = run([{"category": "G1", "objects": ["b"]}], [ruling])
+    check("V5 rulings: a disagreement that differs from the ruled one fails", rc == 1 and "V5: FAIL" in out, out[-300:])
+    rc, out = run([{"category": "G2", "objects": ["b", "c"]}], [ruling])
+    check("V5 rulings: a ruled disagreement that no longer occurs fails",
+          rc == 1 and "no longer occurs" in out, out[-300:])
+
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates, s_v5_rulings]
 
 
 def main():

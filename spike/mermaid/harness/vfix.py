@@ -5,6 +5,7 @@
     python3 -I -S -B harness/vfix.py v1 [--dir v-fixtures]
     python3 -I -S -B harness/vfix.py v3 [--dir v-fixtures]
     python3 -I -S -B harness/vfix.py v5 [--dir v-fixtures] [--extractor x/extract2.py]
+                                        [--rulings harness/v5-rulings.json]
 
 - V1: H's model equals R's on every V-fixture state, the merged one included,
   under Appendix A's mapping. A state R does not parse is reported, not
@@ -17,7 +18,11 @@
   the line computation the sealed run uses (mermaid_spike.sealed_lines).
   Every other difference from expect.json is listed, not failed (LOG §10,
   §11).
-- V5: X agrees with H on every V-fixture (§10.5's rule).
+- V5: X agrees with H on every V-fixture (§10.5's rule), except where the
+  owner has ruled on a reading (v5-rulings.json, LOG §11). V5 passes only
+  when its disagreements, each as (fixture, H-only records, X-only records,
+  exposure), are exactly the ruled ones: a disagreement not ruled fails,
+  and so does a ruled one that no longer occurs.
 
 V2 does not read fixtures: it runs over histories H builds (v2.py, R-v2).
 
@@ -47,6 +52,26 @@ PREFIX = {"i1": "I1", "i2": "I2", "i3": "I3", "i4": "I4", "g0": "G0", "g1": "G1"
           "x": "exposed-E", "clean": "clean"}
 
 
+def disagreement(name, r):
+    """(fixture, H-only, X-only, exposure) for a case where X ran and differs
+    from H; None when X failed, which no ruling covers."""
+    x = r.get("x")
+    if not x:
+        return None
+    hs, xs = XR.norm_records(r["records"]), XR.norm_records(x["records"])
+    return (name, frozenset(hs - xs), frozenset(xs - hs), (bool(r["exposed"]), bool(x["exposed"])))
+
+
+def load_rulings(path):
+    """The owner's rulings: {"rulings": [{"fixture", "h_only", "x_only",
+    "exposed": [H, X], "ruling"}]}, records as [category, [objects]]."""
+    out = set()
+    for e in json.load(open(path, encoding="utf-8"))["rulings"]:
+        rec = lambda xs: frozenset((c, tuple(sorted(o))) for c, o in xs)  # noqa: E731
+        out.add((e["fixture"], rec(e["h_only"]), rec(e["x_only"]), tuple(bool(v) for v in e["exposed"])))
+    return out
+
+
 def fixtures(d):
     return sorted(os.path.dirname(p) for p in glob.glob(os.path.join(d, "*", "expect.json")))
 
@@ -56,6 +81,7 @@ def main():
     ap.add_argument("step", choices=("v1", "v3", "v5"))
     ap.add_argument("--dir", default=os.path.join(SPIKE, "v-fixtures"))
     ap.add_argument("--extractor", default=os.path.join(SPIKE, "x", "extract2.py"))
+    ap.add_argument("--rulings", default=os.path.join(HERE, "v5-rulings.json"))
     a = ap.parse_args()
     fx = fixtures(a.dir)
     if not fx:
@@ -63,6 +89,7 @@ def main():
         return 1
     R = RB.RCache()
     fails, notes, n = [], [], 0
+    ruled, seen = (load_rulings(a.rulings) if a.step == "v5" else set()), set()
     for f in fx:
         name = os.path.basename(f)
         exp = json.load(open(os.path.join(f, "expect.json")))
@@ -127,9 +154,16 @@ def main():
                 notes.append(f"{name}: H only {sorted(got - want)[:4]}; F only {sorted(want - got)[:4]}")
         elif a.step == "v5":
             if not r.get("x_agree"):
-                fails.append(f"{name}: {r.get('x_detail')}")
+                d = disagreement(name, r)
+                if d is not None and d in ruled:
+                    seen.add(d)
+                    notes.append(f"{name}: ruled (LOG §11): {r.get('x_detail')}")
+                else:
+                    fails.append(f"{name}: {r.get('x_detail')}")
+    for d in sorted(ruled - seen):
+        fails.append(f"{d[0]}: a ruled disagreement no longer occurs")
     for x in notes:
-        print("  differs from F's expectation:", x)
+        print("  ruled disagreement:" if a.step == "v5" else "  differs from F's expectation:", x)
     for x in fails:
         print("  FAIL ", x)
     print(f"\n{a.step.upper()}: {n} checked, {len(fails)} failed")
