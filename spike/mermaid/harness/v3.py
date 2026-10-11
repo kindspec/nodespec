@@ -1718,7 +1718,11 @@ def s_archive_prs():
             return {"commits": 1}
         if "/pulls/1/commits" in path:
             return [{"sha": h1}] if path.endswith("page=1") else []
-        raise AssertionError(f"unexpected call {path}")
+        if path.endswith("/pulls/2"):
+            return {"commits": 1}
+        if "/pulls/2/commits" in path:
+            return [{"sha": h2}] if path.endswith("page=1") else []
+        return []
     lst = K.fetch_pr_list("o/r", api, rel)
     by = {e["number"]: e for e in lst}
     check("archive: the relevant pull request's count and commits are read; the other's are not",
