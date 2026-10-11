@@ -146,6 +146,7 @@ def parser():
     p.add_argument("--record", required=True)
     p.add_argument("--session", required=True)
     p.add_argument("--prompt-file", help="testing only: a prompt other than Appendix E's")
+    p.add_argument("--scratch", help="host directory for the role's /tmp and HOME, kept after the session")
     p = sp("archive")
     corpus(p)
     p.add_argument("--corpus", required=True)
@@ -595,13 +596,15 @@ def cmd_role(a, tr, bound):
     record and the session stream go where they are named, outside the
     repository."""
     from ms import roles as RO
-    for v in (a.work, a.record, a.session):
+    for v in (a.work, a.record, a.session, a.scratch):
+        if v is None:
+            continue
         if inside(v, REPO):
             raise SystemExit(f"refusing: {v} is inside the repository")
     prompt = open(a.prompt_file).read() if a.prompt_file else BL.prompt(a.role)
     try:
         rec = RO.launch(a.role, a.work, prompt, a.record, a.session,
-                        repos=[REPO, os.path.expanduser("~/.claude/projects")])
+                        repos=[REPO, os.path.expanduser("~/.claude/projects")], scratch=a.scratch)
     except RO.Refused as e:
         raise SystemExit(f"refusing: {e}")
     tr.mark_executed()

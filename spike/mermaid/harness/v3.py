@@ -1669,6 +1669,17 @@ def s_roles():
     check("roles: ANTHROPIC_API_KEY set refuses the launch", refused)
     toks = RO.HEX64.findall("hash: " + "a" * 64 + " and " + "b" * 64)
     check("roles: two 64-hex tokens in F's result are counted, never recorded as the hash", len(toks) == 2)
+    sc = os.path.join(tmpdir("scr"), "scratch")
+    r = subprocess.run(RO.sandbox_argv(work, RO.DEFAULT_CREDENTIALS, RO.claude_binary(), scratch=sc) +
+                       ["/bin/sh", "-c", "echo t > /tmp/sealed.tar; echo n > $HOME/nonce.bin"], capture_output=True, text=True)
+    check("roles: with a scratch directory, what the role writes to /tmp and HOME survives the session",
+          r.returncode == 0 and os.path.exists(os.path.join(sc, "tmp", "sealed.tar"))
+          and os.path.exists(os.path.join(sc, "home", "nonce.bin")), r.stderr[-200:])
+    from ms import xrun as XRR
+    v = XRR.x_view({"exposure": {"exposed": True, "reasons": []}, "records": [{"category": "I1", "objects": ["a"]}]})
+    check("X's names: an exposure nested as {exposure: {exposed}} is read (LOG §8)",
+          v is not None and v["exposed"] is True and v["records"][0]["category"] == "I1")
+    check("X's names: output with no exposure at all is not read", XRR.x_view({"records": []}) is None)
 
 
 def s_archive_prs():

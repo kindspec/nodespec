@@ -10,7 +10,9 @@ else:
 - /etc/ssl, /etc/resolv.conf, /etc/hosts and /etc/nsswitch.conf
   read-only, for TLS and name resolution;
 - the claude binary, read-only, at /opt/claude/claude;
-- a fresh tmpfs HOME holding only the CLI's credential file, read-only;
+- a HOME holding only the CLI's credential file, read-only, and /tmp:
+  fresh tmpfs, or with `scratch`, host directories that persist after the
+  session (for F they go into custody with its work, unread);
 - /work: the role's exported directory (blind.export), writable;
 - fresh /tmp, /proc and /dev.
 
@@ -70,7 +72,7 @@ def claude_binary():
     return os.path.realpath(p)
 
 
-def sandbox_argv(work, credentials, binary, extra=()):
+def sandbox_argv(work, credentials, binary, extra=(), scratch=None):
     resolv = os.path.realpath("/etc/resolv.conf")
     a = ["bwrap", "--die-with-parent", "--new-session", "--unshare-all", "--share-net",
          "--clearenv", "--setenv", "HOME", SANDBOX_HOME, "--setenv", "PATH", "/usr/bin:/bin",
@@ -79,8 +81,18 @@ def sandbox_argv(work, credentials, binary, extra=()):
         a += ["--symlink", target, link]
     a += ["--ro-bind", "/etc/ssl", "/etc/ssl", "--ro-bind", resolv, "/etc/resolv.conf",
           "--ro-bind-try", "/etc/hosts", "/etc/hosts", "--ro-bind-try", "/etc/nsswitch.conf", "/etc/nsswitch.conf",
-          "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp",
-          "--tmpfs", "/home", "--dir", SANDBOX_HOME, "--dir", SANDBOX_HOME + "/.claude",
+          "--proc", "/proc", "--dev", "/dev"]
+    if scratch:
+        # The role's /tmp and HOME persist in host directories, so whatever
+        # the role writes outside /work (F's tar and nonce, say) survives
+        # the session and goes into custody with its work, unread.
+        os.makedirs(os.path.join(scratch, "tmp"), exist_ok=True)
+        os.makedirs(os.path.join(scratch, "home", ".claude"), exist_ok=True)
+        a += ["--bind", os.path.join(scratch, "tmp"), "/tmp", "--tmpfs", "/home",
+              "--bind", os.path.join(scratch, "home"), SANDBOX_HOME]
+    else:
+        a += ["--tmpfs", "/tmp", "--tmpfs", "/home", "--dir", SANDBOX_HOME]
+    a += ["--dir", SANDBOX_HOME + "/.claude",
           "--ro-bind", credentials, SANDBOX_HOME + "/.claude/.credentials.json",
           "--ro-bind", binary, SANDBOX_CLAUDE, *extra,
           "--bind", work, "/work", "--chdir", "/work", "--"]
@@ -116,7 +128,7 @@ print(json.dumps(out, sort_keys=True))
 """
 
 
-def barrier_probe(work, credentials, binary, repos):
+def barrier_probe(work, credentials, binary, repos, scratch=None):
     """Plant a file outside /work and show the sandbox cannot read it, nor
     see the repositories."""
     d = tempfile.mkdtemp(prefix="role-barrier.")
@@ -124,7 +136,7 @@ def barrier_probe(work, credentials, binary, repos):
     with open(planted, "w") as f:
         f.write("not for the role\n")
     try:
-        r = subprocess.run(sandbox_argv(work, credentials, binary) +
+        r = subprocess.run(sandbox_argv(work, credentials, binary, scratch=scratch) +
                            ["/usr/bin/python3", "-I", "-S", "-c", PROBE, planted] + repos,
                            capture_output=True, text=True, timeout=60)
         res = json.loads(r.stdout) if r.returncode == 0 else {"error": r.stderr.strip()[-300:]}
@@ -160,7 +172,7 @@ def manifest(work):
     return sorted(out)
 
 
-def launch(role, work, prompt, record_path, session_path, credentials=None, repos=(), log=print):
+def launch(role, work, prompt, record_path, session_path, credentials=None, repos=(), log=print, scratch=None):
     """Run one role session. Returns the launch record (also written to
     record_path)."""
     if os.environ.get("ANTHROPIC_API_KEY"):
@@ -179,7 +191,11 @@ def launch(role, work, prompt, record_path, session_path, credentials=None, repo
            "model_asked": MODEL, "claude_version": version, "tools_asked": TOOLS,
            "export_manifest": manifest(work), "prompt": prompt,
            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()}
-    ok, probe = barrier_probe(work, credentials, binary, list(repos))
+    if scratch is not None:
+        if os.path.exists(scratch):
+            raise Refused(f"{scratch} exists; a role's scratch starts empty")
+        rec["scratch"] = scratch
+    ok, probe = barrier_probe(work, credentials, binary, list(repos), scratch=scratch)
     rec["barrier_probe"] = probe
     rec["barrier_holds"] = ok
     if not ok:
@@ -189,7 +205,7 @@ def launch(role, work, prompt, record_path, session_path, credentials=None, repo
     mcp = os.path.join(mcp_dir, "mcp-empty.json")
     with open(mcp, "w") as f:
         f.write('{"mcpServers": {}}\n')
-    argv = sandbox_argv(work, credentials, binary, ["--ro-bind", mcp, "/etc/role-mcp-empty.json"]) + \
+    argv = sandbox_argv(work, credentials, binary, ["--ro-bind", mcp, "/etc/role-mcp-empty.json"], scratch) + \
         claude_argv(SANDBOX_CLAUDE, prompt, "/etc/role-mcp-empty.json")
     rec["sandbox_argv"] = argv[:-1] + ["<prompt>"]
     log(f"role {role}: barrier holds; starting {MODEL} in {work}")
