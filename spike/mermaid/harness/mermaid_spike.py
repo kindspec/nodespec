@@ -57,7 +57,7 @@ def _repo_root():
 
 REPO = _repo_root()
 EXTRACTOR = os.path.join(SPIKE, "x", "extract2.py")
-COMMANDS = ("validation", "arm0", "arms", "repro", "sealed", "aggregate", "fixtures", "export", "archive")
+COMMANDS = ("validation", "arm0", "arms", "repro", "sealed", "aggregate", "fixtures", "export", "archive", "role")
 BOUND_CMDS = {"arm0", "arms", "repro", "sealed", "aggregate"}
 ARM_OF = {"arm0": "arm0", "arms": "arms", "sealed": "sealed", "aggregate": "aggregate"}
 
@@ -140,6 +140,12 @@ def parser():
     p.add_argument("--role", required=True, choices=("F", "X"))
     p.add_argument("--out", required=True)
     p.add_argument("--commit", default="HEAD")
+    p = sp("role")
+    p.add_argument("--role", required=True, choices=("F", "X"))
+    p.add_argument("--work", required=True)
+    p.add_argument("--record", required=True)
+    p.add_argument("--session", required=True)
+    p.add_argument("--prompt-file", help="testing only: a prompt other than Appendix E's")
     p = sp("archive")
     corpus(p)
     p.add_argument("--corpus", required=True)
@@ -583,6 +589,28 @@ def cmd_archive(a, tr, bound):
     return 0
 
 
+def cmd_role(a, tr, bound):
+    """§10.1-§10.3: one blind role, one fresh session, behind the barrier
+    (ms/roles.py). The work directory is the role's export; the launch
+    record and the session stream go where they are named, outside the
+    repository."""
+    from ms import roles as RO
+    for v in (a.work, a.record, a.session):
+        if inside(v, REPO):
+            raise SystemExit(f"refusing: {v} is inside the repository")
+    prompt = open(a.prompt_file).read() if a.prompt_file else BL.prompt(a.role)
+    try:
+        rec = RO.launch(a.role, a.work, prompt, a.record, a.session,
+                        repos=[REPO, os.path.expanduser("~/.claude/projects")])
+    except RO.Refused as e:
+        raise SystemExit(f"refusing: {e}")
+    tr.mark_executed()
+    print(json.dumps({k: rec.get(k) for k in ("role", "date", "model_reported", "tools_reported",
+                                               "mcp_servers_reported", "barrier_holds", "exit_status",
+                                               "prompt_sha256", "result_hex64_count", "refused")}, sort_keys=True))
+    return 0 if rec.get("exit_status") == 0 and not rec.get("refused") else 1
+
+
 _STATE = {}
 
 
@@ -597,7 +625,7 @@ def main(argv=None):
     # An abbreviation of an unbound option still reads as unbound here, so its
     # transcript goes where it names; the parser then refuses it.
     unbound_pre = any(x.startswith(f) for x in argv for f in ("--fixture-m", "--summ", "--sealed-s"))
-    if cmd in ("fixtures", "export", "archive"):
+    if cmd in ("fixtures", "export", "archive", "role"):
         unbound_pre = True
     if cmd == "validation":
         unbound_pre = True
@@ -628,7 +656,7 @@ def main(argv=None):
         except SystemExit:
             tr.binding({"bound": False, "reasons": ["usage error"]})
             raise
-        unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive")
+        unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive", "role")
         for opt in ("private_map", "private_table", "bundles"):
             v = getattr(a, opt, None)
             if v and inside(v, REPO):
@@ -667,7 +695,7 @@ def main(argv=None):
                         raise SystemExit(f"refusing: --{opt.replace('_', '-')} is required, outside the repository")
         rc = {"validation": cmd_validation, "arm0": cmd_arm0, "arms": cmd_arms, "repro": cmd_repro,
               "sealed": cmd_sealed, "aggregate": cmd_aggregate, "fixtures": cmd_fixtures, "export": cmd_export,
-              "archive": cmd_archive}[a.cmd](a, tr, not unbound)
+              "archive": cmd_archive, "role": cmd_role}[a.cmd](a, tr, not unbound)
     except SystemExit as e:
         rc = e.code if isinstance(e.code, int) else (0 if e.code is None else 2)
         if isinstance(e.code, str):

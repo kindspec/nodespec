@@ -1631,10 +1631,49 @@ def s_sealed_unreadable():
     check("sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged",
           rc != 0 and not sj["sealed"] and sorted(m["name"] for m in sj["malformed"]) == ["fx", "fy"], (rc, sj))
 
+
+def s_roles():
+    """§10.3's barrier for a blind role (ms/roles.py), without starting a
+    model."""
+    from ms import roles as RO
+    work = tmpdir("rolework")
+    with open(os.path.join(work, "SPEC.md"), "w") as f:
+        f.write("spec\n")
+    ok, probe = RO.barrier_probe(work, RO.DEFAULT_CREDENTIALS, RO.claude_binary(), [SPIKE, os.path.expanduser("~/.claude")])
+    check("roles: a file planted outside /work cannot be read in the sandbox", probe.get("planted_readable") is False
+          and probe.get("planted_exists") is False, probe)
+    check("roles: the repository and ~/.claude are not visible; /home holds only the role's HOME",
+          not any(probe.get("repos_visible", {"x": True}).values()) and probe.get("home_entries") == ["role"], probe)
+    check("roles: the sandbox HOME holds only the credential file; the environment is cleared",
+          probe.get("claude_dir_entries") == [".credentials.json"] and
+          set(probe.get("env_keys", ["?"])) <= {"HOME", "PATH", "LANG", "PWD"}, probe)
+    check("roles: /work is the export", probe.get("work_entries") == ["SPEC.md"] and ok, probe)
+    good = {"model": RO.MODEL, "tools": list(RO.TOOLS), "mcp_servers": []}
+    check("roles: an init event with the pinned model, built-in tools and no MCP server passes",
+          RO.init_problems(good) == [])
+    check("roles: another model is refused", RO.init_problems(dict(good, model="claude-other")))
+    check("roles: an MCP tool is refused", RO.init_problems(dict(good, tools=good["tools"] + ["mcp__x__y"])))
+    check("roles: an MCP server is refused", RO.init_problems(dict(good, mcp_servers=[{"name": "x"}])))
+    old = os.environ.get("ANTHROPIC_API_KEY")
+    os.environ["ANTHROPIC_API_KEY"] = "planted"
+    try:
+        RO.launch("X", work, "p", os.path.join(tmpdir("r"), "rec.json"), os.path.join(tmpdir("r"), "s.jsonl"))
+        refused = False
+    except RO.Refused as e:
+        refused = "ANTHROPIC_API_KEY" in str(e)
+    finally:
+        if old is None:
+            os.environ.pop("ANTHROPIC_API_KEY", None)
+        else:
+            os.environ["ANTHROPIC_API_KEY"] = old
+    check("roles: ANTHROPIC_API_KEY set refuses the launch", refused)
+    toks = RO.HEX64.findall("hash: " + "a" * 64 + " and " + "b" * 64)
+    check("roles: two 64-hex tokens in F's result are counted, never recorded as the hash", len(toks) == 2)
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles]
 
 
 def main():
