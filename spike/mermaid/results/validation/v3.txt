@@ -1,5 +1,5 @@
-# v3, 2026-10-11T07:45:36Z
-# nodespec HEAD: ceccd7bc56d213792b9788c704e8b4f5dcb4e962
+# v3, 2026-10-11T12:44:27Z
+# nodespec HEAD: ce2319b9e944d1c10ba72c59cef13b8d54d7e6bc
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -297,6 +297,10 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  roles: another model is refused
   PASS  roles: an MCP tool is refused
   PASS  roles: an MCP server is refused
+  PASS  roles: plugins built into the CLI pass
+  PASS  roles: a plugin that is not built in is refused
+  PASS  roles: a hook is refused
+  PASS  roles: a session with no init event is refused, its record kept
   PASS  roles: ANTHROPIC_API_KEY set refuses the launch
   PASS  roles: two 64-hex tokens in F's result are counted, never recorded as the hash
   PASS  roles: with a scratch directory, what the role writes to /tmp and HOME survives the session
@@ -307,6 +311,7 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  archive: a pull request whose commits touch no selected path is not
   PASS  archive: the relevant pull request's count and commits are read; the other's are not
   PASS  M-PR: a listed pull request with no commit list is counted, never evaluated
+  PASS  M-PR: a commit list missing for a pull request whose commits touch a selected path is counted apart
 == s_commit2_readings: Readings settled with F's V-fixtures and X's output (LOG §8-§10).
   PASS  R-order: two legs adding statements in different places make no S-ORDER
   PASS  R-order: a relative order one leg inverts and the merge keeps is no S-ORDER
@@ -319,8 +324,13 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  R-sealed: per-record tiers give each group its own lines
   PASS  R-x-names: X's G0 object, a file path, is read as the path
   PASS  R-x-compare: objects are compared only for I1-I4, G0-G4
+== s_vfix_gates: R-v3fix: the three gates of V3's V-fixture half (vfix.py v3), each
+  PASS  R-v3fix: a fixture whose category fires, with matching tiers, passes
+  PASS  R-v3fix: a fixture whose category does not fire fails
+  PASS  R-v3fix: a clean fixture on which H reports a record fails
+  PASS  R-v3fix: tiers whose A and B lines H does not match fail
   PASS  V3 wrote nothing under results/
 
-280 checks, 0 failed
+289 checks, 0 failed
 V3: PASS
 # exit status 0
