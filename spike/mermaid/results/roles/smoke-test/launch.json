@@ -104,7 +104,7 @@
   "<claude-versions>/2.1.294",
   "/opt/claude/claude",
   "--ro-bind",
-  "/var/tmp/cam/role-mcp.r3hifqkc/mcp-empty.json",
+  "<tmp>/role-mcp.*/mcp-empty.json",
   "/etc/role-mcp-empty.json",
   "--bind",
   "<roles>/smoke/work",

@@ -112,7 +112,7 @@
   "<claude-versions>/2.1.294",
   "/opt/claude/claude",
   "--ro-bind",
-  "/var/tmp/cam/role-mcp.yhi8cxz6/mcp-empty.json",
+  "<tmp>/role-mcp.*/mcp-empty.json",
   "/etc/role-mcp-empty.json",
   "--bind",
   "<roles>/f-work",
