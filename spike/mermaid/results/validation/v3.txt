@@ -1,5 +1,5 @@
-# v3, 2026-10-12T03:16:30Z
-# nodespec HEAD: 252bbc8f852bfc523fdd8a78a4e4520043934b8c
+# v3, 2026-10-12T14:04:30Z
+# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -218,7 +218,7 @@
   PASS  G3: a membership merged wrong is G3, tier A
   PASS  MC: an eligible text conflict is MC in group G4, tier A
   PASS  collision: both legs add k with differing kinds and nothing else
-  PASS  R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (its existence)
+  PASS  R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 only: no G2 on it
   PASS  R-norepeat: both legs add a user-id edge, its label differing, is I2 only: no G4 on its label
   PASS  G4: a user-id edge's label merged wrong is G4
 == s_l5: R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
@@ -338,10 +338,11 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
 == s_norepeat: R-norepeat, the owner's ruling (LOG §11): a key whose existence or kind
   PASS  R-norepeat: i3-f-bare-label is I3 on fax, with no G3 fax and no other record on fax
   PASS  R-norepeat: a node decided absent and present in the merge is G1 only: no G3, G4 or C on it
+  PASS  R-norepeat: a user-id edge with an I3 record is I3 only: no G2 on its existence
   PASS  R-norepeat: a model conflict on a key with an I4 record gives no MC
   PASS  R-norepeat: a key with no identity record and its presence right still gets G4
   PASS  V3 wrote nothing under results/
 
-298 checks, 0 failed
+299 checks, 0 failed
 V3: PASS
 # exit status 0
