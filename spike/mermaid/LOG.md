@@ -687,3 +687,82 @@ issue is §5.3's:
   private map and table for the owner-mapped rows' pins, so only the owner
   can re-run it in full. Every stratum-D row is an organisation row, and a
   reviewer reproduced every stratum-D figure without the private files.
+
+### The owner's ruling on repeat reports (2026-10-11); X1 binds
+
+- **The ruling.** On 2026-10-11 the owner ruled: no repeat reports. When a
+  key's existence or kind is wrong, it is reported once, under its
+  identity category, or as G1. Its label, membership, shape and other
+  units are not also reported as G3, G4, C or MC. The ruling reads this
+  text:
+  - §4.2: "The oracle decides each unit separately: a key's existence,
+    and its kind; a scalar value: `(key, property)`; an edge key's count;
+    a membership: `(key)` mapped to its holder; a class assignment:
+    `(key, class)`."
+  - §5.3: "**G1 Node.** A decided-present node is absent, or a
+    decided-absent node is present, outside I1–I4." and "**G3 Membership.**
+    A membership differs from the decided holder. **G4 Label.** A text unit
+    differs from the decided value."
+
+  Deciding each unit separately does not make each unit a separate
+  report.
+- **H changes to match**, as V5 allows ("fixed in H"). The rule H now
+  implements is R-norepeat, in `ms/oracle.py`:
+  - No record (G2, G3, G4, C, D, S-LINKSTYLE or MC) is made for a unit
+    keyed by the key of an I1–I4 record.
+  - When a key's presence differs between decided and merged for a kind,
+    that kind's other units on the key give no record. A subgraph's
+    title is the exception: G4 on the title is how a subgraph's presence
+    shows.
+  - G1 is skipped for an I1–I4 record's key, as before.
+
+  The unit kinds follow Appendix A:
+  - a node's label, click, shape, membership, style and class;
+  - a subgraph's title and membership;
+  - a user-id edge's label, ends and link style.
+- **It is pinned to X1's choices 32 and 33**, verbatim:
+
+  > 32. **When a key's presence differs**, between decided and merged, for
+  >     one kind:
+  >     - a node gives G1;
+  >     - a user-id edge gives G2 `lost` or `extra`;
+  >     - a subgraph gives G4 on its title.
+  >
+  >     The other units of that kind on that key are then not reported
+  >     again.
+  > 33. **Suppression under I1–I4.** §5.3 says G1 is "outside I1–I4". I
+  >     extend that: no G, C, D or MC record is made for a unit keyed by an
+  >     I record's primary key (the removed, colliding, deleted or clashing
+  >     key). G1 is also skipped for every I-record object. Without this,
+  >     one dangling node would be counted again as G4/C/D on its own label,
+  >     shape and styles.
+- **It is also pinned to F's README, reading 3**, verbatim:
+
+  > 3. **No repeat reports for a key whose existence or kind is wrong.**
+  >    When a key's existence (I1, I3 or G1) or its kind (I4) is already
+  >    the record, that key's label, shape and style units are not reported
+  >    again as G4, C or D.
+
+  One difference from choice 33 remains. X1 also skips G1 for an I1
+  record's other objects, the keys that refer to the dangling key. H skips
+  G1 only for the record's own key. V5 shows no disagreement from this on
+  the V-fixtures. If it shows one on a case, §10.5 handles it as a
+  disagreement.
+- **X1 binds.** X1's output (`results/roles/x1-output/`) is now the
+  second extractor in `x/`, for V5 and for §10.5's comparisons. It was
+  written from SPEC.md and the Mermaid documentation alone. It never saw a
+  fixture or H's output.
+- **X4 is set aside.** X4's switch at its entry 41 came after the §10.3
+  deviation above, so it is set aside. X4's output is kept as record in
+  `results/roles/x4-output/`. X is not invoked again.
+- **V5 with X1 and the changed H.** The only disagreements are the three
+  ruled I4 fixtures. X1's tuples on them equal X4's, so
+  `harness/v5-rulings.json` is unchanged.
+- **V3's fixture half.** 3 of the 12 earlier differences from F's
+  expectations remain:
+  - `i1-f-declared-rename`: H adds one S-ORDER;
+  - `mc-f-dup-three`: H adds one S-ORDER;
+  - `i3-f-bare-label`: H gives I3 `fax` without F's I1 `fax`, and no
+    longer a G3 `fax`.
+
+  The 9 fixtures with G3, G4 or C records on an identity key now match.
