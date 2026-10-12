@@ -802,3 +802,37 @@ issue is §5.3's:
 
   This is an argument, not a test. If a case ever shows the difference,
   §10.5 treats it as a disagreement.
+
+### Corrections to the G1 argument above, and one more item V5 cannot see
+
+Entries are appended, never edited, so this corrects the argument in the
+entry above:
+
+- **(a) Not every dangling unit is an edge unit.** `refusals()` uses
+  `refers()`, which includes `keyed_by`. So a unit keyed by k itself, such
+  as k's label (`ntext k`), can also be dangling. Such a unit has no other
+  objects. The argument applies to dangling units that do have other
+  objects, and every one of those is an edge unit.
+- **(b) The other objects can include the edge id.** For a user-id edge's
+  ends (`eref`), the other objects include the edge id itself, as in I1
+  `['A', 'D', 'e1']`. G1 on `e1` would need `e1`'s node presence to change,
+  and both readers record that as I4, not as G1.
+- **(c) The argument needs M to be git's merge.** It holds because the
+  merged file is git's own: `gitops.merge_texts` or `merge_commits`, with
+  multi-base cases dropped in `history.py`. A hand-made merge that is not
+  git's can show the difference. A future arm that judges recorded human
+  merges reopens the argument, and §10.5 then treats any such case as a
+  disagreement.
+- **The review checked it.** It confirmed the argument for every judged
+  merge. A fuzz run of 2,100 stratum-F cases, 27 of them with an I1
+  record, found no counterexample.
+- **(d) One more item V5 cannot see: the S-ORDER pair cap.** H decides
+  every pair of a sequence up to 400 items, and above that only adjacent
+  pairs of each state's sequence. X decides every pair up to 1,500 items,
+  and above that only adjacent merged pairs. So they can differ on
+  S-ORDER for a sequence of more than 400 items. No V-fixture has one. This
+  was disclosed earlier in §11. It now joins the list of what V5 cannot see:
+  - marker lines an input already holds;
+  - G1 on an I1 record's other objects;
+  - fences and `=======`;
+  - the S-ORDER pair cap.
