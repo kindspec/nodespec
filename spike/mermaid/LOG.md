@@ -836,3 +836,84 @@ entry above:
   - G1 on an I1 record's other objects;
   - fences and `=======`;
   - the S-ORDER pair cap.
+
+## 2026-10-12 — §12. Validation (§11.3 commit 3)
+
+This is the validation commit. It adds `results/VALIDATION`, the V0–V5
+transcripts, and this entry, and it changes no bound path. Per §11.3,
+H, X and R at this commit are the implementation.
+
+- **The implementation, at `7b40072` (git tree shas):**
+
+  | part | path | tree sha |
+  |---|---|---|
+  | H | `harness/` | `8f216b792e0f970b31ba3139b3b04d017b4d0b24` |
+  | X | `x/` (X1; `extract2.py` sha256 `a35dbe68…`) | `bfcb0725a00be9b905830bf15f75ccb7aeacb027` |
+  | R | `r/` | `d3b456c2a422fd932d8483906912f02e209c42a4` |
+  | V-fixtures | `v-fixtures/` | `16eed2e5f0b03f58d8b501d990143ab1a50d88cd` |
+  | pre-registration | `PRE-REGISTRATION.md` | `e29f097c339b9751beab29108549bef207b74889` |
+
+- **R:**
+  - lockfile `r/package-lock.json`, sha256
+    `c57c6d9b23e102cab67ef669621dab4bd5a5eff713df22feaec0cc4af7a365b4`, which
+    pins Mermaid 12.1.0 and jsdom 26.1.0 (V0);
+  - `r/rmodel.mjs`, sha256 `5d15053d…`. It holds R's configuration (§4.4):
+    `{ startOnLoad: false, securityLevel: 'strict', flowchart: { htmlLabels: false } }`,
+    passed to `mermaid.initialize` before every text, with the jsdom
+    globals set before Mermaid is imported.
+- **Toolchain:** Node v24.20.0, git 2.47.3, Python 3.13.5.
+- **Before VALIDATION was written,** the owner's `bundles.json` hashed to
+  `c4b58fa06562f1d257baa3db46b3f8b4cd91c7300835924145ee7ccee607204d`. All 123
+  corpora's bundle and pull-request-list files (246 files) were re-hashed
+  against it, with 0 mismatches.
+- **`results/VALIDATION`** (sha256 `36dfe20a…`) was written by
+  `mermaid_spike.py validation`; its transcript is in `results/transcripts/`.
+  It holds:
+  - the sealed hash `a338d477…`, which LOG §9 records once;
+  - the lockfile's sha256;
+  - the 123 bundle entries, identical to the owner's `bundles.json`.
+- **V0–V5 at `7b40072`** (`harness/validate.sh`; every transcript shows
+  bound paths clean):
+
+  | step | result |
+  |---|---|
+  | V0 | PASS |
+  | V1 | PASS, 53 checked, 0 failed |
+  | V2 | PASS |
+  | V3 | PASS, 299 checks, 0 failed |
+  | V3, fixture half | PASS, 53 checked, 0 failed (3 differences from F, as in §11) |
+  | V5 | PASS, 53 checked, 0 failed (the three ruled I4 disagreements) |
+  | V4 | PASS, 188 mutants, 188 killed, 0 survived, 0 BROKEN |
+
+- **No model was launched, and no sealed material was read.** No V step
+  starts a role or a session. The validation command checks the sealed
+  hash against this log only.
+
+### Corrections to §12
+
+Entries are appended, never edited, so these correct §12 above.
+
+- **R's configuration, complete.** §12 left out `maxEdges`. At `7b40072`,
+  `r/rmodel.mjs` passes this object to `mermaid.initialize`, the one §4.4
+  pins:
+
+  `{ startOnLoad: false, securityLevel: 'strict', maxEdges: 100000, flowchart: { htmlLabels: false } }`
+
+  `maxEdges: 100000` is set on line 39. Mermaid's default applies only
+  under the test seam `DEFAULT_EDGES=1`, which `rmodel.mjs` refuses unless
+  `SPIKE_R_TEST=1` is also set. R records the configuration in the
+  `config` of its output. The rest of R's setup, all checked against
+  `rmodel.mjs` at `7b40072`:
+  - The jsdom window and document are set on `globalThis` before Mermaid
+    is imported. `NO_JSDOM=1` skips them, but it too is refused unless
+    `SPIKE_R_TEST=1` is set.
+  - `mermaid.initialize` is called with that object before every text.
+  - `mermaid.parse(text)` is called without `suppressErrors`.
+  - The model is read with `mermaid.mermaidAPI.getDiagramFromText(text)`.
+- **The validation transcript's `--bundles` argument.** In the committed
+  validation transcript, the host path in the `--bundles` argv is replaced
+  by `<archive>/bundles.json`. This follows the convention of §8.
+- **The table's label.** §12's table is headed "git tree shas". That is
+  true of `harness/`, `x/`, `r/` and `v-fixtures/`. `PRE-REGISTRATION.md`'s
+  `e29f097c339b9751beab29108549bef207b74889` is a file, so that sha is its
+  git blob sha.

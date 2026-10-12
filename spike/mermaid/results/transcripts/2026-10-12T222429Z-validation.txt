@@ -1,0 +1,15 @@
+# mermaid-spike validation
+# argv: mermaid_spike.py validation --sealed-sha256 a338d477972ff257d5288a7a8426bfb4ab8a325a8dad55eaa6c893fa97be189a --bundles <archive>/bundles.json
+# start: 2026-10-12T22:24:29Z
+# nodespec HEAD: 7b40072e011fcba0d3f28d8a229e99a8579a41c1
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: validation: unbound run
+
+wrote results/VALIDATION: sealed a338d477972ff257d5288a7a8426bfb4ab8a325a8dad55eaa6c893fa97be189a, lockfile c57c6d9b23e102cab67ef669621dab4bd5a5eff713df22feaec0cc4af7a365b4, 123 bundles
+commit it in the validation commit, with nothing under a bound path
+
+# end: 2026-10-12T22:24:29Z
+# exited: exit status 0
