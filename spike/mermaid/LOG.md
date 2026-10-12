@@ -766,3 +766,39 @@ issue is §5.3's:
     longer a G3 `fax`.
 
   The 9 fixtures with G3, G4 or C records on an identity key now match.
+
+### R-norepeat on a user-id edge's existence; the G1 difference argued
+
+- **A gap in R-norepeat, fixed.** H still made G2 `lost` or `extra` for
+  the existence of a user-id edge whose key had an I1–I4 record. G1 was
+  guarded against that, but edge existence was not. That broke the ruling
+  as worded above.
+  - A reviewer reproduced it on a clean git merge. O deletes the user-id
+    edge `e1`, and T adds a second statement with that id. H gave I3
+    `e1` plus G2 on `A, X, e1`; X1 gave I3 `e1` only.
+  - Edge existence now has the same identity guard as G1.
+  - The case is a V3 plant.
+  - The V3 check on a user-id edge that both legs add differently now
+    expects I2 only.
+  - V4's mutant 131 is replaced by its inverse: G2 on the existence is
+    reported despite the identity record.
+- **The G1 difference from X1 cannot change a result.** X1 also skips G1
+  for an I1 record's other objects; H skips it only for the record's own
+  key, k (above). A reviewer argued that the difference cannot show on a
+  judged case. Restated:
+  - **Which keys these are.** An I1 record's other objects are the keys
+    that its dangling units refer to. A dangling unit is decided present
+    and refers to the key decided absent. So it is an edge unit: a count,
+    a user-id edge's ends, or a link style. Its other objects are that
+    edge's ends.
+  - **If such an end r is decided absent,** then the dangling unit also
+    refers to r, so r has its own I1 record. Both readers skip G1 on r.
+  - **If r is decided present,** the dangling unit is decided present
+    while k is decided absent. The leg that removed k holds no edge to k,
+    so the unit's decided value is the other leg's added or changed
+    text. A clean merge keeps that text, and with it the vertex r, so r
+    is present in the merged model and neither reader gives G1. A merge
+    that does not keep it is a conflict, and so E, and E is not judged.
+
+  This is an argument, not a test. If a case ever shows the difference,
+  §10.5 treats it as a disagreement.
