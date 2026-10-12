@@ -1,0 +1,6 @@
+flowchart LR
+  api[API] --> jobs[Jobs]
+  jobs --> worker[Worker]
+  worker --> s3[(Object store)]
+  api --> metrics[Metrics]
+  scheduler[Scheduler] --> jobs[Jobs]

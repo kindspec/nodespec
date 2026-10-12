@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G1",
+      "objects": [
+        "legacy_sso"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "legacy_sso is named by two edges. O deletes auth --> legacy_sso; T deletes legacy_sso --> users. Each leg still has the node. §5.1: both legs keep legacy_sso, so it is decided present; each edge count is decided 0. Git applies both deletions and the node vanishes. No key is removed by a leg, so no §5.2 case: §5.3 G1. Tier A: the node is absent, so no lint can fail on it. Not exposed (§5.5)."
+}

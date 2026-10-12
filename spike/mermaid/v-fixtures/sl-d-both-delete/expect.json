@@ -1,0 +1,25 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "d",
+        "e"
+      ]
+    },
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "e",
+        "f"
+      ]
+    }
+  ],
+  "tiers": [
+    "D",
+    "D"
+  ],
+  "why": "linkStyle 4 marks d --> e. O deletes b --> c, T deletes b --> m; each correctly renumbers to linkStyle 3, an identical line change, so git merges clean. §5.1: d --> e decided green, e --> f decided unstyled. With both edges gone, index 3 is e --> f: §5.3 S-LINKSTYLE for each of the two edges, tier D. Nodes c and m are decided absent (O, T) and absent. Not exposed: no unit either leg adds or changes refers to c or m."
+}

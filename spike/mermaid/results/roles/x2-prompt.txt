@@ -1,0 +1,31 @@
+You are revising a program you wrote from a specification. Work only with the files in this directory. Do not open, search for, or fetch any kindspec repository, issue or pull request, locally or over the network. If you find you can read another implementation or repository history, stop and say so.
+
+Your extract2.py and CHOICES.md are here. Three of your choices bear on the pre-registration's words quoted below. Revise extract2.py where the text decides, and update CHOICES.md: for each change, give the choice's number, the old reading, the new one, and the quoted words that decide it.
+
+1. CHOICES.md entry 5 says `mermaid-example` is not a Mermaid fence. The pre-registration's §3 says:
+
+   > **A Mermaid fence** opens on a line matching, case-insensitively,
+   > `^ {0,3}(`{3,}|~{3,})[ \t]*mermaid(-example)?\b` and closes on the next line
+   > holding only a run of the same character at least as long.
+
+2. CHOICES.md entry 33 extends the "outside I1–I4" clause beyond G1. §5.3 says:
+
+   > - **G1 Node.** A decided-present node is absent, or a decided-absent node is
+   >   present, outside I1–I4.
+   > - **G2 Edge.** An edge key's merged count differs from the decided count. Lost
+   >   and extra are reported apart.
+   > - **G3 Membership.** A membership differs from the decided holder.
+   > - **G4 Label.** A text unit differs from the decided value.
+
+   Only G1 carries the clause.
+
+3. CHOICES.md entry 6 counts a line that is exactly `=======` as a conflict marker. §5.3 says:
+
+   > **E (loud).** A path is E if its merged file holds a conflict marker, or `git
+   > ls-files -u -- <path>` is not empty, or R does not parse the merged diagram
+   > (§4.4). For stratum D, a conflict anywhere in the file makes it E. A conflict
+   > on another path in the same merge does not.
+
+   The text does not define a conflict marker. Stratum D files are Markdown, where a line of `=` characters underlines a heading, and the three input files may already hold such lines. Reconsider when a merged file "holds a conflict marker" in that light, and record your choice and its reason.
+
+Change nothing else.

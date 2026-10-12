@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I2",
+      "objects": [
+        "dlq"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "Both legs add key dlq in bare style: O as the ingest dead-letter queue, T as the alert delivery dead-letter queue, each with its own style statement. §5.2 collision: the style unit of dlq differs between O and T. Git merges clean into one dlq carrying both styles and both edges: §5.3 I2. Tier A: no label or shape differs (no L2), and (L1, dlq) holds in O and T. Exposed (§5.5)."
+}

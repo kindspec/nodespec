@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G0",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "A tilde fence (§3). O moves the diagram above the intro sentence; T moves it to a new section at the end. The deletions are identical, so git merges clean and the merged file holds two Mermaid fences while each input holds one: §5.3 G0, tier B. Not exposed."
+}

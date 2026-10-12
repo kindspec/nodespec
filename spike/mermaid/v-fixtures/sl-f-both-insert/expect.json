@@ -1,0 +1,25 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "api",
+        "db"
+      ]
+    },
+    {
+      "category": "S-LINKSTYLE",
+      "objects": [
+        "auth",
+        "web"
+      ]
+    }
+  ],
+  "tiers": [
+    "D",
+    "D"
+  ],
+  "why": "The base highlights api --> db with linkStyle 2. Each leg inserts one edge before it and correctly renumbers to linkStyle 3; the two renumberings are the same line change, so git merges clean. §5.1: the style of api --> db is decided red (O and T agree) and the new edges are decided unstyled. In the merged chart index 3 is web --> auth: the highlight leaves api --> db and lands on web --> auth, §5.3 S-LINKSTYLE (one record per edge whose style unit differs), tier D. Not exposed."
+}

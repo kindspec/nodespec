@@ -307,7 +307,532 @@ V4 has a mutant for each gate (SU1 to SU7). At `f0da993`:
 - The eight new and repointed mutants: 8 killed, 0 survived, 0 BROKEN
   (`v4-sealed-mutants.txt`).
 
-## Blind roles
+## 2026-10-11 — §8. The blind roles: what each was given
 
-Not yet launched. Each launch is logged here with its export manifest,
-prompt, model id and date (§10.3).
+§11.3 commit 2. Each blind role ran with `harness/ms/roles.py`, through
+`mermaid_spike.py role`. A run is one fresh `claude -p --model
+claude-opus-5-5` session in a bubblewrap sandbox. The environment is
+cleared. `/work` is the role's export (`mermaid_spike.py export`, a
+`git archive` at `2364767` with no `.git`). The only other things visible
+are system libraries, python3, the CLI binary, and the CLI's credential
+file, read-only. Nothing else from `/home` is visible. The session has no
+MCP server (`--strict-mcp-config`, empty) and built-in tools only (Read,
+Write, Edit, Glob, Grep, Bash).
+
+Before each session, the launcher plants a file outside `/work` and checks
+that the sandbox can neither read it nor see the repository or
+`~/.claude`; every probe held. It also checks the session's init event for
+the model, the tools and the MCP servers. The network stays on, as §10.3
+allows: the barrier there is honour-system.
+
+The launch records are in `results/roles/` (paths scrubbed). The
+launcher's transcripts are in `results/transcripts/`.
+
+| run | date (UTC) | export manifest, sha256 | prompt, sha256 | model reported | session sha256 |
+|---|---|---|---|---|---|
+| X, 1 | 2026-10-11T04:25:09Z | SPEC.md `a18af470…`, mermaid-12.1.0-flowchart.md `50490edd…` | Appendix E's X prompt, `785fabf0…` | claude-opus-5-5 | `1aec348a…` |
+| X, 2 | 2026-10-11T04:52:25Z | as run 1, plus X's own extract2.py and CHOICES.md | `results/roles/x2-prompt.txt`, `9df26071…` | claude-opus-5-5 | `a801bbff…` |
+| X, 3 | 2026-10-11T05:25:57Z | as run 2, after X's run-2 edits | `results/roles/x3-prompt.txt`, `bc8e37db…` | claude-opus-5-5 | `04f316b5…` |
+| F, 1 | 2026-10-11T04:25:09Z | PRE-REGISTRATION.md `6a6dec6a…`, mermaid-12.1.0-flowchart.md `50490edd…` | Appendix E's F prompt, `d5db5690…` | claude-opus-5-5 | `ad2c7e23…` |
+| F, 2 | 2026-10-11T04:52:25Z | as F, 1 | Appendix E's F prompt, `d5db5690…` | claude-opus-5-5 | `b23652e0…` |
+
+The full sha256s are in each launch record. X's three session streams are
+committed in `results/roles/`, with absolute paths replaced by
+placeholders, so their bytes differ from the hashes above. Those hashes
+are of the streams as written. A smoke test of the launcher, with a
+one-line prompt and not a role, is in `results/roles/smoke-test/`.
+
+## 2026-10-11 — §9. F: run 1 is void, run 2 is used
+
+- **Run 1 is void, for a mechanical reason.** F's final message names
+  `sealed.tar` and `nonce.bin`. A search by file name alone found neither
+  under F's work directory. No sealed content was read in that search or
+  since. The session's `/tmp` and HOME were tmpfs, so F's tar and nonce
+  were discarded when it ended. §10.4 requires the owner to hold them, and
+  run 1 cannot meet that. Run 1 printed one sha256, `1eeedc17…`. Its work
+  directory, session stream and launch record are kept, unread, in the
+  owner's custody.
+- **Run 2** is a fresh invocation. It used the same verbatim prompt, an
+  export at the same commit, and `--scratch` inside the custody area, so
+  its `/tmp` and HOME persist. Its tar and nonce were found, by file name
+  only, under that scratch directory. Run 2's work, scratch and session
+  stream are in the owner's custody, unread. Its V-fixtures (54 entries,
+  copied byte for byte into `v-fixtures/`) and its sealed hash are the ones
+  used.
+- **The sealed hash** recorded for §11.3 commit 2 is run 2's:
+
+- sealed fixtures sha256: a338d477972ff257d5288a7a8426bfb4ab8a325a8dad55eaa6c893fa97be189a
+
+- **The harness's reading of what F's transcripts commit, and when.**
+  F's session streams hold the sealed fixtures as F wrote them, so
+  committing them before commit 6 would show the sealed fixtures to H and
+  X. Both runs' streams, run 1's included, are committed at commit 6
+  alongside the tar and the nonce. §11.1 requires every invocation's
+  transcript to be committed, and §10.4 commits the sealed material at
+  commit 6. Commit 2 records only the streams' sha256s (§8). F's launch
+  records and the launcher's transcripts hold no session output, only what
+  F was given, the barrier probe, the init check and the count of 64-hex
+  tokens in F's final message. So they are committed now, as §11.1 asks of
+  every invocation.
+
+## 2026-10-11 — §10. Matching the harness to F's and X's output
+
+These are the harness's readings, settled once F and X had delivered and
+before validation (§3, §4).
+
+- **R-tiers (§3).** F's V-fixtures write `tiers` as a list parallel to
+  `records`: one tier per record, `A` to `E`, or `—` for a record reported
+  only. A clean case has `[]` for both. The parser now reads exactly that,
+  and each group a fixture's records belong to gets its own A and B lines.
+  Under §3, the sealed run checks the sealed tar against this parser.
+- **X's output names (§4).** X prints its exposure as
+  `exposure.exposed`, and its records with `category`, `objects` and
+  `tier` (X's CHOICES.md, entry 1). `ms/xrun.py` reads that shape. G0's
+  object is the case's one path; X names it by the merged file's path on
+  disk, and H reads that as `path`.
+- **R-x-compare.** §5.3's "A record's objects" defines objects for I1–I4,
+  G0 and G1–G4 only. So MC, C, D, S-LINKSTYLE and S-ORDER are compared by
+  category alone.
+- **R-order.** Order is not a unit in §4.2. Both F and X decide it pair by
+  pair, and so now does H. Each pair of nodes, and each pair of edges in the
+  edge list, is a unit. S-ORDER fires when a decided relative order is
+  inverted in the merge, and is reported once per sequence.
+- **MC outside §5.2.** §5.3's MC is "a model conflict outside §5.2". A
+  conflict that is part of a refusal case is no longer also reported as an
+  MC.
+- **R-v3fix.** §11.2 V3's V-fixture half reads "each category fires on its
+  V-fixtures and stays silent on clean ones":
+  - each fixture's category, as F's coverage table names it by the
+    directory name, fires in H;
+  - each clean fixture gives no linable record;
+  - H's A and B lines match F's tiers.
+
+  `vfix.py v3` lists every other difference from F's expectation.
+- **X invocations 2 and 3** (§10.1, prompts in `results/roles/`). Each
+  prompt quotes the frozen text and does not describe H.
+  - **Invocation 2** quoted §3's fence pattern (`mermaid(-example)?`),
+    §5.3's G1-only "outside I1–I4" clause, and §5.3's E rule. X changed
+    choices 5, 6 and 33. A bare `=======` is no longer a marker; X records
+    the reason as Markdown's setext headings.
+  - **Invocation 3** quoted §4.2's "decides each unit separately", §5.3's
+    G3, G4 and C definitions, and §5.3's I4. X changed choices 32 and 31.
+  - After invocation 3, V5 agrees on all 53 V-fixtures.
+- **Differences from F's expectations that stand.** `vfix.py v3` lists
+  them. Where §4.2 decides each unit separately, H reports G3, G4 and C on
+  a key that also has a G1 or an I1–I4 record (F's reading 3 does not).
+  Where §5.1 makes the deleted key's unit a model conflict, H gives no I1
+  in `i3-f-bare-label` (F's reading 1 expects one). F's README says such
+  differences are to be logged, not forced.
+
+## 2026-10-11 — §11. Review of nodespec#5: X's independence, and corrections
+
+Entries are appended, never edited, so this entry corrects §8 and §10
+where they are wrong; it does not rewrite them.
+
+### X's invocations 2 and 3 carried argument; invocation 4
+
+- **Correction to §10.** §10 says the prompts of X's invocations 2 and 3
+  quote the frozen text and do not describe H. They did not describe H,
+  but they did not only quote either: each carried argument for a reading.
+  - Invocation 2 said "Only G1 carries the clause". It also argued from
+    setext headings that a bare `=======` is not a conflict marker.
+  - Invocation 3 asked X to "Consider a node that is decided absent and
+    present in the merged model", and set out the units that node has.
+
+  X's revisions repeat that argument closely: see the "Revisions" section
+  of `results/roles/x3-output/CHOICES.md`.
+- **X changed readings after them.** In its first invocation, X read §5.3
+  as reporting no more records on a key whose existence or kind is already
+  wrong (X1's choices 32 and 33). F's V-fixtures read it the same way.
+  After invocations 2 and 3, X took H's reading. So V5's 53 of 53 after
+  invocation 3 did not check H independently, and V5 is the check §10.5
+  exists for.
+- **A deviation in invocation 2.** Invocation 2 quoted §3's definition of
+  a Mermaid fence. That is frozen text outside X's §10.3 allotment, which
+  is SPEC.md.
+- **Invocations 2 and 3 are superseded, and kept.** Their prompts, session
+  streams and launch records stay in `results/roles/`. Invocation 3's
+  output is moved to `results/roles/x3-output/`.
+- **Invocation 4 starts from X1's state.** Invocations 2 and 3 revised
+  X's work directory in place. `harness/x1_recover.py` rebuilds X1's files
+  from the record:
+  - `extract2.py`: invocation 2 copied it to its `/tmp` after one Edit,
+    and its scratch was kept. The script undoes that Edit. The result
+    matches all 270 lines that invocation 2 read from the file before
+    editing it. Invocation 4's own copy of the file it was given, kept in
+    its scratch, is byte-identical.
+  - `CHOICES.md`: replayed from invocation 1's Write and Edit calls. It
+    matches invocation 2's first full Read of the file.
+
+  X1's output is in `results/roles/x1-output/`: `extract2.py` sha256
+  `a35dbe684451ae5945e3dc3841585424e3c44df5543a57bf5c0250b9af934529`,
+  `CHOICES.md` `9abb46755c2bfe2ffa8314efdd18339a8b828018a3997f9e92beacc81a42a605`.
+- **Invocation 4's prompt is fixed and neutral.** It holds a fixed opening
+  paragraph, then one block per input. Each block gives the input files
+  verbatim, then X1's output, then H's output. It holds no argument, no
+  quote from the pre-registration and no section pointer.
+  - `harness/x4_prompt.py` chooses the inputs: every V-fixture on which
+    V5's comparison, run with X1's extractor, finds X1 and H apart. That
+    is 13 of 53.
+  - The fixture names are left out of the prompt, because they name F's
+    expected category. `results/roles/x4-index.tsv` maps each input to its
+    fixture.
+- **What invocation 4 was given.** The run was launched as in §8, from an
+  export of X at `2364767`:
+
+  | run | date (UTC) | export manifest, sha256 | prompt, sha256 | model reported | session sha256 |
+  |---|---|---|---|---|---|
+  | X, 4 | 2026-10-11T12:15:03Z | SPEC.md `a18af470…`, mermaid-12.1.0-flowchart.md `50490edd…`, X1's extract2.py `a35dbe68…` and CHOICES.md `9abb4675…` | `results/roles/x4-prompt.txt`, `3e399b60…` | claude-opus-5-5 | `f1a25aff…` |
+
+- **What X did in invocation 4** (its CHOICES.md, "Invocation 4"):
+  - **Entry 41.** X now reports every unit on its own, which matches H.
+    This replaces X1's choices 32 and 33.
+  - **Entry 42.** S-ORDER's objects are now the keys of the inverted
+    pairs. S-ORDER is compared by category only, so this changes no
+    comparison.
+  - **Entry 43.** X kept its I4 reading (choice 31).
+- **V5 with invocation 4's extractor: 50 of 53 agree.** The three
+  disagreements are all I4. In each, H reports I4 and X does not:
+
+  | V-fixture | H only | X only |
+  |---|---|---|
+  | `i4-d-node-vs-subgraph` | I4 `billing` | — |
+  | `i4-f-move-vs-wrap` | I4 `api` | G1 `api` |
+  | `i4-f-subgraph-vs-node` | I4 `auth` | — |
+
+  X's reason: it reads "or a kind other than its decided kind" as a second
+  object of "no input gives".
+  - In `i4-f-move-vs-wrap`, the base gives `api` a kind other than its
+    decided kind, so I4 does not apply and the node's return is a G1.
+  - In the other two, the kind is a model conflict, and X counts the
+    clash once, as the I2 collision both report.
+
+  Neither side is plainly a bug. This is a reading for the owner to rule
+  on. H is unchanged, and X has not been invoked again.
+- **What V5 cannot see.** Invocation 4's extractor keeps X1's choices 5
+  and 6:
+  - an opener of `mermaid-example`, or with `Mermaid` in upper case, is not
+    a Mermaid fence;
+  - a bare `=======` line is a conflict marker.
+
+  H reads both the other way: §3's pattern for the fence, and R-marker for
+  the marker. No V-fixture holds either case, so V5 cannot test them, and
+  invocation 4's prompt could not raise them.
+
+### Corrections and additions
+
+- **How X1's disagreements were first found.** The three put to
+  invocation 2 (choices 5, 6 and 33) were found by reading X1's final
+  message, under "Choices most likely to disagree with the reference
+  extractor", and its CHOICES.md. They were not found by V5, which was
+  first run with X after invocation 2. The two put to invocation 3
+  (choices 32 and 31) came from that V5 run.
+- **Correction to §8.** §8 says X's committed session streams differ in
+  bytes from the hashes it lists. They do not: no stream held a host path,
+  so scrubbing left them unchanged. Each committed stream's sha256 equals
+  its launch record's `session_sha256` (X runs 1 to 4).
+- **F run 1's hash.** `results/roles/f-launch.json` records
+  `sealed_sha256` `1eeedc17…`. That is void run 1's (§9), not the sealed
+  hash. The record is kept as written.
+- **R-v3fix's history (§10).** Before `f9708f4`, `vfix.py v3` passed a
+  V-fixture only on an exact match: H's set of (category, objects) equal
+  to `expect.json`'s records, and H's exposure equal to `exposed`.
+  - The 12 V-fixtures that `vfix.py v3` lists as differing from F's
+    expectation would have failed that criterion.
+  - `f9708f4` changed the gate after F's run 2 had delivered its
+    V-fixtures. The text it follows is §11.2's V3: "Each category fires on
+    its V-fixtures and stays silent on clean ones."
+  - V3 now plants a fixture against each of the gate's three tests, and
+    V4 has a mutant for each.
+- **G0 has no stratum-F V-fixture.** F's three G0 fixtures are all stratum
+  D.
+- **S-ORDER above the pair cap.** H decides every pair of a sequence up to
+  400 items (`ORDER_CAP`). Above that, it decides only the adjacent pairs
+  of each state's own sequence. X decides every pair of the merged
+  sequence up to 1,500 items, and above that only the adjacent merged
+  pairs. So H and X can differ on S-ORDER for a sequence of more than 400
+  items. No V-fixture has one. S-ORDER is reported only (tier "—") and is
+  compared by category alone, so it cannot move an A or B line.
+- **The trailing "Blind roles" placeholder is removed.** Its "Not yet
+  launched" stopped being true at §8, and §8 to §11 log each launch.
+
+### Syntax census, taken before Arm 0
+
+Before the owner rules on X's fence and `=======` readings, a census
+asks whether either can touch the population. It is
+`harness/syntax_census.py`, and its transcript is
+`results/census/syntax-census.txt`.
+- It reads trees and blobs of the archived corpora, at and before each
+  pin, through §7.4's selection.
+- It runs no arm, no merge and not R, and it reads no outcome.
+- It prints totals only.
+- It covers all 123 corpus rows. The population is 47 selected stratum-D
+  paths (537 versions) and 1,671 stratum-F paths (5,003 versions).
+
+- **(a) Fence openers that §3 accepts and X's opener does not.**
+  - In the 537 versions of selected D paths:
+    - `mermaid-example`: 1 fence, in 1 version;
+    - a case variant of `mermaid`: 0;
+    - counted apart, other text after `mermaid` on the opener line, which
+      X's opener also refuses: 7 fences, in 7 versions.
+  - Effect on the population: in 8 versions, of 3 selected paths in one
+    corpus, the diagram differs under X's opener. Applied to selection, X's
+    opener would drop those 3 paths, which §3 selects, and would add 6
+    paths that §3 excludes.
+  - At the pins, 180 `.md` blobs hold a §3 Mermaid fence. Of these, 90
+    hold 1,153 `mermaid-example` fences, 2 hold 5 openers with other text
+    after `mermaid`, and none holds a case variant. Almost all of these
+    blobs are outside the population: they hold more than one fence.
+- **(b) Lines that are exactly `=======`.** There are 0 such lines in any
+  blob that holds a Mermaid fence, at the pins (180 blobs) or among the
+  population's versions (298 blobs). That holds inside and outside fences,
+  with or without a `<<<<<<<` line. No stratum-F version holds one either.
+  To check that the pattern finds such lines at all, the same pattern was
+  run over `.md` files at each mirror's HEAD (not the pins), outside the
+  committed script: it found 8.
+
+So the `=======` reading cannot change any case in the population. The
+fence reading can, on at most 3 selected paths of one corpus (8 versions).
+X's opener would also change which paths are selected. §3's pattern is
+the frozen text and decides selection either way.
+
+### Fence and `=======` readings, declared before Arm 0
+
+- **Fences.** The syntax census found 3 selected stratum-D paths (8
+  versions) where X's opener differs from §3's. §3 decides the fence:
+  `^ {0,3}(`{3,}|~{3,})[ \t]*mermaid(-example)?\b`, case-insensitively.
+  H follows it. X differs only because §3 was not in its §10.3 allotment
+  (SPEC.md). No ruling is needed, and neither X nor H changes. An X/H
+  disagreement on those paths is a disagreement, handled by §10.5
+  unchanged:
+  - a FOUND candidate there becomes disputed;
+  - a tier-A disagreement there blocks a structure NOT FOUND.
+
+  Such a disagreement is reported with this cause: X's allotment.
+- **`=======`.** The census found no `=======` line in any population blob
+  that holds a Mermaid fence, so X's marker reading cannot change any case.
+
+### The owner's ruling on I4 (2026-10-11)
+
+On 2026-10-11 the owner ruled that I4 takes Reading H. The sentence at
+issue is §5.3's:
+
+> **I4 Kind clash.** A key that no input gives two kinds, or a kind other
+> than its decided kind, has two kinds or a different kind in the merged
+> model.
+
+- **Reading H**, which `ms/oracle.py` applies:
+  - The only key excluded is one that some input already gives two kinds
+    ("A clash already present in an input is not a record").
+  - I4 fires when the merged model gives the key two kinds, or a kind other
+    than its decided kind. That includes a key whose kind is a model
+    conflict, when the merged model holds both kinds.
+- **The three V-fixtures it decides:**
+  - `i4-d-node-vs-subgraph`: H only I4 `billing`;
+  - `i4-f-move-vs-wrap`: H only I4 `api`, X only G1 `api`;
+  - `i4-f-subgraph-vs-node`: H only I4 `auth`.
+- **X's stated reason, from invocation 4's CHOICES.md, entry 43, verbatim:**
+
+  > §5.3 reads "A key that no input gives two kinds, or a kind other than
+  > its decided kind, has two kinds or a different kind in the merged
+  > model". The phrase "or a kind other than its decided kind" is a second
+  > object of "no input gives".
+  >
+  > - **Input 12.** `api` is a node in B, and the decided kind is
+  >   `subgraph`. So an input gives a kind other than the decided one, and
+  >   I4's precondition fails. The node's presence then differs, which gives
+  >   G1 (§5.3: a decided-absent node is present). Under choice 41 its G3, G4
+  >   and C come with it.
+  > - **Inputs 11 and 13.** The kind is a model conflict, so there is no
+  >   decided kind for the inputs to match. The legs' clash is the I2
+  >   collision, which both readers report. A second I4 would count the same
+  >   collision twice.
+
+  Inputs 11, 12 and 13 are the three fixtures above, in the order listed
+  (`results/roles/x4-index.tsv`).
+- **X is not invoked again.** Neither X nor H changes.
+- **V5 now checks against the ruling.** `vfix.py v5` reads
+  `harness/v5-rulings.json`. V5 passes only when its disagreements, each
+  taken as (fixture, H-only records, X-only records, exposure), are exactly
+  the ruled ones. A disagreement that is not ruled fails V5, and so does a
+  ruled one that no longer occurs. V3 plants each case, and V4 has a
+  mutant for each gate.
+
+### A §10.3 deviation in invocation 4, and two additions
+
+- **Invocation 4's prompt deviated from §10.3.** §10.3 gives X "not the
+  fixtures", and Appendix E tells it "do not guess at what another
+  implementation does". Invocation 4's prompt (`results/roles/x4-prompt.txt`)
+  nonetheless held:
+  - 13 V-fixtures' input files;
+  - X1's output on each;
+  - H's full output on each, including H's unit names, detail text and
+    lints.
+
+  After seeing it, X moved to H's repeat-report reading: it now reports a
+  key's other units even when the key's existence or kind is already
+  wrong (its CHOICES.md entry 41), and V5 now agrees on 10 of the 13.
+  So X4's agreement on the repeat-report reading is not independent
+  evidence for it. The reading is put to the owner for a ruling. Until
+  then, the "V5 with invocation 4's extractor: 50 of 53 agree" entry above
+  is not a blind confirmation of that reading.
+- **Addition to "What V5 cannot see": markers an input already holds.**
+  - H ignores a `<<<<<<<`, `>>>>>>>` or `|||||||` line that an input
+    already holds (R-marker). X counts any such line in the merged file.
+  - A reviewer re-ran the census logic with that pattern over the 52
+    organisation rows (10 stratum D, 42 stratum F). They counted 0 such
+    lines, at the pins and in the population.
+  - That count does not cover the 71 owner-mapped rows, all of stratum F.
+- **Re-running the census.** `harness/syntax_census.py` needs the owner's
+  private map and table for the owner-mapped rows' pins, so only the owner
+  can re-run it in full. Every stratum-D row is an organisation row, and a
+  reviewer reproduced every stratum-D figure without the private files.
+
+### The owner's ruling on repeat reports (2026-10-11); X1 binds
+
+- **The ruling.** On 2026-10-11 the owner ruled: no repeat reports. When a
+  key's existence or kind is wrong, it is reported once, under its
+  identity category, or as G1. Its label, membership, shape and other
+  units are not also reported as G3, G4, C or MC. The ruling reads this
+  text:
+  - §4.2: "The oracle decides each unit separately: a key's existence,
+    and its kind; a scalar value: `(key, property)`; an edge key's count;
+    a membership: `(key)` mapped to its holder; a class assignment:
+    `(key, class)`."
+  - §5.3: "**G1 Node.** A decided-present node is absent, or a
+    decided-absent node is present, outside I1–I4." and "**G3 Membership.**
+    A membership differs from the decided holder. **G4 Label.** A text unit
+    differs from the decided value."
+
+  Deciding each unit separately does not make each unit a separate
+  report.
+- **H changes to match**, as V5 allows ("fixed in H"). The rule H now
+  implements is R-norepeat, in `ms/oracle.py`:
+  - No record (G2, G3, G4, C, D, S-LINKSTYLE or MC) is made for a unit
+    keyed by the key of an I1–I4 record.
+  - When a key's presence differs between decided and merged for a kind,
+    that kind's other units on the key give no record. A subgraph's
+    title is the exception: G4 on the title is how a subgraph's presence
+    shows.
+  - G1 is skipped for an I1–I4 record's key, as before.
+
+  The unit kinds follow Appendix A:
+  - a node's label, click, shape, membership, style and class;
+  - a subgraph's title and membership;
+  - a user-id edge's label, ends and link style.
+- **It is pinned to X1's choices 32 and 33**, verbatim:
+
+  > 32. **When a key's presence differs**, between decided and merged, for
+  >     one kind:
+  >     - a node gives G1;
+  >     - a user-id edge gives G2 `lost` or `extra`;
+  >     - a subgraph gives G4 on its title.
+  >
+  >     The other units of that kind on that key are then not reported
+  >     again.
+  > 33. **Suppression under I1–I4.** §5.3 says G1 is "outside I1–I4". I
+  >     extend that: no G, C, D or MC record is made for a unit keyed by an
+  >     I record's primary key (the removed, colliding, deleted or clashing
+  >     key). G1 is also skipped for every I-record object. Without this,
+  >     one dangling node would be counted again as G4/C/D on its own label,
+  >     shape and styles.
+- **It is also pinned to F's README, reading 3**, verbatim:
+
+  > 3. **No repeat reports for a key whose existence or kind is wrong.**
+  >    When a key's existence (I1, I3 or G1) or its kind (I4) is already
+  >    the record, that key's label, shape and style units are not reported
+  >    again as G4, C or D.
+
+  One difference from choice 33 remains. X1 also skips G1 for an I1
+  record's other objects, the keys that refer to the dangling key. H skips
+  G1 only for the record's own key. V5 shows no disagreement from this on
+  the V-fixtures. If it shows one on a case, §10.5 handles it as a
+  disagreement.
+- **X1 binds.** X1's output (`results/roles/x1-output/`) is now the
+  second extractor in `x/`, for V5 and for §10.5's comparisons. It was
+  written from SPEC.md and the Mermaid documentation alone. It never saw a
+  fixture or H's output.
+- **X4 is set aside.** X4's switch at its entry 41 came after the §10.3
+  deviation above, so it is set aside. X4's output is kept as record in
+  `results/roles/x4-output/`. X is not invoked again.
+- **V5 with X1 and the changed H.** The only disagreements are the three
+  ruled I4 fixtures. X1's tuples on them equal X4's, so
+  `harness/v5-rulings.json` is unchanged.
+- **V3's fixture half.** 3 of the 12 earlier differences from F's
+  expectations remain:
+  - `i1-f-declared-rename`: H adds one S-ORDER;
+  - `mc-f-dup-three`: H adds one S-ORDER;
+  - `i3-f-bare-label`: H gives I3 `fax` without F's I1 `fax`, and no
+    longer a G3 `fax`.
+
+  The 9 fixtures with G3, G4 or C records on an identity key now match.
+
+### R-norepeat on a user-id edge's existence; the G1 difference argued
+
+- **A gap in R-norepeat, fixed.** H still made G2 `lost` or `extra` for
+  the existence of a user-id edge whose key had an I1–I4 record. G1 was
+  guarded against that, but edge existence was not. That broke the ruling
+  as worded above.
+  - A reviewer reproduced it on a clean git merge. O deletes the user-id
+    edge `e1`, and T adds a second statement with that id. H gave I3
+    `e1` plus G2 on `A, X, e1`; X1 gave I3 `e1` only.
+  - Edge existence now has the same identity guard as G1.
+  - The case is a V3 plant.
+  - The V3 check on a user-id edge that both legs add differently now
+    expects I2 only.
+  - V4's mutant 131 is replaced by its inverse: G2 on the existence is
+    reported despite the identity record.
+- **The G1 difference from X1 cannot change a result.** X1 also skips G1
+  for an I1 record's other objects; H skips it only for the record's own
+  key, k (above). A reviewer argued that the difference cannot show on a
+  judged case. Restated:
+  - **Which keys these are.** An I1 record's other objects are the keys
+    that its dangling units refer to. A dangling unit is decided present
+    and refers to the key decided absent. So it is an edge unit: a count,
+    a user-id edge's ends, or a link style. Its other objects are that
+    edge's ends.
+  - **If such an end r is decided absent,** then the dangling unit also
+    refers to r, so r has its own I1 record. Both readers skip G1 on r.
+  - **If r is decided present,** the dangling unit is decided present
+    while k is decided absent. The leg that removed k holds no edge to k,
+    so the unit's decided value is the other leg's added or changed
+    text. A clean merge keeps that text, and with it the vertex r, so r
+    is present in the merged model and neither reader gives G1. A merge
+    that does not keep it is a conflict, and so E, and E is not judged.
+
+  This is an argument, not a test. If a case ever shows the difference,
+  §10.5 treats it as a disagreement.
+
+### Corrections to the G1 argument above, and one more item V5 cannot see
+
+Entries are appended, never edited, so this corrects the argument in the
+entry above:
+
+- **(a) Not every dangling unit is an edge unit.** `refusals()` uses
+  `refers()`, which includes `keyed_by`. So a unit keyed by k itself, such
+  as k's label (`ntext k`), can also be dangling. Such a unit has no other
+  objects. The argument applies to dangling units that do have other
+  objects, and every one of those is an edge unit.
+- **(b) The other objects can include the edge id.** For a user-id edge's
+  ends (`eref`), the other objects include the edge id itself, as in I1
+  `['A', 'D', 'e1']`. G1 on `e1` would need `e1`'s node presence to change,
+  and both readers record that as I4, not as G1.
+- **(c) The argument needs M to be git's merge.** It holds because the
+  merged file is git's own: `gitops.merge_texts` or `merge_commits`, with
+  multi-base cases dropped in `history.py`. A hand-made merge that is not
+  git's can show the difference. A future arm that judges recorded human
+  merges reopens the argument, and §10.5 then treats any such case as a
+  disagreement.
+- **The review checked it.** It confirmed the argument for every judged
+  merge. A fuzz run of 2,100 stratum-F cases, 27 of them with an I1
+  record, found no counterexample.
+- **(d) One more item V5 cannot see: the S-ORDER pair cap.** H decides
+  every pair of a sequence up to 400 items, and above that only adjacent
+  pairs of each state's sequence. X decides every pair up to 1,500 items,
+  and above that only adjacent merged pairs. So they can differ on
+  S-ORDER for a sequence of more than 400 items. No V-fixture has one. This
+  was disclosed earlier in §11. It now joins the list of what V5 cannot see:
+  - marker lines an input already holds;
+  - G1 on an I1 record's other objects;
+  - fences and `=======`;
+  - the S-ORDER pair cap.

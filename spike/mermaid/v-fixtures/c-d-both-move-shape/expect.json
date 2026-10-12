@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "C",
+      "objects": [
+        "backorder"
+      ]
+    }
+  ],
+  "tiers": [
+    "C"
+  ],
+  "why": "Both legs move the declaration of backorder out of the declaration block; O also makes it a subroutine [[ ]]. §5.1: shape decided subroutine (only O changes it). Both delete the same line, so git merges clean with both copies, and T's rectangle comes last and wins: §5.3 C, tier C. Labels agree, so no G4. Not exposed."
+}

@@ -1,0 +1,12 @@
+# v5, 2026-10-12T14:07:26Z
+# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+  ruled disagreement: i4-d-node-vs-subgraph: ruled (LOG §11): H only [('I4', ('billing',))]; X only []
+  ruled disagreement: i4-f-move-vs-wrap: ruled (LOG §11): H only [('I4', ('api',))]; X only [('G1', ('api',))]
+  ruled disagreement: i4-f-subgraph-vs-node: ruled (LOG §11): H only [('I4', ('auth',))]; X only []
+
+V5: 53 checked, 0 failed
+V5: PASS
+# exit status 0

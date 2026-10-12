@@ -1,0 +1,6 @@
+flowchart LR
+  web[Web] --> api[Public API]
+  api --> users[Users service]
+  api --> orders[Orders service]
+  click api "https://docs.example.com/api/v1" _blank
+  classDef svc fill:#eef,stroke:#669

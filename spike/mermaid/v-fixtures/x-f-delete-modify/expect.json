@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "O removes node fax; T relabels it on the same line. §5.5 exposed: O removes a key whose label T changed (§5.2 delete/modify). Git sees delete versus modify of one line and writes a conflict: §5.3 E. Git working."
+}

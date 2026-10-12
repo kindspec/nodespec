@@ -1,0 +1,12 @@
+# v3fix, 2026-10-12T14:06:49Z
+# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+  differs from F's expectation: i1-f-declared-rename: H only [('S-ORDER', ())]; F only []
+  differs from F's expectation: i3-f-bare-label: H only []; F only [('I1', ('fax',))]
+  differs from F's expectation: mc-f-dup-three: H only [('S-ORDER', ())]; F only []
+
+V3: 53 checked, 0 failed
+V3: PASS
+# exit status 0

@@ -1145,12 +1145,17 @@ def s_oracle_units():
     O = upd(upd(B, e), {("etext", "e"): "x"})
     T = upd(upd(B, e), {("etext", "e"): "y"})
     r = recs(O, T, dict(B))
-    check("R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)",
-          any(x["category"] == "I2" for x in r) and any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
+    check("R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 only: no G2 on it",
+          any(x["category"] == "I2" for x in r) and not any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
     O = upd(upd(B, {("etext", "e"): "x"}), e)
     M = upd(upd(B, e), {("etext", "e"): "q"})
+    r = recs(upd(B, e), O, M)
+    check("R-norepeat: both legs add a user-id edge, its label differing, is I2 only: no G4 on its label",
+          any(x["category"] == "I2" for x in r) and not any(x["category"] == "G4" for x in r), r)
+    Be = upd(B, e)
     check("G4: a user-id edge's label merged wrong is G4", any(x["category"] == "G4" and x["objects"] == ["e"]
-                                                              for x in recs(upd(B, e), O, M)))
+                                                              for x in OR.judge(Be, upd(Be, {("etext", "e"): "x"}), Be,
+                                                                                upd(Be, {("etext", "e"): "q"}), set())[0]))
 
 
 def s_l5():
@@ -1171,22 +1176,24 @@ class _Ctx:
 def s_p_x():
     """§10.5 with §8.3: X never sees the truth, so it is compared with H's
     records before P's truth filter."""
-    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n"
-    v1 = v0 + "  C[Gamma]\n"
-    v2 = "flowchart TD\n  A[Alpha]\n  D[Delta]\n  B[Beta]\n  C[Gamma]\n"
+    v0 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  A --> B\n  C[Gamma]\n"
+    v1 = v0 + "  A --> B\n"
+    v2 = "flowchart TD\n  A[Alpha]\n  B[Beta]\n  C[Gamma]\n  A --> B\n"
     t = RP.replay(v0, v1, v2)
-    d = tmpdir("xp")
-    x = os.path.join(d, "x.py")
+    prep = C.prepare("F", v0, v1, t, R)
+    res = C.outcome(prep, [v0, v1, t], G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R,
+                    path="c.mmd", truth=v2)
+    x = os.path.join(tmpdir("xp"), "x.py")
     with open(x, "w") as f:
-        f.write("import json\nprint(json.dumps({'exposed': False, 'records': [{'category': 'S-ORDER', "
-                "'objects': []}]}))\n")
+        f.write("import json\nprint(%r)\n" % json.dumps({"exposed": bool(prep.get("exposed")), "records": [
+            {"category": r["category"], "objects": r["objects"], "tier": r["tier"]} for r in res["records_unfiltered"]]}))
     c = AR.evaluate(_Ctx(), {"arm": "P", "path": "c.mmd"}, "F", [v0, v1, t],
                     lambda: G.merge_texts("c.mmd", v0.encode(), v1.encode(), t.encode(), TMP), R, x, truth=v2)
-    check("P: H's unfiltered records hold the S-ORDER X reports", any(
-        r["category"] == "S-ORDER" for r in c.get("x_records", [])) and c["outcome"] == "JUDGED")
+    check("P: H's unfiltered records hold a record the truth filter removes",
+          len(res["records_unfiltered"]) > len(res["records"]), (res["records_unfiltered"], res["records"]))
     check("P: X agrees with H's records before the truth filter", c.get("x_agree") is True, c.get("x_detail"))
-    check("P: the truth filter still removes the record from H's P records",
-          not any(r["category"] == "S-ORDER" for r in c["records"]), c["records"])
+    check("P: the truth filter still removes it from H's P records",
+          len(c["records"]) < len(c.get("records_unfiltered", [])), c["records"])
 
 
 def s_aggregate_scope():
@@ -1631,10 +1638,299 @@ def s_sealed_unreadable():
     check("sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged",
           rc != 0 and not sj["sealed"] and sorted(m["name"] for m in sj["malformed"]) == ["fx", "fy"], (rc, sj))
 
+
+def s_roles():
+    """§10.3's barrier for a blind role (ms/roles.py), without starting a
+    model."""
+    from ms import roles as RO
+    work = tmpdir("rolework")
+    with open(os.path.join(work, "SPEC.md"), "w") as f:
+        f.write("spec\n")
+    ok, probe = RO.barrier_probe(work, RO.DEFAULT_CREDENTIALS, RO.claude_binary(), [SPIKE, os.path.expanduser("~/.claude")])
+    check("roles: a file planted outside /work cannot be read in the sandbox", probe.get("planted_readable") is False
+          and probe.get("planted_exists") is False, probe)
+    check("roles: the repository and ~/.claude are not visible; /home holds only the role's HOME",
+          not any(probe.get("repos_visible", {"x": True}).values()) and probe.get("home_entries") == ["role"], probe)
+    check("roles: the sandbox HOME holds only the credential file; the environment is cleared",
+          probe.get("claude_dir_entries") == [".credentials.json"] and
+          set(probe.get("env_keys", ["?"])) <= {"HOME", "PATH", "LANG", "PWD"}, probe)
+    check("roles: /work is the export", probe.get("work_entries") == ["SPEC.md"] and ok, probe)
+    good = {"model": RO.MODEL, "tools": list(RO.TOOLS), "mcp_servers": []}
+    check("roles: an init event with the pinned model, built-in tools and no MCP server passes",
+          RO.init_problems(good) == [])
+    check("roles: another model is refused", RO.init_problems(dict(good, model="claude-other")))
+    check("roles: an MCP tool is refused", RO.init_problems(dict(good, tools=good["tools"] + ["mcp__x__y"])))
+    check("roles: an MCP server is refused", RO.init_problems(dict(good, mcp_servers=[{"name": "x"}])))
+    builtin = [{"name": "p", "path": "builtin", "source": "p@builtin"}]
+    check("roles: plugins built into the CLI pass", RO.init_problems(dict(good, plugins=builtin)) == [])
+    check("roles: a plugin that is not built in is refused",
+          RO.init_problems(dict(good, plugins=builtin + [{"name": "q", "path": "/x/q", "source": "q@m"}])))
+    check("roles: a hook is refused", RO.init_problems(dict(good, hooks={"PreToolUse": [{"command": "x"}]})))
+    fake = os.path.join(tmpdir("fakecli"), "claude")
+    with open(fake, "w") as f:
+        f.write("#!/bin/sh\necho '{\"type\": \"result\", \"result\": \"done\"}'\n")
+    os.chmod(fake, 0o755)
+    real = RO.claude_binary
+    RO.claude_binary = lambda: fake
+    try:
+        rr = tmpdir("noinit")
+        rec = RO.launch("X", work, "p", os.path.join(rr, "rec.json"), os.path.join(rr, "s.jsonl"), log=lambda *_: None)
+    except RO.Refused as e:
+        rec = {"error": str(e)}
+    finally:
+        RO.claude_binary = real
+    check("roles: a session with no init event is refused, its record kept",
+          rec.get("init_seen") is False and str(rec.get("refused", "")).startswith("no init event")
+          and os.path.isfile(os.path.join(rr, "rec.json")), rec)
+    old = os.environ.get("ANTHROPIC_API_KEY")
+    os.environ["ANTHROPIC_API_KEY"] = "planted"
+    try:
+        RO.launch("X", work, "p", os.path.join(tmpdir("r"), "rec.json"), os.path.join(tmpdir("r"), "s.jsonl"))
+        refused = False
+    except RO.Refused as e:
+        refused = "ANTHROPIC_API_KEY" in str(e)
+    finally:
+        if old is None:
+            os.environ.pop("ANTHROPIC_API_KEY", None)
+        else:
+            os.environ["ANTHROPIC_API_KEY"] = old
+    check("roles: ANTHROPIC_API_KEY set refuses the launch", refused)
+    toks = RO.HEX64.findall("hash: " + "a" * 64 + " and " + "b" * 64)
+    check("roles: two 64-hex tokens in F's result are counted, never recorded as the hash", len(toks) == 2)
+    sc = os.path.join(tmpdir("scr"), "scratch")
+    r = subprocess.run(RO.sandbox_argv(work, RO.DEFAULT_CREDENTIALS, RO.claude_binary(), scratch=sc) +
+                       ["/bin/sh", "-c", "echo t > /tmp/sealed.tar; echo n > $HOME/nonce.bin"], capture_output=True, text=True)
+    check("roles: with a scratch directory, what the role writes to /tmp and HOME survives the session",
+          r.returncode == 0 and os.path.exists(os.path.join(sc, "tmp", "sealed.tar"))
+          and os.path.exists(os.path.join(sc, "home", "nonce.bin")), r.stderr[-200:])
+    from ms import xrun as XRR
+    v = XRR.x_view({"exposure": {"exposed": True, "reasons": []}, "records": [{"category": "I1", "objects": ["a"]}]})
+    check("X's names: an exposure nested as {exposure: {exposed}} is read (LOG §8)",
+          v is not None and v["exposed"] is True and v["records"][0]["category"] == "I1")
+    check("X's names: output with no exposure at all is not read", XRR.x_view({"records": []}) is None)
+
+
+def s_archive_prs():
+    """R-prs: the archive fetches commit lists only for pull requests whose
+    own commits touch a selected path; the others are listed and counted."""
+    pl = Plant("aprs")
+    fc = "flowchart TD\n  A --> B\n"
+    pl.commit({"g.mmd": fc, "notes.txt": "n\n"}, "base")
+    pl.g("checkout", "-q", "-b", "pr1")
+    h1 = pl.commit({"g.mmd": fc + "  B --> C\n"}, "touches the flowchart")
+    pl.g("checkout", "-q", "main")
+    pl.g("checkout", "-q", "-b", "pr2")
+    h2 = pl.commit({"notes.txt": "n2\n"}, "touches only notes")
+    pl.g("checkout", "-q", "main")
+    pl.g("merge", "-q", "--no-ff", "--no-edit", "pr1")
+    m1 = pl.g("rev-parse", "HEAD")
+    pl.g("merge", "-q", "--no-ff", "--no-edit", "pr2")
+    m2 = pl.g("rev-parse", "HEAD")
+    pin = m2
+    rel = K.pr_relevance(pl.path, pin)
+    check("archive: a pull request whose commits touch a selected path is relevant",
+          rel({"number": 1, "head": h1, "merge": m1}) is True)
+    check("archive: a pull request whose commits touch no selected path is not",
+          rel({"number": 2, "head": h2, "merge": m2}) is False)
+    calls = []
+
+    def api(path):
+        calls.append(path)
+        if "/pulls?" in path:
+            return [{"number": 1, "merged_at": "x", "head": {"sha": h1}, "merge_commit_sha": m1},
+                    {"number": 2, "merged_at": "x", "head": {"sha": h2}, "merge_commit_sha": m2}] \
+                if path.endswith("page=1") else []
+        if path.endswith("/pulls/1"):
+            return {"commits": 1}
+        if "/pulls/1/commits" in path:
+            return [{"sha": h1}] if path.endswith("page=1") else []
+        if path.endswith("/pulls/2"):
+            return {"commits": 1}
+        if "/pulls/2/commits" in path:
+            return [{"sha": h2}] if path.endswith("page=1") else []
+        return []
+    lst = K.fetch_pr_list("o/r", api, rel)
+    by = {e["number"]: e for e in lst}
+    check("archive: the relevant pull request's count and commits are read; the other's are not",
+          by[1]["commits"] == [h1] and by[1]["commit_count"] == 1 and by[2]["commits"] is None
+          and not any("/pulls/2" in c for c in calls), lst)
+    cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"}, lst)
+    check("M-PR: a listed pull request with no commit list is counted, never evaluated",
+          counts.get("its commits touch no selected path") == 1, counts)
+    lost = [dict(e, commits=None) if e["number"] == 1 else e for e in lst]
+    cases, counts = HI.pr_cases(HI.Repo(pl.path), pin, {"g.mmd": "F"}, lost)
+    check("M-PR: a commit list missing for a pull request whose commits touch a selected path is counted apart",
+          counts.get("commit list missing, though its commits touch a selected path") == 1
+          and counts.get("its commits touch no selected path") == 1, counts)
+
+
+def s_commit2_readings():
+    """Readings settled with F's V-fixtures and X's output (LOG §8-§10)."""
+    import mermaid_spike as CLI
+    b = "flowchart TD\n  a[A] --> b[B]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n  c[C]\n"
+    p, r = run_case("F", b, b.replace("  x1[x1]\n", "  x1[x1]\n  n1[N1]\n"), b + "  n2[N2]\n")
+    check("R-order: two legs adding statements in different places make no S-ORDER", r and not has(r, "S-ORDER"), cats(r))
+    o = "flowchart TD\n  c[C]\n  a[A] --> b[B]\n  x1[x1]\n  x2[x2]\n  x3[x3]\n"
+    p, r = run_case("F", b, o, b + "  n2[N2]\n")
+    check("R-order: a relative order one leg inverts and the merge keeps is no S-ORDER", r and not has(r, "S-ORDER"), cats(r))
+    B = {("exist", "a"): ("node",), ("order", ("v", "a", "b")): True, ("exist", "b"): ("node",)}
+    M = dict(B)
+    M[("order", ("v", "a", "b"))] = False
+    recs = OR.judge(B, B, B, M, set())[0]
+    check("R-order: a decided relative order inverted in the merge is one S-ORDER record for the vertex map",
+          [x["category"] for x in recs] == ["S-ORDER"], recs)
+    o = "flowchart LR\n  dlq --> x\n  style dlq fill:#fdd\n  a\n  b\n  c\n"
+    t = "flowchart LR\n  a\n  b\n  c\n  y --> dlq\n  style dlq stroke:#a00\n"
+    p, r = run_case("F", "flowchart LR\n  a\n  b\n  c\n", o, t)
+    check("MC: a model conflict that is part of a collision is not also an MC (§5.3: outside §5.2)",
+          has(r, "I2") and not has(r, "MC"), cats(r))
+    good = {"records": [{"category": "S-ORDER", "objects": []}, {"category": "I1", "objects": ["a"]}],
+            "tiers": ["\u2014", "A"]}
+    check("R-tiers: tiers parallel to records, with the reported-only dash, parse", CLI.expect_tiers(good) == ["\u2014", "A"])
+    for bad in ({"records": [{"category": "I1", "objects": []}], "tiers": []},
+                {"records": [], "tiers": ["A"]}, {"records": [{"category": "I1"}], "tiers": "A"}):
+        try:
+            CLI.expect_tiers(bad)
+            ok = False
+        except CLI.Malformed:
+            ok = True
+        check(f"R-tiers: malformed tiers refused ({bad['tiers']!r} for {len(bad['records'])} record(s))", ok)
+    ln = CLI.sealed_lines([{"fixture": "f", "expect": {"records": [{"category": "I1", "objects": ["a"]},
+                                                               {"category": "G4", "objects": ["a"]}],
+                                                      "tiers": ["B", "A"]},
+                            "records": [{"category": "I1", "objects": ["a"], "tier": "B"},
+                                        {"category": "G4", "objects": ["a"], "tier": "A"}]}])
+    got = {(x["group"], x["line"]): x["f"] for x in ln}
+    check("R-sealed: per-record tiers give each group its own lines",
+          got == {("identity", "A"): False, ("identity", "B"): True, ("structure", "A"): True, ("structure", "B"): False}, got)
+    v = XR.x_view({"exposure": {"exposed": False}, "records": [{"category": "G0", "objects": ["/some/merged.md"], "tier": "B"}]})
+    check("R-x-names: X's G0 object, a file path, is read as the path", v["records"][0]["objects"] == ["path"])
+    check("R-x-compare: objects are compared only for I1-I4, G0-G4",
+          XR.norm_records([{"category": "C", "objects": ["q"]}]) == {("C", ())} and
+          XR.norm_records([{"category": "G4", "objects": ["q"]}]) == {("G4", ("q",))})
+
+def s_vfix_gates():
+    """R-v3fix: the three gates of V3's V-fixture half (vfix.py v3), each
+    shown to fail on a planted fixture: a category that does not fire, a
+    clean fixture that is not silent, and tiers whose A and B lines H does
+    not match. A correct fixture passes."""
+    base = ("flowchart LR\n  a[A]\n  b[(B)]\n  c[(C)]\n  d[(D)]\n"
+            "  a --> b\n  b --> c\n  a --> c\n  a --> d\n")
+    o = base.replace("  b --> c\n", "") + "  b --> c\n"
+    t = base.replace("  b --> c\n", "")
+    good = {"stratum": "F", "exposed": False, "records": [{"category": "G2", "objects": ["b", "c"]}], "tiers": ["A"]}
+
+    def run(name, exp):
+        d = os.path.join(tmpdir("vfixgate"), "fx")
+        os.makedirs(os.path.join(d, name))
+        for n, txt in (("base", base), ("o", o), ("t", t)):
+            with open(os.path.join(d, name, n + ".mmd"), "w", encoding="utf-8") as f:
+                f.write(txt)
+        with open(os.path.join(d, name, "expect.json"), "w", encoding="utf-8") as f:
+            json.dump(exp, f)
+        r = subprocess.run([sys.executable, "-I", "-S", "-B", os.path.join(HERE, "vfix.py"), "v3", "--dir", d],
+                           capture_output=True, text=True, timeout=300)
+        return r.returncode, r.stdout + r.stderr
+    rc, out = run("g2-planted", good)
+    check("R-v3fix: a fixture whose category fires, with matching tiers, passes", rc == 0 and "V3: PASS" in out, out[-300:])
+    rc, out = run("g1-planted", good)
+    check("R-v3fix: a fixture whose category does not fire fails", rc == 1 and "G1 does not fire" in out, out[-300:])
+    rc, out = run("clean-planted", dict(good, records=[], tiers=[]))
+    check("R-v3fix: a clean fixture on which H reports a record fails", rc == 1 and "clean, but H gives" in out, out[-300:])
+    rc, out = run("g2-planted", dict(good, tiers=["C"]))
+    check("R-v3fix: tiers whose A and B lines H does not match fail", rc == 1 and " line " in out, out[-300:])
+
+
+def s_v5_rulings():
+    """V5 with the owner's rulings (vfix.py v5, LOG §11): it passes only when
+    its disagreements are exactly the ruled ones."""
+    base = ("flowchart LR\n  a[A]\n  b[(B)]\n  c[(C)]\n  d[(D)]\n"
+            "  a --> b\n  b --> c\n  a --> c\n  a --> d\n")
+    o = base.replace("  b --> c\n", "") + "  b --> c\n"
+    t = base.replace("  b --> c\n", "")
+    d = os.path.join(tmpdir("v5rul"), "fx")
+    os.makedirs(os.path.join(d, "g2-planted"))
+    for n, txt in (("base", base), ("o", o), ("t", t)):
+        with open(os.path.join(d, "g2-planted", n + ".mmd"), "w", encoding="utf-8") as f:
+            f.write(txt)
+    with open(os.path.join(d, "g2-planted", "expect.json"), "w", encoding="utf-8") as f:
+        json.dump({"stratum": "F", "exposed": False, "records": [{"category": "G2", "objects": ["b", "c"]}],
+                   "tiers": ["A"]}, f)
+
+    def run(x_records, rulings):
+        w = tmpdir("v5rulx")
+        xp = os.path.join(w, "x.py")
+        with open(xp, "w") as f:
+            f.write("import json\nprint(json.dumps({'exposure': {'exposed': False}, 'records': %r}))\n" % (x_records,))
+        rp = os.path.join(w, "rulings.json")
+        with open(rp, "w") as f:
+            json.dump({"rulings": rulings}, f)
+        r = subprocess.run([sys.executable, "-I", "-S", "-B", os.path.join(HERE, "vfix.py"), "v5", "--dir", d,
+                            "--extractor", xp, "--rulings", rp], capture_output=True, text=True, timeout=300)
+        return r.returncode, r.stdout + r.stderr
+    ruling = {"fixture": "g2-planted", "h_only": [["G2", ["b", "c"]]], "x_only": [], "exposed": [False, False]}
+    rc, out = run([], [ruling])
+    check("V5 rulings: a disagreement equal to a ruled one passes", rc == 0 and "V5: PASS" in out, out[-300:])
+    rc, out = run([], [])
+    check("V5 rulings: a disagreement not ruled fails", rc == 1 and "V5: FAIL" in out, out[-300:])
+    rc, out = run([{"category": "G1", "objects": ["b"]}], [ruling])
+    check("V5 rulings: a disagreement that differs from the ruled one fails", rc == 1 and "V5: FAIL" in out, out[-300:])
+    rc, out = run([{"category": "G2", "objects": ["b", "c"]}], [ruling])
+    check("V5 rulings: a ruled disagreement that no longer occurs fails",
+          rc == 1 and "no longer occurs" in out, out[-300:])
+
+
+def s_norepeat():
+    """R-norepeat, the owner's ruling (LOG §11): a key whose existence or kind
+    is wrong is reported once, under its identity record or G1; its label,
+    membership, shape, style and class units give no further record."""
+    def on(r, k, cats_):
+        return [x for x in (r or {}).get("records", []) if x["category"] in cats_ and k in x["objects"]]
+    rest = ("G2", "G3", "G4", "C", "D", "MC", "S-LINKSTYLE")
+    # F's V-fixture i3-f-bare-label (CC0-1.0), verbatim.
+    b = ("flowchart TD\n  intake --> triage\n  triage --> email\n  triage --> fax\n  triage --> portal\n"
+         "  email --> archive\n  fax --> archive\n  portal --> archive\n")
+    o = ("flowchart TD\n  intake --> triage\n  triage --> email\n  triage --> portal\n"
+         "  email --> archive\n  portal --> archive\n")
+    t = ("flowchart TD\n  intake[Intake desk]\n  triage{Triage}\n  fax[Fax gateway]\n" + b[len("flowchart TD\n"):])
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: i3-f-bare-label is I3 on fax, with no G3 fax and no other record on fax",
+          has(r, "I3") and not on(r, "fax", rest), cats(r))
+    # F's V-fixture g1-f-bare-revive (CC0-1.0), verbatim.
+    b = ("flowchart TD\n  ui --> api\n  api --> recommender\n  api --> search\n  recommender --> features\n"
+         "  search --> index\n  recommender --> index\n  index --> store\n")
+    o = "flowchart TD\n  ui --> api\n  api --> search\n  search --> index\n  index --> store\n"
+    t = ("flowchart TD\n  recommender --> index\n  ui --> api\n  api --> recommender\n  api --> search\n"
+         "  recommender --> features\n  search --> index\n  index --> store\n")
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: a node decided absent and present in the merge is G1 only: no G3, G4 or C on it",
+          on(r, "recommender", ("G1",)) and not on(r, "recommender", ("G3", "G4", "C", "D", "MC")), cats(r))
+    # A reviewer's plant: O deletes the user-id edge e1, T adds a second
+    # statement with that id; git merges clean.
+    b = "flowchart TD\n  A[a] --> B[b]\n  B --> C[c]\n  C e1@--> D[d]\n  D --> E[e]\n"
+    o = "flowchart TD\n  A[a] --> B[b]\n  B --> C[c]\n  D[d] --> E[e]\n"
+    t = "flowchart TD\n  X[x] e1@--> A[a]\n" + b[len("flowchart TD\n"):]
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: a user-id edge with an I3 record is I3 only: no G2 on its existence",
+          has(r, "I3") and on(r, "e1", ("I3",)) and not on(r, "e1", ("G2",)), (r or {}).get("records"))
+    B = {("exist", "k"): ("node",), ("ntext", "k"): "A"}
+    O = {("exist", "k"): ("subgraph",), ("stitle", "k"): "S"}
+    T = {("exist", "k"): ("node",), ("ntext", "k"): "C"}
+    Mm = {("exist", "k"): ("node", "subgraph"), ("ntext", "k"): "Z", ("stitle", "k"): "S"}
+    recs_ = OR.judge(B, O, T, Mm, set())[0]
+    check("R-norepeat: a model conflict on a key with an I4 record gives no MC",
+          any(x["category"] == "I4" for x in recs_) and not any(x["category"] == "MC" for x in recs_), recs_)
+    B = {("exist", "a"): ("node",), ("ntext", "a"): "A", ("nhold", "a"): ""}
+    O = upd(B, {("ntext", "a"): "A2"})
+    recs_ = OR.judge(B, O, B, upd(B, {("ntext", "a"): "Q"}), set())[0]
+    check("R-norepeat: a key with no identity record and its presence right still gets G4",
+          [x["category"] for x in recs_] == ["G4"], recs_)
+
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates, s_v5_rulings, s_norepeat]
 
 
 def main():

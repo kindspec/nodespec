@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G4",
+      "objects": [
+        "api"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O points api's click at the v2 docs. T appends a generated block of click lines that restates api's v1 link (no change to T's model). §5.1: api's click target decided v2 (only O changes it). Git merges clean; the last click for api wins (Appendix A), so the merged target is v1: §5.3 G4. Tier A: no lint reads click targets. Not exposed."
+}

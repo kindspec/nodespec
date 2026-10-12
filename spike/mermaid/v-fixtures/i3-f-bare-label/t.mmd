@@ -1,0 +1,11 @@
+flowchart TD
+  intake[Intake desk]
+  triage{Triage}
+  fax[Fax gateway]
+  intake --> triage
+  triage --> email
+  triage --> fax
+  triage --> portal
+  email --> archive
+  fax --> archive
+  portal --> archive

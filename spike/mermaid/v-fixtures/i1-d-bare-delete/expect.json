@@ -1,0 +1,17 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "canary",
+        "rollback"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O deletes node canary (both of its edges) and links staging --> prod; T adds the edge canary --> rollback. §5.1: key canary is decided absent (only O changes it); edge (canary, rollback) is decided 1 (only T changes it). §5.2 dangling, so the correct outcome is E. Git merges clean, prose included, and the merged fence draws a ghost canary: §5.3 I1. Tier A (§5.4): bare style, so (L1, canary) holds in the base and (L1, rollback) in T. Exposed (§5.5)."
+}

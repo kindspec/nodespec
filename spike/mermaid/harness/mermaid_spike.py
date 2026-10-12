@@ -57,7 +57,7 @@ def _repo_root():
 
 REPO = _repo_root()
 EXTRACTOR = os.path.join(SPIKE, "x", "extract2.py")
-COMMANDS = ("validation", "arm0", "arms", "repro", "sealed", "aggregate", "fixtures", "export", "archive")
+COMMANDS = ("validation", "arm0", "arms", "repro", "sealed", "aggregate", "fixtures", "export", "archive", "role")
 BOUND_CMDS = {"arm0", "arms", "repro", "sealed", "aggregate"}
 ARM_OF = {"arm0": "arm0", "arms": "arms", "sealed": "sealed", "aggregate": "aggregate"}
 
@@ -140,6 +140,13 @@ def parser():
     p.add_argument("--role", required=True, choices=("F", "X"))
     p.add_argument("--out", required=True)
     p.add_argument("--commit", default="HEAD")
+    p = sp("role")
+    p.add_argument("--role", required=True, choices=("F", "X"))
+    p.add_argument("--work", required=True)
+    p.add_argument("--record", required=True)
+    p.add_argument("--session", required=True)
+    p.add_argument("--prompt-file", help="a later invocation's prompt (§10.1: each edit to X is a new invocation with a logged prompt); default Appendix E's")
+    p.add_argument("--scratch", help="host directory for the role's /tmp and HOME, kept after the session")
     p = sp("archive")
     corpus(p)
     p.add_argument("--corpus", required=True)
@@ -399,7 +406,8 @@ def cmd_fixtures(a, tr, bound):
 
 
 TIER_LETTERS = ("A", "B", "C", "D", "E")
-X_TIERS = TIER_LETTERS + ("-", "\u2014")
+REPORT_ONLY = ("\u2014", "-")
+X_TIERS = TIER_LETTERS + REPORT_ONLY
 
 
 class Malformed(Exception):
@@ -407,15 +415,18 @@ class Malformed(Exception):
 
 
 def expect_tiers(exp):
-    """R-tiers: expect.json's "tiers" is a JSON list of §5.4's tier letters,
-    "A" to "E", one per tier the fixture's records fall in; [] for a clean
-    fixture. Anything else is malformed."""
-    t = exp.get("tiers")
-    if not isinstance(t, list) or not all(isinstance(x, str) and x in TIER_LETTERS for x in t):
-        raise Malformed(f"tiers must be a list of {', '.join(TIER_LETTERS)}; got {t!r}")
-    if not isinstance(exp.get("records"), list) or not all(
-            isinstance(r, dict) and isinstance(r.get("category"), str) for r in exp["records"]):
+    """R-tiers, matched to F's V-fixtures (LOG §9): expect.json's "tiers" is
+    a JSON list parallel to "records": tiers[i] is the tier of records[i],
+    one of §5.4's letters "A" to "E", or "—" for a record reported
+    only. A clean case has [] for both. Anything else is malformed."""
+    t, recs = exp.get("tiers"), exp.get("records")
+    if not isinstance(recs, list) or not all(isinstance(r, dict) and isinstance(r.get("category"), str)
+                                            for r in recs):
         raise Malformed("records must be a list of {category, objects}")
+    if not isinstance(t, list) or not all(isinstance(x, str) and x in X_TIERS for x in t):
+        raise Malformed(f"tiers must be a list of {', '.join(X_TIERS)}; got {t!r}")
+    if len(t) != len(recs):
+        raise Malformed(f"tiers has {len(t)} entries for {len(recs)} records")
     return t
 
 
@@ -423,33 +434,43 @@ def fixture_group(exp):
     return "identity" if any(r["category"] in AG.IDENTITY for r in exp["records"]) else "structure"
 
 
-def lines_of(records, group):
+def fixture_groups(exp):
+    """The groups a fixture speaks to: those of its records' categories;
+    both for a clean fixture (no records of either group)."""
+    gs = sorted({AG.group_of(r) for r in exp["records"]} - {None})
+    return gs or ["identity", "structure"]
+
+
+def lines_of(records, group, tiers=None):
     """Whether a run put the fixture on the qualifying side of the A and B
-    lines (§10.4): a record of the group at tier A, at tier B. None for an
-    answer whose tiers are not in the vocabulary."""
-    cats = AG.IDENTITY if group == "identity" else AG.STRUCTURE | {"MC"}
-    rs = [r for r in records if r.get("category") in cats]
-    if any(r.get("tier") not in X_TIERS for r in rs):
+    lines (§10.4): a record of the group at tier A, at tier B. With tiers,
+    record i's tier is tiers[i] (F's encoding); otherwise each record's own
+    "tier". None for an answer with a tier outside the vocabulary."""
+    rs = [(r, tiers[i] if tiers is not None else r.get("tier")) for i, r in enumerate(records)
+          if AG.group_of(r) == group]
+    if any(t not in X_TIERS for _, t in rs):
         return None
-    return {"A": any(r.get("tier") == "A" for r in rs), "B": any(r.get("tier") == "B" for r in rs)}
+    return {"A": any(t == "A" for _, t in rs), "B": any(t == "B" for _, t in rs)}
 
 
 def sealed_lines(results):
-    """[{name, group, line, f, h, x}] from run_fixture_dir results. A
-    fixture's group is identity if F's records hold an I category, else
-    structure; its "tiers" are per fixture, and are read as that group's A
-    and B lines (R-sealed). x is None when X's answer is missing or holds a
-    tier outside its vocabulary: X then agrees with neither, and
-    aggregate.fixtures reads a fixture where H differs from F as disputed."""
+    """[{name, group, line, f, h, x}] from run_fixture_dir results, for each
+    group the fixture speaks to (R-sealed). F's line comes from its
+    per-record tiers; H's and X's from their records of that group. x is
+    None when X's answer is missing or holds a tier outside its vocabulary:
+    X then agrees with neither, and aggregate.fixtures reads a fixture
+    where H differs from F as disputed."""
     out = []
     for r in results:
         exp = r["expect"]
-        tiers, group = expect_tiers(exp), fixture_group(exp)
-        hl = lines_of(r["records"], group)
-        xl = lines_of((r.get("x") or {}).get("records", []), group) if r.get("x") else None
-        for line in ("A", "B"):
-            out.append({"name": r["fixture"], "group": group, "line": line, "f": line in tiers,
-                        "h": hl[line], "x": None if xl is None else xl[line]})
+        tiers = expect_tiers(exp)
+        for group in fixture_groups(exp):
+            fl = lines_of(exp["records"], group, tiers)
+            hl = lines_of(r["records"], group)
+            xl = lines_of((r.get("x") or {}).get("records", []), group) if r.get("x") else None
+            for line in ("A", "B"):
+                out.append({"name": r["fixture"], "group": group, "line": line, "f": fl[line],
+                            "h": hl[line], "x": None if xl is None else xl[line]})
     return out
 
 
@@ -576,11 +597,35 @@ def cmd_archive(a, tr, bound):
     if inside(a.out, REPO):
         raise SystemExit("refusing: archives live outside the repository")
     try:
-        res = K.archive(name, a.corpus, a.out)
+        res = K.archive(name, a.corpus, a.out, pin=ident[(rows[0]["stratum"], a.corpus)]["pin"])
     except K.ArchiveFailed as e:
         raise SystemExit(f"archive of {a.corpus} failed: {e}")
     print(json.dumps({a.corpus: res}, sort_keys=True))
     return 0
+
+
+def cmd_role(a, tr, bound):
+    """§10.1-§10.3: one blind role, one fresh session, behind the barrier
+    (ms/roles.py). The work directory is the role's export; the launch
+    record and the session stream go where they are named, outside the
+    repository."""
+    from ms import roles as RO
+    for v in (a.work, a.record, a.session, a.scratch):
+        if v is None:
+            continue
+        if inside(v, REPO):
+            raise SystemExit(f"refusing: {v} is inside the repository")
+    prompt = open(a.prompt_file).read() if a.prompt_file else BL.prompt(a.role)
+    try:
+        rec = RO.launch(a.role, a.work, prompt, a.record, a.session,
+                        repos=[REPO, os.path.expanduser("~/.claude/projects")], scratch=a.scratch)
+    except RO.Refused as e:
+        raise SystemExit(f"refusing: {e}")
+    tr.mark_executed()
+    print(json.dumps({k: rec.get(k) for k in ("role", "date", "model_reported", "tools_reported",
+                                               "mcp_servers_reported", "barrier_holds", "exit_status",
+                                               "prompt_sha256", "result_hex64_count", "refused")}, sort_keys=True))
+    return 0 if rec.get("exit_status") == 0 and not rec.get("refused") else 1
 
 
 _STATE = {}
@@ -597,7 +642,7 @@ def main(argv=None):
     # An abbreviation of an unbound option still reads as unbound here, so its
     # transcript goes where it names; the parser then refuses it.
     unbound_pre = any(x.startswith(f) for x in argv for f in ("--fixture-m", "--summ", "--sealed-s"))
-    if cmd in ("fixtures", "export", "archive"):
+    if cmd in ("fixtures", "export", "archive", "role"):
         unbound_pre = True
     if cmd == "validation":
         unbound_pre = True
@@ -628,7 +673,7 @@ def main(argv=None):
         except SystemExit:
             tr.binding({"bound": False, "reasons": ["usage error"]})
             raise
-        unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive")
+        unbound = unbound_requested(a) or a.cmd in ("fixtures", "export", "validation", "archive", "role")
         for opt in ("private_map", "private_table", "bundles"):
             v = getattr(a, opt, None)
             if v and inside(v, REPO):
@@ -667,7 +712,7 @@ def main(argv=None):
                         raise SystemExit(f"refusing: --{opt.replace('_', '-')} is required, outside the repository")
         rc = {"validation": cmd_validation, "arm0": cmd_arm0, "arms": cmd_arms, "repro": cmd_repro,
               "sealed": cmd_sealed, "aggregate": cmd_aggregate, "fixtures": cmd_fixtures, "export": cmd_export,
-              "archive": cmd_archive}[a.cmd](a, tr, not unbound)
+              "archive": cmd_archive, "role": cmd_role}[a.cmd](a, tr, not unbound)
     except SystemExit as e:
         rc = e.code if isinstance(e.code, int) else (0 if e.code is None else 2)
         if isinstance(e.code, str):

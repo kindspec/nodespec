@@ -1,0 +1,14 @@
+# mermaid-spike role
+# argv: mermaid_spike.py role --role X --work <roles>/smoke/work --record <roles>/smoke/launch.json --session <roles>/smoke/session.jsonl --prompt-file <roles>/smoke/prompt.txt --transcript-dir <roles>/smoke/tr
+# start: 2026-10-11T04:24:09Z
+# nodespec HEAD: 2364767cda49fef301933e0638c89d10e7d9a36f
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: role: unbound run
+
+refusing: the barrier probe failed: {'claude_dir_entries': ['.credentials.json'], 'env_keys': ['HOME', 'LANG', 'PATH', 'PWD'], 'home_entries': ['cam', 'role'], 'planted_exists': False, 'planted_readable': False, 'repos_visible': {'<home>/.claude/projects': False, '<worktree>': False}, 'sandbox_home_entries': ['.claude'], 'work_entries': ['README.txt']}
+
+# end: 2026-10-11T04:24:09Z
+# aborted: exit status 2

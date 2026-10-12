@@ -19,7 +19,9 @@ names its property; the property fixes its class (§4.1):
   ("styles", k)           style       a node's `style` list
   ("classdef", c)         style       a class definition's styles
   ("estyle", edge key)    style       linkStyle styles of the edge(s) so keyed
-  ("order",)              order       (node keys, edge keys), in R's order
+  ("order", (seq, a, b))  order       a before b in R's vertex map (seq "v") or
+                                      edge list (seq "e"), for every pair of
+                                      items a < b both present (R-order)
 
 Keys are strings: a node id, an explicit subgraph id, "title:" + title for a
 subgraph Mermaid numbers itself, or a user-defined edge id. Edge kinds are
@@ -141,8 +143,28 @@ def build(raw, explicit_ids, node_statement_ids):
             M[("shold", k)] = holder.get(k, "")
     for c, st in raw["classdefs"].items():
         M[("classdef", c)] = tuple(st)
-    M[("order",)] = (tuple(vkey), tuple(ekeys))
+    seen = {}
+    eitems = []
+    for k in ekeys:
+        seen[k] = seen.get(k, 0) + 1
+        eitems.append(repr((k, seen[k])))
+    for seq, items in (("v", list(vkey)), ("e", eitems)):
+        pos = {x: i for i, x in enumerate(items)}
+        for a, b in _pairs(items):
+            lo, hi = min(a, b), max(a, b)
+            M[("order", (seq, lo, hi))] = pos[lo] < pos[hi]
     return M
+
+
+ORDER_CAP = 400
+
+
+def _pairs(items):
+    """R-order: every pair of items; above ORDER_CAP items only adjacent
+    pairs, so a large chart stays tractable."""
+    if len(items) > ORDER_CAP:
+        return list(zip(items, items[1:]))
+    return [(items[i], items[j]) for i in range(len(items)) for j in range(i + 1, len(items))]
 
 
 # ---------------------------------------------------------------- from R

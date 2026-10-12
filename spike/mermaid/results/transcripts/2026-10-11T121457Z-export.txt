@@ -1,0 +1,17 @@
+# mermaid-spike export
+# argv: mermaid_spike.py export --role X --out <roles>/x4-work --commit 2364767 --transcript-dir <roles>/tr
+# start: 2026-10-11T12:14:57Z
+# nodespec HEAD: 62ca949f944d4f0b847fbbf5d0841c9fe68a4a32
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: export: unbound run
+
+export for X at 2364767: <roles>/x4-work
+  a18af470fd13cc44499728bec81ffd819245ce3c762655944e8be245925e5a2b  SPEC.md
+  50490edd656dcded37ffbecd9d6c9dd0ca06bdf7fce6c1518cd81e7fd9d986fd  mermaid-12.1.0-flowchart.md
+prompt (Appendix E, verbatim): <roles>/x4-work.prompt.txt  sha256 785fabf0f7ea02fed11bc8e86e138204e892b7e99d237917d91806a23d94e024
+
+# end: 2026-10-11T12:14:57Z
+# exited: exit status 0

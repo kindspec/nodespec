@@ -1,0 +1,9 @@
+flowchart LR
+  subgraph legacy [Legacy]
+    soap[SOAP API]
+    ftp[FTP drop]
+    batch[Nightly batch]
+  end
+  client[Client] --> soap
+  batch --> dw[(Warehouse)]
+  ftp --> batch

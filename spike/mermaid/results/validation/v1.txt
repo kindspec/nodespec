@@ -1,0 +1,14 @@
+# v1, 2026-10-12T14:03:52Z
+# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
+# bound paths clean: yes
+# Python 3.13.5; git version 2.47.3; node v24.20.0
+
+  e-f-linkstyle-range merged: R does not parse it; not compared
+  e-f-same-line-relabel merged: R does not parse it; not compared
+  x-d-collision-same-spot merged: R does not parse it; not compared
+  x-f-delete-modify merged: R does not parse it; not compared
+  x-f-rename-adjacent merged: R does not parse it; not compared
+
+V1: 53 checked, 0 failed
+V1: PASS
+# exit status 0

@@ -1,0 +1,17 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-ORDER",
+      "objects": [
+        "active",
+        "signup"
+      ]
+    }
+  ],
+  "tiers": [
+    "—"
+  ],
+  "why": "O adds an early edge to active; T declares signup at the top. Per pair (§5.1), active before signup is decided (only O changes it). Git merges clean and signup is mentioned first: §5.3 S-ORDER, reported only. No unit differs. Not exposed."
+}

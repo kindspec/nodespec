@@ -1,5 +1,5 @@
-# v3, 2026-10-11T04:06:21Z
-# nodespec HEAD: f0da99321141a2669fee55dc0c333fb0ea300dd6
+# v3, 2026-10-12T14:04:30Z
+# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -218,14 +218,15 @@
   PASS  G3: a membership merged wrong is G3, tier A
   PASS  MC: an eligible text conflict is MC in group G4, tier A
   PASS  collision: both legs add k with differing kinds and nothing else
-  PASS  R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)
+  PASS  R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 only: no G2 on it
+  PASS  R-norepeat: both legs add a user-id edge, its label differing, is I2 only: no G4 on its label
   PASS  G4: a user-id edge's label merged wrong is G4
 == s_l5: R-L5: a duplicated edge's two ends newly fail L5 (§5.3 G2 objects,
   PASS  L5: the same edge added on both legs is G2 at tier B, through L5 on its ends
 == s_p_x: §10.5 with §8.3: X never sees the truth, so it is compared with H's
-  PASS  P: H's unfiltered records hold the S-ORDER X reports
+  PASS  P: H's unfiltered records hold a record the truth filter removes
   PASS  P: X agrees with H's records before the truth filter
-  PASS  P: the truth filter still removes the record from H's P records
+  PASS  P: the truth filter still removes it from H's P records
 == s_aggregate_scope: §9.1 and §10.5 over every decided real-arm case; F8 needs a
   PASS  scope: an X-only tier-A record in a decided case over the corpus cap is NO VERDICT
   PASS  scope: an X-only tier-A record in a decided duplicate-diff case is NO VERDICT
@@ -288,8 +289,60 @@ archive failed: git clone -q: exit 128: fatal: repository '<url>' does not exist
   PASS  sealed: a fixture whose records do not parse blocks both groups
   PASS  sealed: a structure FOUND in a group with an unreadable fixture is never a clean FOUND
   PASS  sealed: every fixture malformed is not a pass: non-zero exit, zero lines, all logged
+== s_roles: §10.3's barrier for a blind role (ms/roles.py), without starting a
+  PASS  roles: a file planted outside /work cannot be read in the sandbox
+  PASS  roles: the repository and ~/.claude are not visible; /home holds only the role's HOME
+  PASS  roles: the sandbox HOME holds only the credential file; the environment is cleared
+  PASS  roles: /work is the export
+  PASS  roles: an init event with the pinned model, built-in tools and no MCP server passes
+  PASS  roles: another model is refused
+  PASS  roles: an MCP tool is refused
+  PASS  roles: an MCP server is refused
+  PASS  roles: plugins built into the CLI pass
+  PASS  roles: a plugin that is not built in is refused
+  PASS  roles: a hook is refused
+  PASS  roles: a session with no init event is refused, its record kept
+  PASS  roles: ANTHROPIC_API_KEY set refuses the launch
+  PASS  roles: two 64-hex tokens in F's result are counted, never recorded as the hash
+  PASS  roles: with a scratch directory, what the role writes to /tmp and HOME survives the session
+  PASS  X's names: an exposure nested as {exposure: {exposed}} is read (LOG §8)
+  PASS  X's names: output with no exposure at all is not read
+== s_archive_prs: R-prs: the archive fetches commit lists only for pull requests whose
+  PASS  archive: a pull request whose commits touch a selected path is relevant
+  PASS  archive: a pull request whose commits touch no selected path is not
+  PASS  archive: the relevant pull request's count and commits are read; the other's are not
+  PASS  M-PR: a listed pull request with no commit list is counted, never evaluated
+  PASS  M-PR: a commit list missing for a pull request whose commits touch a selected path is counted apart
+== s_commit2_readings: Readings settled with F's V-fixtures and X's output (LOG §8-§10).
+  PASS  R-order: two legs adding statements in different places make no S-ORDER
+  PASS  R-order: a relative order one leg inverts and the merge keeps is no S-ORDER
+  PASS  R-order: a decided relative order inverted in the merge is one S-ORDER record for the vertex map
+  PASS  MC: a model conflict that is part of a collision is not also an MC (§5.3: outside §5.2)
+  PASS  R-tiers: tiers parallel to records, with the reported-only dash, parse
+  PASS  R-tiers: malformed tiers refused ([] for 1 record(s))
+  PASS  R-tiers: malformed tiers refused (['A'] for 0 record(s))
+  PASS  R-tiers: malformed tiers refused ('A' for 1 record(s))
+  PASS  R-sealed: per-record tiers give each group its own lines
+  PASS  R-x-names: X's G0 object, a file path, is read as the path
+  PASS  R-x-compare: objects are compared only for I1-I4, G0-G4
+== s_vfix_gates: R-v3fix: the three gates of V3's V-fixture half (vfix.py v3), each
+  PASS  R-v3fix: a fixture whose category fires, with matching tiers, passes
+  PASS  R-v3fix: a fixture whose category does not fire fails
+  PASS  R-v3fix: a clean fixture on which H reports a record fails
+  PASS  R-v3fix: tiers whose A and B lines H does not match fail
+== s_v5_rulings: V5 with the owner's rulings (vfix.py v5, LOG §11): it passes only when
+  PASS  V5 rulings: a disagreement equal to a ruled one passes
+  PASS  V5 rulings: a disagreement not ruled fails
+  PASS  V5 rulings: a disagreement that differs from the ruled one fails
+  PASS  V5 rulings: a ruled disagreement that no longer occurs fails
+== s_norepeat: R-norepeat, the owner's ruling (LOG §11): a key whose existence or kind
+  PASS  R-norepeat: i3-f-bare-label is I3 on fax, with no G3 fax and no other record on fax
+  PASS  R-norepeat: a node decided absent and present in the merge is G1 only: no G3, G4 or C on it
+  PASS  R-norepeat: a user-id edge with an I3 record is I3 only: no G2 on its existence
+  PASS  R-norepeat: a model conflict on a key with an I4 record gives no MC
+  PASS  R-norepeat: a key with no identity record and its presence right still gets G4
   PASS  V3 wrote nothing under results/
 
-252 checks, 0 failed
+299 checks, 0 failed
 V3: PASS
 # exit status 0

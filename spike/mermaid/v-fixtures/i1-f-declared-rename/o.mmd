@@ -1,0 +1,10 @@
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  pg[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> pg
+  api --> queue

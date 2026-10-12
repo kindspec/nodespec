@@ -1,0 +1,7 @@
+flowchart LR
+  ui[UI] --> api[API]
+  api --> db[(DB)]
+  api --> legacy[Legacy SOAP]
+  style legacy fill:#fee,stroke:#c33
+  legacy --> mainframe[(Mainframe)]
+  classDef muted fill:#eee,color:#888

@@ -1,0 +1,17 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "cdn",
+        "fe"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "O renames explicit subgraph id fe to ui; T adds cdn --> fe, an edge to the subgraph (Appendix A: an edge end naming a subgraph is a reference). §5.1: key fe decided absent (O); edge (cdn, fe) decided 1 (T). §5.2 dangling. Membership of spa and ssr is not a reference (§4.2) and adds no record. Git merges clean; the merged chart has no subgraph fe, so cdn points at a ghost node fe: §5.3 I1. Tier B: in T, fe is a subgraph id, not a node id, so (L1, fe) is new in the merged file. Exposed (§5.5)."
+}

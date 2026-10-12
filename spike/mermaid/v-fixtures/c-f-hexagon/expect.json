@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "C",
+      "objects": [
+        "prep"
+      ]
+    }
+  ],
+  "tiers": [
+    "C"
+  ],
+  "why": "O turns prep from a diamond into a hexagon (a preparation step). T adds a restock branch that restates prep{Prepare}. §5.1: shape decided hexagon (O). Git merges clean and the last statement, T's diamond, wins: §5.3 C, tier C. Not exposed."
+}

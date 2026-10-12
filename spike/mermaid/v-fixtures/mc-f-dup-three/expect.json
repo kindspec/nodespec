@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "MC",
+      "objects": [
+        "dash",
+        "login"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "The base draws login --> dash twice. O removes the duplicate (count 1); T adds a billing path as a chain that restates it (count 3). §5.1 model conflict (B 2, O 1, T 3), outside §5.2. Git merges clean with count 2, neither leg's value: eligible §5.3 MC, relation, group G2. Tier A: L5 for this edge already fails in B, so it is not new. user --> login is decided 2 (T) and merges to 2. Not exposed."
+}

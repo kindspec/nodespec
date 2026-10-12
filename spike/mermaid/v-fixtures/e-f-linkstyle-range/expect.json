@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "linkStyle 3 marks c --> d, the last of four edges. O removes the debug dump, T removes the load step; each deletes one earlier edge and correctly renumbers to linkStyle 2, the same line change, so git writes no conflict marker. The merged chart has two edges, and linkStyle 2 is out of range: Mermaid throws a TypeError without hash and the canary parses, so the merged diagram does not parse (§4.4) and §5.3 makes the path E. Not exposed: no unit a leg adds or changes refers to x or a."
+}

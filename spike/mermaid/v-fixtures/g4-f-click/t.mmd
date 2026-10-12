@@ -1,0 +1,10 @@
+flowchart LR
+  web[Web] --> api[Public API]
+  api --> users[Users service]
+  api --> orders[Orders service]
+  click api "https://docs.example.com/api/v1" _blank
+  classDef svc fill:#eef,stroke:#669
+  %% links generated from services.yaml
+  click api "https://docs.example.com/api/v1" _blank
+  click users "https://docs.example.com/users" _blank
+  click orders "https://docs.example.com/orders" _blank

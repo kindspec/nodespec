@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G0",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "Both legs move the one diagram out of Overview: O to Architecture, T to Operations. Both delete the same lines, so git merges clean and keeps both inserted copies. Each input holds exactly one Mermaid fence (§3); the merged file holds two: §5.3 G0. No other record: the merged diagram is undefined with two fences. Tier B (§5.4: every G0 record; L6 also fails newly). Not exposed (§5.5)."
+}

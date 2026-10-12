@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "E",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "E"
+  ],
+  "why": "Both legs relabel bin on the same line, differently: a §5.1 model conflict that is not a §5.2 case (no key removed or added). Git refuses with a conflict marker: §5.3 E. Not exposed."
+}

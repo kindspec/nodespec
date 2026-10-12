@@ -1,0 +1,6 @@
+flowchart TB
+  req --> router
+  router --> handler
+  handler --> db
+  handler --> cache
+  db --> replica

@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G0",
+      "objects": [
+        "path"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "O moves the workflow diagram into a new appendix; T moves it under a new Workflow heading and adds a legal check to it. Both delete the same intro and fence lines, so git merges clean and keeps both copies: the merged file holds two Mermaid fences where every input holds one, §5.3 G0. Tier B (every G0). Not exposed (§5.5)."
+}

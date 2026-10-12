@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "db",
+        "worker"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "Hole #2 with a declared label. O renames db to pg; T adds a worker that writes to db. §5.1: key db decided absent (O), edge (worker, db) decided 1 (T). §5.2 dangling. Git merges clean, and the merged chart has an undeclared ghost db: §5.3 I1. Tier B (§5.4, row 1): db has a node statement in all three inputs, so (L1, db) is a new lint failure on an object of the record. Exposed (§5.5)."
+}

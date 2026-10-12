@@ -1,0 +1,23 @@
+{
+  "stratum": "D",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I2",
+      "objects": [
+        "billing"
+      ]
+    },
+    {
+      "category": "I4",
+      "objects": [
+        "billing"
+      ]
+    }
+  ],
+  "tiers": [
+    "B",
+    "B"
+  ],
+  "why": "Both legs add key billing: O as a node, T as a subgraph box. §5.2 collision, kind included, so §5.3 I2. Git merges clean, and the merged chart holds node billing and subgraph billing together (Appendix A, subEqNode), two kinds that no input gives it: §5.3 I4. Tier B for both: billing used as two kinds is a new L4 failure. Exposed (§5.5)."
+}

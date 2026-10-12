@@ -1,0 +1,13 @@
+flowchart LR
+  user([User])
+  web[Web app]
+  api[API]
+  db[(Postgres)]
+  queue[[Job queue]]
+  user --> web
+  web --> api
+  api --> db
+  api --> queue
+  worker[Worker]
+  queue --> worker
+  worker --> db

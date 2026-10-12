@@ -1,0 +1,6 @@
+flowchart LR
+  login[Login form] --> session[Session store]
+  login --> mfa{MFA?}
+  mfa -->|yes| otp[OTP check]
+  mfa -->|no| home[Home]
+  otp --> home

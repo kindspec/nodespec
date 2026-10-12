@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "D",
+      "objects": [
+        "a"
+      ]
+    }
+  ],
+  "tiers": [
+    "D"
+  ],
+  "why": "O moves class a canary below the classDef. T deletes it: the canary ended. §5.1: the class assignment (a, canary) is decided absent (T). Both legs delete the same line and git keeps O's moved copy: §5.3 D, tier D. Not exposed."
+}

@@ -1,0 +1,8 @@
+flowchart LR
+  mon[Monitor] -.-> b
+  a[Client] --> b[Edge proxy]
+  b --> c[Auth]
+  b --> d[App]
+  d --> e[(Cache)]
+  d --> f[(DB)]
+  linkStyle 2,4 stroke-dasharray: 3 3

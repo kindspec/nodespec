@@ -1,0 +1,24 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G1",
+      "objects": [
+        "recommender"
+      ]
+    },
+    {
+      "category": "G2",
+      "objects": [
+        "index",
+        "recommender"
+      ]
+    }
+  ],
+  "tiers": [
+    "A",
+    "A"
+  ],
+  "why": "O removes the recommender (every edge naming it, and features with it). T only moves recommender --> index to the top, changing no unit. §5.1: recommender decided absent (O), edge (recommender, index) decided 0 (O). Both legs delete that edge's line, so git merges clean and keeps T's moved copy: recommender is back, §5.3 G1, and the edge count is 1 against 0, §5.3 G2 (extra). T changed no unit, so neither §5.2 nor §5.5 applies: not exposed. Tier A for both: bare style, so (L1, recommender) and (L1, index) hold in the base."
+}

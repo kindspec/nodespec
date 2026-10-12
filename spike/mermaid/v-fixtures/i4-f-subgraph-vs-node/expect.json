@@ -1,0 +1,23 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I2",
+      "objects": [
+        "auth"
+      ]
+    },
+    {
+      "category": "I4",
+      "objects": [
+        "auth"
+      ]
+    }
+  ],
+  "tiers": [
+    "B",
+    "B"
+  ],
+  "why": "O wraps the login steps in a new subgraph auth; T adds a node auth for the auth service. §5.2 collision: key auth absent in B, added by both legs with different kinds, so §5.3 I2. Git merges clean (the wrap and the new edge are separated by unchanged lines) and the merged chart has subgraph auth and node auth, two kinds no input gives it: §5.3 I4. Tier B for both (new L4 on auth). Exposed (§5.5)."
+}

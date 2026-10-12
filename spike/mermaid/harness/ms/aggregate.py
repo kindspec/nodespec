@@ -24,7 +24,7 @@ def group_of(r):
     c = r["category"]
     if c in IDENTITY:
         return "identity"
-    if c in STRUCTURE or (c == "MC" and r.get("group") in ("G2", "G3", "G4")):
+    if c in STRUCTURE or (c == "MC" and r.get("group", "G2") in ("G2", "G3", "G4")):
         return "structure"
     return None
 

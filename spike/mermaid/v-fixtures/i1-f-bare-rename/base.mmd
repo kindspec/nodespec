@@ -1,0 +1,8 @@
+flowchart LR
+  %% order pipeline
+  web --> orders
+  orders --> orders_db
+  orders --> payments
+  payments --> ledger
+  ledger --> orders_db
+  worker --> payments

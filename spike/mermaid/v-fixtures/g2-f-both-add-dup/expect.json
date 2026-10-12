@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G2",
+      "objects": [
+        "notify",
+        "pay"
+      ]
+    }
+  ],
+  "tiers": [
+    "B"
+  ],
+  "why": "Both legs add the same line pay --> notify[Notifier], in different places. §5.1: O and T agree on count 1 (and on every unit of notify, so §5.2 collision does not hold and the case is not exposed). Git keeps both lines: count 2 against 1, §5.3 G2 (extra). Tier B: two edge statements with the same key is a new L5 failure on that edge."
+}

@@ -12,6 +12,10 @@ NONE = None
 _KEYED = {"exist", "ntext", "stitle", "etext", "link", "shape", "nhold", "shold", "eref", "styles"}
 A_CATS = {"I1", "I2", "I3", "I4", "G1", "G2", "G3", "G4"}
 MC_GROUP = {"relation": "G2", "membership": "G3", "text": "G4", "shape": "C", "style": "D"}
+# R-norepeat: the kind of its key each keyed unit belongs to.
+UNIT_KIND = {"ntext": "node", "link": "node", "shape": "node", "nhold": "node", "class": "node",
+             "styles": "node", "stitle": "subgraph", "shold": "subgraph", "etext": "edge", "eref": "edge",
+             "estyle": "edge"}
 
 
 # ------------------------------------------------------------ units and keys
@@ -143,7 +147,7 @@ def lint_failures(model, db, stratum=None, fence_ok=True, path=None):
     state's diagram (None for a merged file whose diagram is not judged)."""
     out = set()
     if stratum == "D" and not fence_ok:
-        out.add(("L6", "path:" + (path or "")))
+        out.add(("L6", "path"))
     if model is None or db is None:
         return out
     nodes = {u[1] for u, v in model.items() if u[0] == "exist" and "node" in v}
@@ -209,7 +213,9 @@ def judge(B, O, T, M, lint_new):
     recs = []
     ident = set()
     names = {"dangling": "I1", "collision": "I2", "delete/modify": "I3"}
+    in_refusal = set()
     for kind, k, us in refusals(B, O, T, dec, mc):
+        in_refusal.update(us)
         if kind == "dangling":
             objs = {k}
             for u in us:
@@ -229,8 +235,31 @@ def judge(B, O, T, M, lint_new):
             recs.append(_rec("I4", {k}, "A", [u], f"merged kinds {mk}, decided {d}"))
             ident.add(k)
 
+    order_hits = []
+
     def related(u, v):
         return bool(refers(u, v) & ident)
+
+    # R-norepeat (the owner's ruling, LOG §11): a key whose existence or kind
+    # is wrong is reported once. A unit keyed by an I1-I4 record's key gives
+    # no record; nor does a unit of a kind whose presence differs between
+    # decided and merged, apart from a subgraph's title, which is how a
+    # subgraph's presence shows (G4).
+    kind_diff = {}
+    for u in set(dec) | set(M):
+        if u[0] != "exist" or u in mc or u[1] in ident:
+            continue
+        ds, ms = set(dec.get(u) or ()), set(M.get(u) or ())
+        if ds != ms:
+            kind_diff[u[1]] = ds ^ ms
+
+    def repeat(u):
+        k = keyed_by(u)
+        if k is None or u[0] == "exist":
+            return False
+        if k in ident:
+            return True
+        return u[0] != "stitle" and UNIT_KIND.get(u[0]) in kind_diff.get(k, ())
 
     for u in sorted(set(dec) | set(M), key=repr):
         if u in mc or u in undecided:
@@ -240,18 +269,25 @@ def judge(B, O, T, M, lint_new):
             continue
         p = u[0]
         if p == "order":
-            recs.append(_rec("S-ORDER", set(), "-", [u], "statement order"))
+            # R-order: a decided relative order inverted in the merge; a pair
+            # missing from the decided or the merged model is not compared.
+            if d is not None and m is not None:
+                order_hits.append(u)
             continue
         if p == "exist":
             kinds = set(d or ()) | set(m or ())
-            g1_outside = not (related(u, d) or related(u, m))  # §5.3: G1 is "outside I1-I4" (R-ident)
+            g1_outside = not (related(u, d) or related(u, m))  # §5.3: G1 is "outside I1-I4" (R-norepeat)
             if g1_outside and "node" in kinds and "node" in set(d or ()) ^ set(m or ()):
                 recs.append(_rec("G1", {u[1]}, "A", [u], f"decided {d}, merged {m}"))
-            if "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):
+            # R-norepeat: a user-id edge whose key has an identity record is
+            # reported once, under that record, as G1 is for a node.
+            if g1_outside and "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):
                 ref = ("eref", u[1])
                 recs.append(_rec("G2", _edge_objs(ref, dec.get(ref) or M.get(ref)) | {u[1]}, "A", [u],
                                  "lost" if d else "extra"))
             continue  # R-subgraph: a subgraph's existence shows as G4 on its title
+        if repeat(u):
+            continue
         if p in ("eref", "ecount"):
             if p == "ecount":
                 dd, mm = d or 0, m or 0
@@ -273,14 +309,18 @@ def judge(B, O, T, M, lint_new):
         elif p in ("class", "styles"):
             recs.append(_rec("D", {keyed_by(u)}, "D", [u], f"{d!r} -> {m!r}"))
     for u in sorted(mc, key=repr):
+        if u in in_refusal:
+            continue  # §5.3: MC is "a model conflict outside §5.2"; this one is part of a refusal case
+        if repeat(u):
+            continue
         m = M.get(u)
         legs = (O.get(u), T.get(u))
         if u[0] == "exist":
             continue
         cls = CLASS_OF[u[0]]
         if cls == "order":
-            if m not in legs:
-                recs.append(_rec("S-ORDER", set(), "-", [u], "statement order (conflict)"))
+            if m is not None and m not in legs:
+                order_hits.append(u)
             continue
         if m in legs:
             recs.append(_rec("MC-ineligible", set(), "-", [u], "merged value is a leg's"))
@@ -295,6 +335,10 @@ def judge(B, O, T, M, lint_new):
         tier = {"G2": "A", "G3": "A", "G4": "A", "C": "C", "D": "D"}[grp]
         recs.append(_rec("MC", objs, tier, [u], f"group {grp}; legs {legs!r}, merged {m!r}"))
         recs[-1]["group"] = grp
+    for seq in sorted({u[1][0] for u in order_hits}):
+        us = sorted((u for u in order_hits if u[1][0] == seq), key=repr)
+        recs.append(_rec("S-ORDER", set(), "-", us, f"{len(us)} inverted pair(s) in the "
+                         + ("vertex map" if seq == "v" else "edge list")))
     # §5.4: an A record one of whose objects newly fails a lint is tier B.
     failing = {o for _, o in lint_new}
     for r in recs:

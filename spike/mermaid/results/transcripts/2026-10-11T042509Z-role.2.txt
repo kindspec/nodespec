@@ -1,0 +1,19 @@
+# mermaid-spike role
+# argv: mermaid_spike.py role --role F --work <roles>/f-work --record <roles>/records/f-launch.json --session <roles>/f-session.jsonl
+# start: 2026-10-11T04:25:09Z
+# nodespec HEAD: 3dd1930fe087384bf72f40f840becb6b82ee4a5f
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: False
+#   not bound: role: unbound run
+
+role F: barrier holds; starting claude-opus-5-5 in <roles>/f-work
+role F: init: model claude-opus-5-5, tools ['Bash', 'Edit', 'Glob', 'Grep', 'Read', 'Write'], no MCP server
+role F: exit 0; launch record <roles>/records/f-launch.json
+
+# executed: 2026-10-11T04:49:15Z
+{"barrier_holds": true, "date": "2026-10-11T04:25:09Z", "exit_status": 0, "mcp_servers_reported": [], "model_reported": "claude-opus-5-5", "prompt_sha256": "d5db5690a567cc1d334d9a7821d5dcc169ce981b0e342657a6f459b3d0182f89", "refused": null, "result_hex64_count": 1, "role": "F", "tools_reported": ["Bash", "Edit", "Glob", "Grep", "Read", "Write"]}
+
+# end: 2026-10-11T04:49:15Z
+# exited: exit status 0

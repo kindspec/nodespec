@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": false,
+  "records": [
+    {
+      "category": "S-ORDER",
+      "objects": [
+        "done",
+        "submit"
+      ]
+    }
+  ],
+  "tiers": [
+    "—"
+  ],
+  "why": "Vertex order is first-mention order. O adds an early cancel edge, so done is mentioned before submit; T declares submit at the top. §5.1, read per pair of nodes: done before submit is decided (only O changes that pair). Git merges clean with T's line first, so submit comes before done: §5.3 S-ORDER, reported only. Every other pair keeps its decided order, and every unit merges to its decided value. Not exposed."
+}

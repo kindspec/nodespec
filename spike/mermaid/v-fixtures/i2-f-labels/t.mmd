@@ -1,0 +1,8 @@
+flowchart LR
+  app[App server]
+  cache[(Memcached)]
+  db[(Primary DB)]
+  replica[(Read replica)]
+  app --> db
+  cache --> db
+  db --> replica

@@ -1,0 +1,7 @@
+flowchart TB
+  db[(Primary DB)]
+  req --> router
+  router --> handler
+  handler --> db
+  handler --> cache
+  db --> replica

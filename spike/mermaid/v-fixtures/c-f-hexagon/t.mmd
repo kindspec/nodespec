@@ -1,0 +1,6 @@
+flowchart TB
+  order[Order received] --> prep{Prepare}
+  prep --> pack[Pack]
+  pack --> ship([Ship])
+  ship --> done((Done))
+  prep{Prepare} -->|missing items| restock[Restock]

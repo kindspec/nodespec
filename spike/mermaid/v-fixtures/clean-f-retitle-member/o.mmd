@@ -1,0 +1,7 @@
+flowchart LR
+  api[API] --> pg
+  subgraph Storage tier
+    pg[(Postgres)]
+    redis[(Redis)]
+  end
+  api --> redis

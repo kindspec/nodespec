@@ -1,0 +1,11 @@
+{
+ "about": "V5's ruled disagreements (vfix.py v5, LOG §11). V5 passes only when its disagreements are exactly these.",
+ "rulings": [
+  {"fixture": "i4-d-node-vs-subgraph", "h_only": [["I4", ["billing"]]], "x_only": [], "exposed": [true, true],
+   "ruling": "I4 takes Reading H (owner, 2026-10-11; LOG §11)"},
+  {"fixture": "i4-f-move-vs-wrap", "h_only": [["I4", ["api"]]], "x_only": [["G1", ["api"]]], "exposed": [false, false],
+   "ruling": "I4 takes Reading H (owner, 2026-10-11; LOG §11)"},
+  {"fixture": "i4-f-subgraph-vs-node", "h_only": [["I4", ["auth"]]], "x_only": [], "exposed": [true, true],
+   "ruling": "I4 takes Reading H (owner, 2026-10-11; LOG §11)"}
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I1",
+      "objects": [
+        "orders_db",
+        "worker"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O renames node orders_db to orders_pg at every occurrence; T adds the edge worker --> orders_db. §5.1: only O changes the existence of key orders_db, so it is decided absent; only T changes the count of edge (worker, orders_db), so it is decided 1. §5.2 dangling: a decided-present unit refers to a key decided absent, so the only correct outcome is E. Git merges clean (the edits are separated by unchanged lines) and the merged chart draws a ghost node orders_db, so §5.3 I1, objects = the removed key and the keys of the referring edge. Not G1, which is outside I1-I4. Tier A (§5.4): the chart is in bare style, so (L1, orders_db) and (L1, worker) already hold in the inputs and are not new. Exposed (§5.5): O removes a key that a unit T added refers to."
+}

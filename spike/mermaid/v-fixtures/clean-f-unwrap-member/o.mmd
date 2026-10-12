@@ -1,0 +1,5 @@
+flowchart LR
+    soap[SOAP API]
+    batch[Nightly batch]
+  client[Client] --> soap
+  batch --> dw[(Warehouse)]

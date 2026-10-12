@@ -1,0 +1,16 @@
+{
+  "stratum": "D",
+  "exposed": false,
+  "records": [
+    {
+      "category": "G1",
+      "objects": [
+        "fraud_check"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "O deletes checkout --> fraud_check; T retires risk_api and deletes fraud_check --> risk_api. Each leg still has fraud_check, so §5.1 decides it present; risk_api is decided absent (T). Git applies both deletions and fraud_check disappears from the merged fence: §5.3 G1 (no key that a leg references is removed, so no §5.2 case). Tier A. Not exposed."
+}

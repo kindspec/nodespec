@@ -1,0 +1,8 @@
+flowchart LR
+  subgraph auth [Authentication]
+    login[Login form] --> session[Session store]
+    login --> mfa{MFA?}
+    mfa -->|yes| otp[OTP check]
+  end
+  mfa -->|no| home[Home]
+  otp --> home

@@ -1,0 +1,6 @@
+flowchart LR
+  gw[Gateway] --> a[Service A]
+  gw --> b[Service B]
+  a --> db[(DB)]
+  b --> db
+  classDef canary stroke:#f90,stroke-width:3px

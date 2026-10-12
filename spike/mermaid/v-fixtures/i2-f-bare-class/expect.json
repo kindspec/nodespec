@@ -1,0 +1,16 @@
+{
+  "stratum": "F",
+  "exposed": true,
+  "records": [
+    {
+      "category": "I2",
+      "objects": [
+        "audit"
+      ]
+    }
+  ],
+  "tiers": [
+    "A"
+  ],
+  "why": "Hole #3 in bare style, differing only in class. Both legs add key audit: O as an external system (class external), T as a watched service (class watch). §5.2 collision: absent in B, added by both, and the class assignments (audit, external) and (audit, watch) differ between O and T. Git merges clean into one node audit with both classes and both edges: §5.3 I2. Tier A (§5.4): labels and shapes agree, so no new L2; (L1, audit) already holds in O and T. Exposed (§5.5): both legs add the same key with a differing unit."
+}
