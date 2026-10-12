@@ -888,3 +888,32 @@ H, X and R at this commit are the implementation.
 - **No model was launched, and no sealed material was read.** No V step
   starts a role or a session. The validation command checks the sealed
   hash against this log only.
+
+### Corrections to §12
+
+Entries are appended, never edited, so these correct §12 above.
+
+- **R's configuration, complete.** §12 left out `maxEdges`. At `7b40072`,
+  `r/rmodel.mjs` passes this object to `mermaid.initialize`, the one §4.4
+  pins:
+
+  `{ startOnLoad: false, securityLevel: 'strict', maxEdges: 100000, flowchart: { htmlLabels: false } }`
+
+  `maxEdges: 100000` is set on line 39. Mermaid's default applies only
+  under the test seam `DEFAULT_EDGES=1`, which `rmodel.mjs` refuses unless
+  `SPIKE_R_TEST=1` is also set. R records the configuration in the
+  `config` of its output. The rest of R's setup, all checked against
+  `rmodel.mjs` at `7b40072`:
+  - The jsdom window and document are set on `globalThis` before Mermaid
+    is imported. `NO_JSDOM=1` skips them, but it too is refused unless
+    `SPIKE_R_TEST=1` is set.
+  - `mermaid.initialize` is called with that object before every text.
+  - `mermaid.parse(text)` is called without `suppressErrors`.
+  - The model is read with `mermaid.mermaidAPI.getDiagramFromText(text)`.
+- **The validation transcript's `--bundles` argument.** In the committed
+  validation transcript, the host path in the `--bundles` argv is replaced
+  by `<archive>/bundles.json`. This follows the convention of §8.
+- **The table's label.** §12's table is headed "git tree shas". That is
+  true of `harness/`, `x/`, `r/` and `v-fixtures/`. `PRE-REGISTRATION.md`'s
+  `e29f097c339b9751beab29108549bef207b74889` is a file, so that sha is its
+  git blob sha.
