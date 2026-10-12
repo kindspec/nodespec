@@ -1,5 +1,5 @@
-# v5, 2026-10-11T17:15:18Z
-# nodespec HEAD: ed0e4d8c66cd45de16051a71253c528f3b98ca28
+# v5, 2026-10-12T03:19:24Z
+# nodespec HEAD: 252bbc8f852bfc523fdd8a78a4e4520043934b8c
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
