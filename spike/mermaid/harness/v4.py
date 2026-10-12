@@ -418,6 +418,16 @@ M = [
      '                if d is not None and d in ruled:', '                if True:', "v3"),
     ("C2 V5: a ruled disagreement that disappears passes", "harness/vfix.py",
      '    for d in sorted(ruled - seen):', '    for d in []:', "v3"),
+    ("C3 a unit keyed by an identity record's key is reported again", "harness/ms/oracle.py",
+     '        if k in ident:\n            return True', '        if False:\n            return True', "v3"),
+    ("C3 a unit of a kind whose presence differs is reported again", "harness/ms/oracle.py",
+     '        return u[0] != "stitle" and UNIT_KIND.get(u[0]) in kind_diff.get(k, ())', '        return False', "v3"),
+    ("C3 an MC on an identity record's key is reported", "harness/ms/oracle.py",
+     '            continue  # §5.3: MC is "a model conflict outside §5.2"; this one is part of a refusal case\n'
+     '        if repeat(u):\n            continue',
+     '            continue  # §5.3: MC is "a model conflict outside §5.2"; this one is part of a refusal case', "v3"),
+    ("C3 every unit is a repeat", "harness/ms/oracle.py",
+     '        if k is None or u[0] == "exist":\n            return False', '        return True', "v3"),
     # ---- R (§4.4), checked by V0
     ("R: a broken canary does not abort", "r/rmodel.mjs",
      "      return { abort: true, cls, msg, canaryCls: e2?.constructor?.name ?? typeof e2 };",

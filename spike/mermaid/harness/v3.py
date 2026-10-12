@@ -1145,12 +1145,17 @@ def s_oracle_units():
     O = upd(upd(B, e), {("etext", "e"): "x"})
     T = upd(upd(B, e), {("etext", "e"): "y"})
     r = recs(O, T, dict(B))
-    check("R-ident: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (only G1 is excluded)",
+    check("R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (its existence)",
           any(x["category"] == "I2" for x in r) and any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
     O = upd(upd(B, {("etext", "e"): "x"}), e)
     M = upd(upd(B, e), {("etext", "e"): "q"})
+    r = recs(upd(B, e), O, M)
+    check("R-norepeat: both legs add a user-id edge, its label differing, is I2 only: no G4 on its label",
+          any(x["category"] == "I2" for x in r) and not any(x["category"] == "G4" for x in r), r)
+    Be = upd(B, e)
     check("G4: a user-id edge's label merged wrong is G4", any(x["category"] == "G4" and x["objects"] == ["e"]
-                                                              for x in recs(upd(B, e), O, M)))
+                                                              for x in OR.judge(Be, upd(Be, {("etext", "e"): "x"}), Be,
+                                                                                upd(Be, {("etext", "e"): "q"}), set())[0]))
 
 
 def s_l5():
@@ -1875,10 +1880,49 @@ def s_v5_rulings():
           rc == 1 and "no longer occurs" in out, out[-300:])
 
 
+def s_norepeat():
+    """R-norepeat, the owner's ruling (LOG §11): a key whose existence or kind
+    is wrong is reported once, under its identity record or G1; its label,
+    membership, shape, style and class units give no further record."""
+    def on(r, k, cats_):
+        return [x for x in (r or {}).get("records", []) if x["category"] in cats_ and k in x["objects"]]
+    rest = ("G2", "G3", "G4", "C", "D", "MC", "S-LINKSTYLE")
+    # F's V-fixture i3-f-bare-label (CC0-1.0), verbatim.
+    b = ("flowchart TD\n  intake --> triage\n  triage --> email\n  triage --> fax\n  triage --> portal\n"
+         "  email --> archive\n  fax --> archive\n  portal --> archive\n")
+    o = ("flowchart TD\n  intake --> triage\n  triage --> email\n  triage --> portal\n"
+         "  email --> archive\n  portal --> archive\n")
+    t = ("flowchart TD\n  intake[Intake desk]\n  triage{Triage}\n  fax[Fax gateway]\n" + b[len("flowchart TD\n"):])
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: i3-f-bare-label is I3 on fax, with no G3 fax and no other record on fax",
+          has(r, "I3") and not on(r, "fax", rest), cats(r))
+    # F's V-fixture g1-f-bare-revive (CC0-1.0), verbatim.
+    b = ("flowchart TD\n  ui --> api\n  api --> recommender\n  api --> search\n  recommender --> features\n"
+         "  search --> index\n  recommender --> index\n  index --> store\n")
+    o = "flowchart TD\n  ui --> api\n  api --> search\n  search --> index\n  index --> store\n"
+    t = ("flowchart TD\n  recommender --> index\n  ui --> api\n  api --> recommender\n  api --> search\n"
+         "  recommender --> features\n  search --> index\n  index --> store\n")
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: a node decided absent and present in the merge is G1 only: no G3, G4 or C on it",
+          on(r, "recommender", ("G1",)) and not on(r, "recommender", ("G3", "G4", "C", "D", "MC")), cats(r))
+    B = {("exist", "k"): ("node",), ("ntext", "k"): "A"}
+    O = {("exist", "k"): ("subgraph",), ("stitle", "k"): "S"}
+    T = {("exist", "k"): ("node",), ("ntext", "k"): "C"}
+    Mm = {("exist", "k"): ("node", "subgraph"), ("ntext", "k"): "Z", ("stitle", "k"): "S"}
+    recs_ = OR.judge(B, O, T, Mm, set())[0]
+    check("R-norepeat: a model conflict on a key with an I4 record gives no MC",
+          any(x["category"] == "I4" for x in recs_) and not any(x["category"] == "MC" for x in recs_), recs_)
+    B = {("exist", "a"): ("node",), ("ntext", "a"): "A", ("nhold", "a"): ""}
+    O = upd(B, {("ntext", "a"): "A2"})
+    recs_ = OR.judge(B, O, B, upd(B, {("ntext", "a"): "Q"}), set())[0]
+    check("R-norepeat: a key with no identity record and its presence right still gets G4",
+          [x["category"] for x in recs_] == ["G4"], recs_)
+
+
 SECTIONS = [s_holes, s_census_cases, s_conflicts, s_positional, s_edge_to_subgraph, s_i4, s_exposure, s_per_path_e, s_fences,
             s_generated, s_mpr, s_p_ancestry, s_p, s_authors, s_hermetic, s_redaction, s_xfail, s_verdicts, s_subset_refusals,
             s_fuzz, s_blind, s_binding, s_cli_arms, s_oracle_units, s_l5, s_p_x, s_aggregate_scope,
-            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates, s_v5_rulings]
+            s_bound_aggregate, s_sealed, s_archive_leak, s_history_more, s_rereview, s_sealed_unreadable, s_roles, s_archive_prs, s_commit2_readings, s_vfix_gates, s_v5_rulings, s_norepeat]
 
 
 def main():
