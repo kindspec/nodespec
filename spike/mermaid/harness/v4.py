@@ -372,8 +372,11 @@ M = [
      '            order_hits.append(u)', "v3"),
     ("C2 order units for the vertex map dropped", "harness/ms/model.py",
      '    for seq, items in (("v", list(vkey)), ("e", eitems)):', '    for seq, items in (("e", eitems),):', "v3"),
-    ("C2 an MC inside a refusal case reported", "harness/ms/oracle.py",
-     '        if u in in_refusal:\n            continue', '        pass', "v3"),
+    # Not a mutant since R-norepeat: "an MC inside a refusal case reported"
+    # (dropping the in_refusal skip) is equivalent. A model conflict is never
+    # a dangling unit, which is decided, and every collision or delete/modify
+    # unit is keyed by the refusal's key, whose units R-norepeat already skips
+    # (V4 run at d9229be). The rule itself is mutated as C3 below.
     ("C2 X's G0 object not mapped to the path", "harness/ms/xrun.py",
      '            r = dict(r, objects=["path"])', '            pass', "v3"),
     ("C2 X's nested exposure not read", "harness/ms/xrun.py",
