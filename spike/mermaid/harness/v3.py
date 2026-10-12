@@ -1145,8 +1145,8 @@ def s_oracle_units():
     O = upd(upd(B, e), {("etext", "e"): "x"})
     T = upd(upd(B, e), {("etext", "e"): "y"})
     r = recs(O, T, dict(B))
-    check("R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 and G2 (its existence)",
-          any(x["category"] == "I2" for x in r) and any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
+    check("R-norepeat: a user-id edge both legs add differently, lost in the merge, is I2 only: no G2 on it",
+          any(x["category"] == "I2" for x in r) and not any(x["category"] == "G2" and "e" in x["objects"] for x in r), r)
     O = upd(upd(B, {("etext", "e"): "x"}), e)
     M = upd(upd(B, e), {("etext", "e"): "q"})
     r = recs(upd(B, e), O, M)
@@ -1905,6 +1905,14 @@ def s_norepeat():
     p, r = run_case("F", b, o, t)
     check("R-norepeat: a node decided absent and present in the merge is G1 only: no G3, G4 or C on it",
           on(r, "recommender", ("G1",)) and not on(r, "recommender", ("G3", "G4", "C", "D", "MC")), cats(r))
+    # A reviewer's plant: O deletes the user-id edge e1, T adds a second
+    # statement with that id; git merges clean.
+    b = "flowchart TD\n  A[a] --> B[b]\n  B --> C[c]\n  C e1@--> D[d]\n  D --> E[e]\n"
+    o = "flowchart TD\n  A[a] --> B[b]\n  B --> C[c]\n  D[d] --> E[e]\n"
+    t = "flowchart TD\n  X[x] e1@--> A[a]\n" + b[len("flowchart TD\n"):]
+    p, r = run_case("F", b, o, t)
+    check("R-norepeat: a user-id edge with an I3 record is I3 only: no G2 on its existence",
+          has(r, "I3") and on(r, "e1", ("I3",)) and not on(r, "e1", ("G2",)), (r or {}).get("records"))
     B = {("exist", "k"): ("node",), ("ntext", "k"): "A"}
     O = {("exist", "k"): ("subgraph",), ("stitle", "k"): "S"}
     T = {("exist", "k"): ("node",), ("ntext", "k"): "C"}

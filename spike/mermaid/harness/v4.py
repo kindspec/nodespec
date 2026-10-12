@@ -302,9 +302,9 @@ M = [
      '    pool = [c for c in pool if c["arm"] != "P" or chosen.get(tuple(c["path_i"])) is c]', '    pass', "v3"),
     ("S tier-A records not listed as blocked", "harness/ms/aggregate.py",
      '            if g is None or r["tier"] != "A":\n                continue', '            if g is None or r["tier"] != "A" or c["arm"] == "S":\n                continue', "v3"),
-    ("G2 on a user-id edge suppressed by an identity record", "harness/ms/oracle.py",
-     '            if "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):',
-     '            if g1_outside and "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):', "v3"),
+    ("G2 on a user-id edge's existence reported despite an identity record", "harness/ms/oracle.py",
+     '            if g1_outside and "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):',
+     '            if "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):', "v3"),
     ("replay: edits applied in forward order", "harness/ms/replay.py",
      "    for s, e, new in reversed(edits):", "    for s, e, new in edits:", "v2"),
     # ---- RR: the unfiltered tier-A set, salted bundle names, X's export, sealed logging, authors

@@ -279,7 +279,9 @@ def judge(B, O, T, M, lint_new):
             g1_outside = not (related(u, d) or related(u, m))  # §5.3: G1 is "outside I1-I4" (R-norepeat)
             if g1_outside and "node" in kinds and "node" in set(d or ()) ^ set(m or ()):
                 recs.append(_rec("G1", {u[1]}, "A", [u], f"decided {d}, merged {m}"))
-            if "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):
+            # R-norepeat: a user-id edge whose key has an identity record is
+            # reported once, under that record, as G1 is for a node.
+            if g1_outside and "edge" in kinds and "edge" in set(d or ()) ^ set(m or ()):
                 ref = ("eref", u[1])
                 recs.append(_rec("G2", _edge_objs(ref, dec.get(ref) or M.get(ref)) | {u[1]}, "A", [u],
                                  "lost" if d else "extra"))
