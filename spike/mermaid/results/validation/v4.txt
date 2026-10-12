@@ -1,5 +1,5 @@
-# v4, 2026-10-12T14:08:04Z
-# nodespec HEAD: 3597ff369586dbfae9cdb221ae5bc6509e2dc647
+# v4, 2026-10-12T19:44:30Z
+# nodespec HEAD: 7b40072e011fcba0d3f28d8a229e99a8579a41c1
 # bound paths clean: yes
 # Python 3.13.5; git version 2.47.3; node v24.20.0
 
@@ -164,7 +164,7 @@ MUTATION 152 SU5 a non-FOUND structure verdict is not blocked: KILLED by v3 [eac
 MUTATION 153 SU6 a sealed run that lines nothing exits 0: KILLED by v3 [2523240837f7bacb -> 2353de3b26a6c88a] (2 red; first: sealed, malformed: the run lines nothing and does not exit 0  [(0, {'malformed': [{'group': 'identit)
 MUTATION 154 SU7 a malformed fixture's group read as structure: KILLED by v3 [2523240837f7bacb -> 18b483aaf4ebeb7d] (3 red; first: sealed, malformed: the fixture's group is read from its records (identity)  [[{'group': 'structure',)
 MUTATION 155 C2 tiers not held parallel to records: KILLED by v3 [2523240837f7bacb -> 12abd47a74bf883b] (2 red; first: R-tiers: malformed tiers refused ([] for 1 record(s)))
-MUTATION 156 C2 F's lines ignore the per-record tiers: KILLED by v3 [2523240837f7bacb -> f5c41a531604a88e] (7 red; first: sealed: a well-formed tar runs, and F's lines come from its tiers  [slt/m156.do9t87ax/spike/mermaid/)
+MUTATION 156 C2 F's lines ignore the per-record tiers: KILLED by v3 [2523240837f7bacb -> f5c41a531604a88e] (7 red; first: sealed: a well-formed tar runs, and F's lines come from its tiers  [y7h/m156.decqjf9s/spike/mermaid/)
 MUTATION 157 C2 a fixture's lines for one group only: KILLED by v3 [2523240837f7bacb -> 271c78ec1217a030] (1 red; first: R-sealed: per-record tiers give each group its own lines  [{('identity', 'A'): False, ('identity', ')
 MUTATION 158 C2 S-ORDER on any order change, decided or not: KILLED by v3 [ebab39dd35bb9b06 -> cd087a74419aff41] (3 red; first: R-order: two legs adding statements in different places make no S-ORDER  [[('S-ORDER', '-')]])
 MUTATION 159 C2 order units for the vertex map dropped: KILLED by v3 [b871927be4c0f85d -> b098364310eaa87a] (3 red; first: so-d-first-mention: S-ORDER does not fire; H gives [])
