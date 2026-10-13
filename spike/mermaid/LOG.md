@@ -974,3 +974,64 @@ commit `18bcb9e`. Its transcript is
   `results/arm0.json` holds the rest, per corpus and stratum.
 - **Nothing else ran.** No model was launched, no merge was made, and no
   sealed material was read. Arms M, P and S have not run.
+
+### Corrections and disclosures to §13
+
+Entries are appended, never edited, so these correct §13 above.
+`results/arm0.json` is unchanged. A review re-ran `cmd_arm0` unbound in a
+scratch clone and got a byte-identical `arm0.json`.
+
+- **Evaluable M cases, before and after the one-fence rule.** §13's
+  "evaluable" figures, 8 M-merge and 14 M-PR, are counted before the
+  one-fence rule. `arm0.json` records that rule excluding 2 M-merge and 11
+  M-PR cases ("excluded by the one-fence rule"). After the rule, 6 M-merge
+  and 3 M-PR cases remain.
+- **Exposed M cases: 1.** `arm0.json` records 1 exposed M case (§5.5),
+  computed from inputs only. It is an M-merge case, in a corpus with
+  selected paths in both strata. §13 left it out. It is the figure the
+  identity verdict's `k` starts from (§9.1).
+- **What `arm0.json` lacks against §8.1.** This is a gap in the bound run,
+  and it cannot be filled now, because the execution is bound. Each item
+  was checked against `arms.arm0` at the validation commit:
+  - **Per corpus, not per corpus and stratum.** Every history figure is per
+    corpus only: the M-merge and M-PR splits, the one-fence exclusions, the
+    exposed cases, the P splits, the author and bot shares, and the edit
+    mix. `arm0` builds one `history` object per corpus, across both strata.
+  - **P has no out-of-subset split.** Its counts are candidates, pairs,
+    predecessor ok, dropped by the predecessor rule, non-commuting and
+    constructible. A triple whose text cannot be read is counted as
+    non-commuting.
+  - **Author and bot shares** are one top-author share and one bot share
+    per corpus. They are taken over all modify entries (status `M`) of the
+    selected paths, not over the edits each arm uses.
+- **The edit-mix figures count different units.** §13's "2,765 of 5,563"
+  is not a fraction, and is withdrawn:
+  - 2,765 is the count of classified edits: consecutive versions of a
+    selected path, within a segment, with both in the subset and a changed
+    model.
+  - 5,563 is the count of modifying edits: commit-and-path modify entries
+    (status `M`) in the history of the selected paths.
+- **The transcript's bytes.** Unlike §8, no sha256 was recorded for the
+  transcript as written, and the original, before its argv line was
+  replaced, was not kept. Its 152 body lines are byte-identical, as a
+  contiguous block, to the run's raw stdout. That stdout was tee'd to the
+  archive's `mermaid-arm0.out`, sha256
+  `1ca73f699d29062dbf707688b586a9ed76ac532a24e1dbb7851c67f1cc54c103`. Of
+  the committed transcript, only the argv line differs from what was
+  written.
+- **What commits 5 and 6 can still decide**, read from the frozen text
+  and `arm0.json` only:
+  - **Identity (§9.1).** There is no identity NOT FOUND. It is FOUND (arm)
+    if a record from M or P meets F1–F9; S never yields FOUND. Otherwise it
+    is NO VERDICT, with the first reason that applies: VOID or a disputed
+    sealed fixture; not exposed (`k` = 0); or `k` exposed, none silent.
+    Here `k` counts the distinct exposed M cases whose three inputs are in
+    the subset. Arm 0 counts 1 exposed M case, so `k` is at most 1.
+  - **Structure (§9.1).** FOUND (arm) stays open in both strata: a FOUND
+    from stratum F still counts under §8.1. NOT FOUND needs at least 60
+    distinct decided cases from M and P, from strata that pass the coverage
+    bar, under the caps (§7.5). Only stratum D passes. `arm0.json` cannot
+    say how many of the 6 M-merge and 3 M-PR cases left after the one-fence
+    rule, or of P's 988 constructible triples, are stratum D, because its
+    history figures are per corpus. So whether D can reach 60 is left to
+    commit 5.
