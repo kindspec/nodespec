@@ -1,0 +1,1046 @@
+{
+ "identity": {
+  "exposed_cases": [
+   {
+    "arm": "M-merge",
+    "corpus": "CGIC-AI/psfn-framework",
+    "outcome": "E"
+   }
+  ],
+  "k": 1,
+  "reason": "1 exposed, none silent",
+  "verdict": "NO VERDICT"
+ },
+ "lists": {
+  "blocked": {
+   "identity": [
+    {
+     "arm": "S",
+     "case": "6d3fce51b2e4b65028645d2434b9aa12a9a05c5e75c0cf409775a7c839489d6c",
+     "category": "I1",
+     "corpus": "u:46f775271128",
+     "failed": "F1",
+     "objects": [
+      "h:df7e70e5021544f4",
+      "h:6b23c0d5f35d1b11"
+     ],
+     "stratum": "D",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "6d3fce51b2e4b65028645d2434b9aa12a9a05c5e75c0cf409775a7c839489d6c",
+     "category": "I1",
+     "corpus": "u:46f775271128",
+     "failed": "F1",
+     "objects": [
+      "h:3f39d5c348e5b79d",
+      "h:44bd7ae60f478fae"
+     ],
+     "stratum": "D",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "6d3fce51b2e4b65028645d2434b9aa12a9a05c5e75c0cf409775a7c839489d6c",
+     "category": "I3",
+     "corpus": "u:46f775271128",
+     "failed": "F1",
+     "objects": [
+      "h:6b23c0d5f35d1b11"
+     ],
+     "stratum": "D",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "f09e7ca628920cf5f9e908e947f48ab65123b648b9482f6f372c0b4e3971f6b4",
+     "category": "I1",
+     "corpus": "apache/airflow",
+     "failed": "F1",
+     "objects": [
+      "not-ready",
+      "suspended"
+     ],
+     "stratum": "D",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "935ba3eed7d5b5a7d12b5447d218759a8b2de4d9aa0e8ebbfa82367e849a595d",
+     "category": "I1",
+     "corpus": "u:e4ca45f584ec",
+     "failed": "F1",
+     "objects": [
+      "h:3a4da1184ce50098",
+      "h:c51e6945856b750c"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "ec28739eefa815c37231991d6380cef1f925dafdf61c9b786fe3c30e0886bebb",
+     "category": "I1",
+     "corpus": "u:e4ca45f584ec",
+     "failed": "F1",
+     "objects": [
+      "h:62f8e43427e342fb",
+      "h:667157f6eb2021d1",
+      "h:491664c5bd5a2abe"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "f8a3768279f5557b8b92ed94979156a9795ee6e05b08794d9e3e6a020af00d97",
+     "category": "I1",
+     "corpus": "mermaid-js/mermaid",
+     "failed": "F1",
+     "objects": [
+      "Process_D",
+      "process_C"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "b21e7731195ff99bb4ba24299e6f169b1f4bf0c7d74f76fc6a29ccb7414d1eab",
+     "category": "I1",
+     "corpus": "mermaid-js/mermaid",
+     "failed": "F1",
+     "objects": [
+      "Process_D",
+      "process_B"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    }
+   ],
+   "structure": [
+    {
+     "arm": "S",
+     "case": "01db62df7a622287c707ff788081914b7a2976db895068d913fa56283c75130e",
+     "category": "MC",
+     "corpus": "u:cd318a65ce47",
+     "failed": "F1",
+     "objects": [
+      "h:81fa3831041c0c24",
+      "h:8c25cb3686462e9a"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "b223793374ecee349a9aa17cd53746ea4a5b2c8e8636f2b78fb30f0b1fcf720c",
+     "category": "G1",
+     "corpus": "u:e4ca45f584ec",
+     "failed": "F1",
+     "objects": [
+      "h:62fe3918e4a7a669"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    },
+    {
+     "arm": "S",
+     "case": "b7cc44d68f96c99185acd1f6077378a39e7595f38ecf9bd0d13101643c3e71b1",
+     "category": "G1",
+     "corpus": "mermaid-js/mermaid",
+     "failed": "F1",
+     "objects": [
+      "process_B"
+     ],
+     "stratum": "F",
+     "tier": "A"
+    }
+   ]
+  },
+  "disputed_fixtures": {
+   "identity": [],
+   "structure": []
+  },
+  "found_in_group_with_unreadable_sealed_fixture": {
+   "identity": [],
+   "structure": []
+  },
+  "found_in_voided_group": {
+   "identity": [],
+   "structure": []
+  },
+  "malformed_sealed_fixtures": [],
+  "p_anomalies": [],
+  "s_generator_rates": {
+   "D": {
+    "exposed": 255,
+    "exposed_A": 2,
+    "exposed_B": 33,
+    "exposed_E": 220,
+    "identity_a": 2,
+    "label": "a property of the edit generator (Appendix B.2), not of real editing",
+    "n": 1996,
+    "x_confirmed_identity_a": 2
+   },
+   "F": {
+    "exposed": 214,
+    "exposed_A": 4,
+    "exposed_B": 30,
+    "exposed_E": 180,
+    "identity_a": 4,
+    "label": "a property of the edit generator (Appendix B.2), not of real editing",
+    "n": 1942,
+    "x_confirmed_identity_a": 4
+   },
+   "generator_failures": 28
+  },
+  "strata_below_coverage": [
+   "F"
+  ],
+  "with_near_misses": [],
+  "with_refusals": [
+   {
+    "arm": "S",
+    "case": "6b6de97f6eae58c75f094ca0bc4fb3f0ece7016e4a97f6b82cefacc583ac87c5",
+    "category": "I1",
+    "corpus": "open-telemetry/opentelemetry-specification",
+    "objects": [
+     "A",
+     "B"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "a67d581164883dd5462dde812bd104311569aa275de8320dc515e79e89453e8f",
+    "category": "I1",
+    "corpus": "kubernetes/enhancements",
+    "objects": [
+     "P",
+     "TW"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "5f83c77834cd43b010105540dd7d151481eb9cc7950f5a0098a00aae59799919",
+    "category": "I1",
+    "corpus": "u:d25420525d11",
+    "objects": [
+     "h:182e499256bea391",
+     "h:7c32699ff595e13b"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "fd995681c7ed3a0f2c54090d01c2fcdbb70f13562b51d35e67fe4fdb138e1340",
+    "category": "I1",
+    "corpus": "litexlang/golitex",
+    "objects": [
+     "Human",
+     "Litex"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "06550b46416f64576abf7c7858bc5acbf05214d9523128da2eab54efcea754f5",
+    "category": "I1",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:3f39d5c348e5b79d",
+     "h:44bd7ae60f478fae"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "eea0121bad1f8e60476f574d65f2dc8b2438568daddd28a98d948a3d4aa0b8e2",
+    "category": "I3",
+    "corpus": "motormetrics/motormetrics",
+    "objects": [
+     "CarsWorkflow"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "e48881d57372716bd436cc750622bffd34e406f2123fada5d931d4269a1d8c0f",
+    "category": "I1",
+    "corpus": "motormetrics/motormetrics",
+    "objects": [
+     "DeregWorkflow",
+     "Upstash"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "0ca76720790ec9b9b7deebd11064fb190f5696ef264d74b3d225609ca094992d",
+    "category": "I1",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:df7e70e5021544f4",
+     "h:44bd7ae60f478fae"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "8de80d11e21be8edc0ca13401205bdcd417c3b9908495405a82538f90672252f",
+    "category": "I1",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:3f39d5c348e5b79d",
+     "h:f67ab10ad4e4c531"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "cfc2563369e84631dd1dd745bb651ffd89e73fc83d0a9b95d91320cd2c60bb51",
+    "category": "I1",
+    "corpus": "microbiomedata/nmdc-schema",
+    "objects": [
+     "app_bash",
+     "repo_root_dir"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "c36ee8cb78edf040b61ec0c1671cd9a97c917564149257b816ac00791c5ded5c",
+    "category": "I1",
+    "corpus": "u:46f775271128",
+    "objects": [
+     "h:3f39d5c348e5b79d",
+     "h:f67ab10ad4e4c531"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "04e49c0ee77883c7b14018ae43e67779746272790f6c2df3943f9f1acb2b4102",
+    "category": "I1",
+    "corpus": "u:7947a8ee4171",
+    "objects": [
+     "h:559aead08264d579",
+     "h:86be9a55762d316a"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "ec1c8b445c85e71f4eb026ff2f4215c6746dd5a9b9d93fc64d31036d1b038f49",
+    "category": "I1",
+    "corpus": "u:7947a8ee4171",
+    "objects": [
+     "h:559aead08264d579",
+     "h:3f39d5c348e5b79d"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "f8791ec19b82b3b888574cce63cdfae15a4a523ad581a384fff86b10e3bccd97",
+    "category": "I1",
+    "corpus": "CGIC-AI/psfn-framework",
+    "objects": [
+     "h:1be52ebfab971446",
+     "h:8044b2ae06f86e77"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "43e66e13db3241d907d92dc9b8888be7bf72cf4236ce632b9782f2788293f957",
+    "category": "I1",
+    "corpus": "eclaire-labs/eclaire",
+    "objects": [
+     "BrowserData",
+     "TaskJob"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "b8caf925ab5927b61579fdddf6e40d2956687722255dfbf34f8cb2de559f0087",
+    "category": "I1",
+    "corpus": "CGIC-AI/psfn-framework",
+    "objects": [
+     "h:f3e986ed7af42217",
+     "h:f8cd8708cf5bd5e7"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "0e8c402b4c6d10c68ddee3411e1f194145342c844ae24520e3fb043dbb3197cf",
+    "category": "I1",
+    "corpus": "litexlang/golitex",
+    "objects": [
+     "inferMore",
+     "knownForall"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "0b3e7d74dadbc737bf8619604a081e87ba2f0820a729bf546f46ec6b467091e0",
+    "category": "I1",
+    "corpus": "kubernetes/enhancements",
+    "objects": [
+     "E",
+     "J"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "170be10ef95c2d8c5965feffc4800921e95c247434f8d3dc26d903f00c23c200",
+    "category": "I3",
+    "corpus": "CGIC-AI/psfn-framework",
+    "objects": [
+     "h:2ee1766f6f1b733c"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "e723b071fa06b60c694034f6a707e5b03f844bbeafcc70706341bd56f884c487",
+    "category": "I1",
+    "corpus": "u:6a23680190c3",
+    "objects": [
+     "h:3c50473d91a64df7",
+     "h:6620fc70c218cab7"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "2e6347169f8e920b5ea9d33735948ca3d496755d7e5ff0a0c147a9153fe0dbb5",
+    "category": "I1",
+    "corpus": "u:6a23680190c3",
+    "objects": [
+     "h:cbf36a964ba8c089",
+     "h:a654a3e22c4f2cd0"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "2e6347169f8e920b5ea9d33735948ca3d496755d7e5ff0a0c147a9153fe0dbb5",
+    "category": "I1",
+    "corpus": "u:6a23680190c3",
+    "objects": [
+     "h:cbf36a964ba8c089",
+     "h:3f39d5c348e5b79d"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "2e6347169f8e920b5ea9d33735948ca3d496755d7e5ff0a0c147a9153fe0dbb5",
+    "category": "MC",
+    "corpus": "u:6a23680190c3",
+    "objects": [
+     "h:c8e5998f6a3955c2",
+     "h:3f39d5c348e5b79d"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "85b7428b9975cd76bc142d409c9d690a6b871df64b7e30644c4909753b3ce881",
+    "category": "I3",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:333e0a1e27815d0c"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "16232212e3368a9e934568924a124f508969e73910ea337bceb85073ade2725c",
+    "category": "I1",
+    "corpus": "u:7947a8ee4171",
+    "objects": [
+     "h:39f354243a629405",
+     "h:ef1c4b45f2ed7632"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "89920db580e810777657f86cd20802930905a33d894864edf1f59e0d3504f8e2",
+    "category": "I1",
+    "corpus": "machinemates-ai/gemini-research-mcp",
+    "objects": [
+     "FastMCP",
+     "Web"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "9de416f469d6690b14792b5b35f639049a1972260155e942da8a19a9cd91db01",
+    "category": "I1",
+    "corpus": "kubernetes/enhancements",
+    "objects": [
+     "P",
+     "TW"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "a465356c88e42b4999877b6c4cbdf95975b12d72d6da5614569b7ce04dead9bc",
+    "category": "I1",
+    "corpus": "litexlang/golitex",
+    "objects": [
+     "Human",
+     "Litex"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "070685ceac858b40e625235656173bfd66ced6e93da6b449f189dd8c4ff083c3",
+    "category": "G1",
+    "corpus": "litexlang/golitex",
+    "objects": [
+     "Litex"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "070685ceac858b40e625235656173bfd66ced6e93da6b449f189dd8c4ff083c3",
+    "category": "MC",
+    "corpus": "litexlang/golitex",
+    "objects": [
+     "AI",
+     "Litex"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "cb8ae490be661f52d281e3aff8b9899ad3ff7670ec0c8dc131f94461b57c7bcf",
+    "category": "I1",
+    "corpus": "u:b40ec60fce4d",
+    "objects": [
+     "h:8c2574892063f995",
+     "h:0af4176767186854"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "22249f3f4b9ad9c64de305b3bad5e7d8256122b8ecad589a04952a5660259940",
+    "category": "I1",
+    "corpus": "kubernetes/enhancements",
+    "objects": [
+     "B",
+     "F"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "6f35c726d1a0036cfa71c58002176b0c486bd0812b42bc9964de39187b509257",
+    "category": "I1",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:6b23c0d5f35d1b11",
+     "h:3f39d5c348e5b79d"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "9ecda827c1c267a4ae66577683e7a6d137492865427fdb4d01db6fec6761ccaf",
+    "category": "I1",
+    "corpus": "u:7947a8ee4171",
+    "objects": [
+     "h:3f39d5c348e5b79d",
+     "h:f67ab10ad4e4c531"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "6d5faa85e3f2d6bbdee16638fa0c9634ed45c7be9af15a91e658892ab29f601d",
+    "category": "I1",
+    "corpus": "u:7947a8ee4171",
+    "objects": [
+     "h:a83dd0ccbffe39d0",
+     "h:6da43b944e494e88"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "26078b058391d683d509132838293468859342b8b672cb81767a9e3648c3714c",
+    "category": "I1",
+    "corpus": "u:016b2b21a9ef",
+    "objects": [
+     "h:4b46e47584a7b863",
+     "h:6e39c1ca69e832bf"
+    ],
+    "stratum": "D",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "597e1a2cb1ff61664f9d941e1aba628471f1089fde9c49fae407222789fe8caf",
+    "category": "I3",
+    "corpus": "u:e94e5016629f",
+    "objects": [
+     "h:23700df88341e4b7"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "a751cbd748c87cf98b79b278f2459ab2c14b20f07de27f9b2fbc56183e8a80b8",
+    "category": "I1",
+    "corpus": "c3g/GenPipes",
+    "objects": [
+     "h:5b4ff544ab05c722",
+     "h:9decf8009d31266c"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "e1ff2d42c7c947debeaeddb1d2e44efb208ccb993baa8f564c14e6fd73b355d0",
+    "category": "I1",
+    "corpus": "u:b76cb92cbb71",
+    "objects": [
+     "h:9789dae9e8de2d0c",
+     "h:0f617ba98e6a0f42"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "f8a59523ce52c79ecbb431b9611e29891716166424953370c9608ba66e218523",
+    "category": "I3",
+    "corpus": "u:b76cb92cbb71",
+    "objects": [
+     "h:d30b6fedc77faaf5"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "276ceb992bab8c49cfd5237b0c802682b7144afdc2984d4ffcb2486abf839947",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:340d600392818df2",
+     "h:d35525502e31c4a5"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "17737abe1e79ca4bb6d0596bc35ae85fbd14967e2dd91aaa062e5770d632736d",
+    "category": "I1",
+    "corpus": "u:5fe6b3b437ec",
+    "objects": [
+     "h:b459afddb3a09621",
+     "h:8404eed1a6deeea3",
+     "h:c8ffcb29c210f822"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "a66ce85f98e248beb0d6970e29bf18673af9da7ea4b6538dbf5b6f2504e2ab70",
+    "category": "I1",
+    "corpus": "seqeralabs/nf-metro",
+    "objects": [
+     "m0",
+     "m1"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "adbaea838efdbf19b22b9ca3453788a9dc6efbf09eb3bab60e170efd868abf61",
+    "category": "I1",
+    "corpus": "u:7879c8191ef8",
+    "objects": [
+     "h:255cdbb0734141ee",
+     "h:a4dd456bdab5214b"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "81ba31ecb13080cc14357207f6ba0863860c2099c5a26005b93a2e15b273f491",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:400c508ac2583ce9",
+     "h:340d600392818df2"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "b7e465c29683d85dd152c7203afc9d42b41259491f9dc6fb04b52956a322aa78",
+    "category": "I1",
+    "corpus": "u:f408c3dad832",
+    "objects": [
+     "h:06a210101296f69d",
+     "h:c82c37f336bc03f4"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "b2e7a24d6956cda522a022e4b9da4a19e43a02967e7e19bc8aeac191e1732fc2",
+    "category": "I1",
+    "corpus": "seqeralabs/nf-metro",
+    "objects": [
+     "bam_in",
+     "fastq_in"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "7215ef67ec39147068aa309d1301378ce9e524203c52cec6428f79e65f648a09",
+    "category": "I1",
+    "corpus": "fluxninja/aperture",
+    "objects": [
+     "CloudBehaviorModeling",
+     "CloudServiceHealth"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "01370ce8f7b650744bdbe6235764ab6a9c631d20d966de34dd81b862df3f52ae",
+    "category": "I3",
+    "corpus": "seqeralabs/nf-metro",
+    "objects": [
+     "lower_start"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "179eca2de7153b7d12d6fd53565c20ee8481313fa23145996555eb85c434c6d0",
+    "category": "I1",
+    "corpus": "seqeralabs/nf-metro",
+    "objects": [
+     "blocker_start",
+     "lower_start"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "1082afd4d3da241b58c1a99a942e83577952eea6e2e10f3df08f043b7dcde07a",
+    "category": "I1",
+    "corpus": "vulppi-dev/galfus-engine",
+    "objects": [
+     "TG",
+     "WS"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "546ba4ab36b2daec3bbdc0e185f27dbff725237d4372ff2a630cb2a6c7d4f9c8",
+    "category": "I1",
+    "corpus": "seqeralabs/nf-metro",
+    "objects": [
+     "o1",
+     "w1"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "2800b378bf877b761ee2411941bb0acd1b16c44a45fc2e63f76f3b46e12656ba",
+    "category": "I1",
+    "corpus": "u:a24cc41c1725",
+    "objects": [
+     "h:bda67ee1f8722a04",
+     "h:f08bfb2bd52a2087"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "952ea7aa0409fee3f61bf17abc4608a195a1a5858eb72dd49b7b8d357f00ad71",
+    "category": "I1",
+    "corpus": "u:a24cc41c1725",
+    "objects": [
+     "h:bda67ee1f8722a04",
+     "h:f08bfb2bd52a2087"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "dfe0a6fa3c11476ff480594dbb57cf8f35bf28d16387dd89e720ce478cacf8ad",
+    "category": "I1",
+    "corpus": "u:a24cc41c1725",
+    "objects": [
+     "h:bda67ee1f8722a04",
+     "h:f08bfb2bd52a2087"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "d2601de493411aa4d784208a26fde37269f1707f68e7c2d4de2537012f003c9c",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:7a2ccf1d9d7904fc",
+     "h:39200d1e8a8dbbb6"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "baa18efa63a7b0857e3fa6d69815eeb12656bb71fb9d57a5217ba17f9892dadb",
+    "category": "I3",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:407291489c15c50f"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "baa18efa63a7b0857e3fa6d69815eeb12656bb71fb9d57a5217ba17f9892dadb",
+    "category": "G1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:a7f5397443359ea7"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "75f593d3bd2203f33a90ed84c0b93d75f888d196a8ac6b5cde24dcbb96151a42",
+    "category": "G1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:39200d1e8a8dbbb6"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "75f593d3bd2203f33a90ed84c0b93d75f888d196a8ac6b5cde24dcbb96151a42",
+    "category": "MC",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:646964943fd22711",
+     "h:39200d1e8a8dbbb6"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "da4f61548da55ed1eff4c231d2a78c747da9e0ce614886eb7fdd36bae4c63ce1",
+    "category": "I1",
+    "corpus": "u:e4ca45f584ec",
+    "objects": [
+     "h:d3e28aabddb388cb",
+     "h:f3bc2782296fcd01"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "dc0b3af791d4431ec3a05cfbcad82eb3b85d2e5e2f3468a9352990acf83600a4",
+    "category": "I1",
+    "corpus": "u:e4ca45f584ec",
+    "objects": [
+     "h:19e3c90ce2a584ef",
+     "h:b9a9d9116f168ecd"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "38722a65b74dc39fb8a4647c96dbea9a56d95dd66a661cd916a8d869b69e6ef1",
+    "category": "I1",
+    "corpus": "Pipelex/mthds-ui",
+    "objects": [
+     "n_fc9850672a",
+     "s_78055a3669"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "a6a5ab4d25355b800c916a7283e3953949e8438527cddb8f5b16c327553cbf45",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:a075298fda07050b",
+     "h:a7f5397443359ea7"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "92f0b5ef183c4cfd05b40936ba21a56f485911a9fe304023fbcd50c7380726c0",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:fd1ebe45834dc144",
+     "h:793b9d6bf6bfbe84"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "e21a088f05b78fb308a7573353f17bb832c1a5c70bb3d2b6aa63cb367abb2be6",
+    "category": "I1",
+    "corpus": "u:ec749c095229",
+    "objects": [
+     "h:dd014b479095976c",
+     "h:4b4ecdff6faa6f38"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "62806d846e172fd66d753b031025a19b76d1708277eb72b1272a5558308addbb",
+    "category": "G1",
+    "corpus": "u:a24cc41c1725",
+    "objects": [
+     "h:f08bfb2bd52a2087"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "ae88d8c9b5ead0262d28c86c903c27d2bc56a46c42a43ab50d627f9d36d42e16",
+    "category": "G1",
+    "corpus": "u:a24cc41c1725",
+    "objects": [
+     "h:bda67ee1f8722a04"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "52958c7560e23fbe57d04db8551a8bb2007c69fa884792cc9ec345f2c3b2b167",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:646964943fd22711",
+     "h:a7f5397443359ea7"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   },
+   {
+    "arm": "S",
+    "case": "ec83671474496137ef87c0e6d737fc9c6537c91a175641dbc14a364ee64aed5d",
+    "category": "I1",
+    "corpus": "u:cd318a65ce47",
+    "objects": [
+     "h:a7f5397443359ea7",
+     "h:8c25cb3686462e9a"
+    ],
+    "stratum": "F",
+    "tier": "B"
+   }
+  ]
+ },
+ "structure": {
+  "agreement": 0.8888888888888888,
+  "n": 9,
+  "n_by_arm": {
+   "M-PR": 0,
+   "M-merge": 0,
+   "P": 9
+  },
+  "reason": "floor: 9 decided cases under the caps, below 60; agreement 8/9 below 98%",
+  "verdict": "NO VERDICT"
+ }
+}

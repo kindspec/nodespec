@@ -1178,3 +1178,104 @@ Entries are appended, never edited, so these correct §14 above.
   not covered by it. Whether to keep the redaction is put to the owner.
 
 - **The owner's ruling on the redaction (2026-10-13).** The owner ruled to keep the committed `arms.json`, with its `<tmp>` placeholders. This is disclosed as a departure from §11.1, with both sha256s: as written `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, committed `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`. The original stays in the archive.
+
+## 2026-10-13 — §15. The sealed run and the verdict (§11.3 commit 6)
+
+- **The sealed material.** This commit adds the owner's tar and nonce, as
+  F's run 2 wrote them, in `sealed/`:
+  - `sealed/sealed.tar` (71,680 bytes) and `sealed/nonce.bin` (32 bytes);
+  - `sha256(nonce + tar)` =
+    `a338d477972ff257d5288a7a8426bfb4ab8a325a8dad55eaa6c893fa97be189a`, which
+    equals VALIDATION's and §9's sealed hash;
+  - they are licensed CC0-1.0, like the V-fixtures; `LICENSE` is updated.
+
+  F's two session streams are added beside their launch records, as §9
+  set out:
+  - `results/roles/f-session.jsonl`, run 1, void, sha256 `ad2c7e23…`;
+  - `results/roles/f2-session.jsonl`, run 2, sha256 `b23652e0…`.
+
+  Each equals its launch record's `session_sha256`. Neither holds a host
+  path, so neither was changed.
+- **The bound `sealed` run (§10.4).**
+  - Before it:
+    - `git fetch --prune` was run.
+    - `reverify.sh` was run in a fresh clone of main at `18792c1` and
+      passed: arm0 and arms executed once each, sealed and aggregate 0.
+    - In this clone, `reverify.sh` failed only on "arms's marker was added
+      2 times". The cause is the local branch `spike/mermaid-commit5`,
+      which still holds commit 5's pre-squash marker. It was left in place.
+    - `binding.check` reported `sealed` bound.
+  - The run went from 2026-10-13T15:50:09Z to 15:50:19Z, in its own
+    session, and exited 0.
+  - It was launched from a neutral run directory, with `--tar sealed.tar`
+    a symlink to the custody copy. `--nonce-hex` was the nonce's bytes as
+    hex, put on the argv by a shell substitution; the frozen command takes
+    the nonce as hex, not as a path. That hex is in the transcript's argv,
+    and §10.4 publishes the nonce here anyway.
+  - The harness checked `sha256(nonce + tar)` against VALIDATION, and it
+    matched.
+  - The transcript's sha256 as written,
+    `7c2b844f56857e87a24f0ecf853ed624b630bdf60808bfbea2a8731e62a4179e`, is the
+    committed file's. A copy is kept in the archive.
+  - **Result:** 14 fixtures, 28 lines (identity 9 A and 9 B, structure 5 A
+    and 5 B).
+    - On every line, H's answer equals F's, and so does X's.
+    - No fixture is malformed.
+    - No group is VOID, and no fixture is disputed.
+- **The verdict, by the owner's ruling (2026-10-13).**
+  - **Why the bound `aggregate` was never run.** The frozen aggregator
+    cannot run on these results. `aggregate.verdict` sorts the cases by
+    `key` (`aggregate.py:167`), and 9,822 cases have a null key, so the
+    sort raises TypeError. `cmd_aggregate` writes its marker before that
+    point and catches only ValueError. The owner ruled:
+    - run `sealed` bound, as frozen;
+    - never run the bound `aggregate`;
+    - compute the verdict with the unchanged, frozen `aggregate.verdict`,
+      on the summary `cmd_aggregate` would build, minus the null-key cases.
+  - **The script.** `ruling/verdict_by_ruling.py` is outside every bound
+    path and imports the harness unchanged. It:
+    - builds the summary with the frozen `bound_summary`;
+    - refuses, as `cmd_aggregate` does, if a tier-A real-arm case lacks a
+      reproduction (none does);
+    - drops the null-key cases;
+    - calls `aggregate.verdict`;
+    - writes `results/verdict-by-ruling.json`, sha256 `a65620a5…`.
+  - **The script's checks.** In its transcript it asserts that every
+    summary field but `cases` equals `bound_summary`'s, and that the kept
+    cases are exactly the non-null-key ones, in order. The dropped cases:
+
+    | arm | cause | cases |
+    |---|---|---|
+    | P | non-commuting | 9,547 |
+    | P | early exit through `prepare()` | 231 |
+    | S | early exit through `prepare()` | 31 |
+    | M-PR | early exit through `prepare()` | 11 |
+    | M-merge | early exit through `prepare()` | 2 |
+
+    None of them is exposed or decided, holds a record, or ran X.
+  - **Red first.** `ruling/redfirst.py` shows two things on the real
+    summary:
+    - the frozen `verdict()` raises `TypeError: '<' not supported between
+      instances of 'str' and 'NoneType'` at `aggregate.py:167`;
+    - on the filtered summary, it returns a verdict byte-identical to
+      `results/verdict-by-ruling.json`.
+  - **Both scripts ran twice.** The first run labelled the dropped P cases
+    by their `excluded` text, which redacted corpora hash. It split them
+    3,954 / 5,824 instead of 9,547 / 231. The second run tells them apart
+    by structure: a non-commuting P case has no `exposed` key. The verdict
+    bytes were the same both times. All four transcripts are committed.
+- **The verdict (§9):**
+  - **Identity: NO VERDICT, 1 exposed, none silent.** `k` = 1: an M-merge
+    case in `CGIC-AI/psfn-framework`, whose outcome is E (git refused).
+  - **Structure: NO VERDICT.**
+    - The floor is not met: 9 decided cases under the caps, below 60, with
+      `n` by arm M-merge 0, M-PR 0, P 9.
+    - Agreement is 8/9, below 98%.
+  - Stratum F is below the coverage bar (§8.1).
+  - No disputed or malformed sealed fixture.
+  - The blocked records are S's (F1: S never yields FOUND). 70 cases are
+    listed with refusals.
+- **An open departure from §11.1–§11.2.** The verdict is not the output of
+  a bound `aggregate` execution, and the aggregator's failure was not
+  caught by a V step. Both are recorded here as open, by the owner's
+  ruling.
