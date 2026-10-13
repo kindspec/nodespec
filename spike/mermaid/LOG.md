@@ -1279,3 +1279,157 @@ Entries are appended, never edited, so these correct §14 above.
   a bound `aggregate` execution, and the aggregator's failure was not
   caught by a V step. Both are recorded here as open, by the owner's
   ruling.
+
+### Corrections to §15, and the published outcome
+
+Entries are appended, never edited, so these correct §15 above. Merging
+commit 6 is the publication (§11.3), so this entry also carries the
+outcome in the form §12 and §9.2 require.
+
+- **The sealed fixtures number 12, not 14.** The tar holds `s01` to `s12`,
+  and `sealed.json` names 12 fixtures. Its 28 lines are right. Each
+  fixture contributes two lines, except the two clean fixtures, `s11` and
+  `s12`, which are lined for both groups and contribute four each. Every
+  "14 fixtures" in §15 should read "12 fixtures". The committed
+  transcripts state no fixture count.
+- **The refusal list, corrected.** §15's "70 cases are listed with
+  refusals" should read: 70 tier-B refusal records, in 65 cases, all from
+  arm S. Each record's lint is in its case in `arms.json`:
+  - 23 carry L1;
+  - the other 47 are in read-only or owner-mapped corpora, where the arms'
+    redaction (`arms.redact`) withholds lints, so their lint is not
+    published.
+- **The counted structure disagreement.** The structure agreement, 8/9,
+  counts one disagreement: case `5e8b2297…` (P, stratum D,
+  `u:d25420525d11`), where X declined the input as outside its own subset.
+  - Case `a3522a3b…` (P, D, `gpo/grassroots`) has outcome E. It counts as
+    agreeing, because E is a case outcome, not a compared record.
+  - A strict reading that counted it as a disagreement gives 7/9. The
+    verdict is the same either way.
+- **The departure, stated fully.**
+  - **§11.3.** It says "H, X and R at commit 3 are the implementation".
+    The verdict comes from `ruling/verdict_by_ruling.py`, code written
+    after commit 3, although it calls only commit 3's frozen functions.
+  - **§11.4.** Its rules on gaps are not engaged: without the ruling, no
+    verdict exists for a gap claim to alter.
+  - **How the scripts ran.** Both scripts ran uncommitted, at HEAD
+    `18792c1`. The version of the first run, which mislabelled the P
+    split, is not preserved. Red-first ran after the verdict, not before.
+
+### The outcome (§9, §12)
+
+**Identity: NO VERDICT (1 exposed, none silent).** Real merged history put
+the premise at risk once, and git refused that merge (outcome E). It never
+failed silently. This is not a bound, and no defect is claimed.
+
+- **The exposed case:** `CGIC-AI/psfn-framework`, stratum F, M-merge,
+  outcome E.
+- **The exposure census.** Every M case, by corpus and stratum, with its
+  outcome. "Not judged" means the case was excluded before judging (one
+  fence, or inputs outside the subset):
+
+  | corpus | stratum | arm | outcome | cases | exposed |
+  |---|---|---|---|---|---|
+  | `CGIC-AI/psfn-framework` | F | M-merge | E | 1 | 1 |
+  | `Cogni-AI-OU/cogni-ai-agents` | F | M-merge | E | 2 | 0 |
+  | `apache/airflow` | D | M-PR | JUDGED | 3 | 0 |
+  | `apache/airflow` | D | M-PR | not judged | 9 | 0 |
+  | `grafana/grafana` | D | M-PR | not judged | 1 | 0 |
+  | `kubernetes/enhancements` | D | M-PR | not judged | 1 | 0 |
+  | `mermaid-js/mermaid` | D | M-merge | JUDGED | 1 | 0 |
+  | `seqeralabs/nf-metro` | D | M-merge | not judged | 1 | 0 |
+  | `seqeralabs/nf-metro` | F | M-merge | JUDGED | 1 | 0 |
+  | `u:954608073c97` | F | M-merge | not judged | 1 | 0 |
+  | `u:9643c029770e` | D | M-merge | not judged | 1 | 0 |
+
+  Every other corpus and stratum had no M case. Arm 0's full census is in
+  `results/arm0.json`.
+
+**Structure: NO VERDICT (other).**
+
+- **The reason:**
+  - the floor is not met: 9 decided cases under the caps, from M and P in
+    strata that pass the coverage bar, which is stratum D only. 60 are
+    needed;
+  - agreement is 8/9, below 98%.
+- **The census:** `n` by arm is M-merge 0, M-PR 0 and P 9, all stratum D.
+  The cases and their records are in `results/arms.json`, and the
+  per-arm counts per corpus are in its `counts`.
+
+**Listed with every outcome (§9.2):**
+
+- **What this spike does not measure (§1.7):**
+  - the canvas formats and their census;
+  - the relational override layer;
+  - other text diagram languages (Graphviz DOT, D2, PlantUML);
+  - whether a FOUND shape is already avoided by an existing format;
+  - Mermaid diagram types other than flowcharts, and multi-fence Markdown
+    files;
+  - identity defects in never-merged concurrent work.
+- **Coverage.** Stratum F is below the coverage bar (1,404/1,586 = 0.885)
+  and contributes no case to any floor. Each corpus and stratum below 90%:
+
+  | corpus | stratum | in the subset / distinct blobs at the pin |
+  |---|---|---|
+  | `Cogni-AI-OU/cogni-ai-agents` | F | 11/14 |
+  | `TheBoutrosLab/pipeline-StableLift` | F | 0/1 |
+  | `UPPMAX/HPC-python` | F | 4/5 |
+  | `ai-runway/airunway` | F | 0/1 |
+  | `backstage/backstage` | D | 0/1 |
+  | `c3g/GenPipes` | F | 18/26 |
+  | `cloudon-one/multi-cloud-runway` | D | 6/10 |
+  | `fluxninja/aperture` | D | 1/2 |
+  | `fluxninja/aperture` | F | 11/22 |
+  | `kubernetes/enhancements` | D | 12/14 |
+  | `lily-osp/6DoF_arm` | F | 0/1 |
+  | `mermaid-js/mermaid` | D | 1/2 |
+  | `mermaid-js/mermaid` | F | 304/365 |
+  | `microbus-io/fabric` | F | 7/8 |
+  | `microsoft/semantic-kernel` | D | 3/5 |
+  | `openwall/john-packages` | F | 0/1 |
+  | `pagopa/p4pa-doc` | F | 13/20 |
+  | `rolebasedgroup/rbg-planner` | F | 2/3 |
+  | `sdmlua/fimbox` | F | 0/9 |
+  | `u:0ee7299f4fa0` | F | 2/4 |
+  | `u:1c7b9dc8b5f9` | F | 0/1 |
+  | `u:34b7da78989a` | F | 0/1 |
+  | `u:3ff9d6dc1a19` | F | 53/59 |
+  | `u:446300671358` | F | 0/1 |
+  | `u:574461e980b7` | D | 4/5 |
+  | `u:574461e980b7` | F | 0/2 |
+  | `u:7879c8191ef8` | F | 10/12 |
+  | `u:7886fe5987aa` | F | 3/4 |
+  | `u:8e1733addf9f` | D | 2/4 |
+  | `u:8e1733addf9f` | F | 0/1 |
+  | `u:a1b1c881eca0` | F | 1/2 |
+  | `u:a206ca68dd21` | F | 3/4 |
+  | `u:a24cc41c1725` | F | 30/36 |
+  | `u:b13914916b23` | F | 0/18 |
+  | `u:b94d723467b6` | F | 0/1 |
+  | `u:bada77215092` | F | 0/1 |
+  | `u:bd42d3f0cf3d` | F | 0/1 |
+  | `u:c275c39b3d43` | F | 0/1 |
+  | `u:c8c749f37b08` | D | 5/8 |
+  | `u:c8c749f37b08` | F | 0/1 |
+  | `u:e3c71646d083` | D | 0/2 |
+  | `u:e3c71646d083` | F | 0/1 |
+  | `u:e9888febc37c` | F | 0/1 |
+  | `u:e9ca1546f616` | F | 18/25 |
+  | `u:f2291c40fb5a` | F | 0/1 |
+  | `u:fd3a4806defd` | F | 6/7 |
+  | `uclahs-cds/pipeline-StableLift` | F | 0/1 |
+
+- **Blocked records:** 11, all from arm S, all failing F1 (S never yields
+  FOUND): 8 identity and 3 structure.
+- **P anomalies:** none.
+- **"… with refusals":** the 70 tier-B records above.
+- **"… with near misses":** none.
+- **"… generator rates in S".** These are properties of the edit
+  generator (Appendix B.2) only, not of real editing:
+  - stratum D: `n` 1,996; 255 exposed (E 220, B 33, A 2); identity tier-A
+    2, X-confirmed 2;
+  - stratum F: `n` 1,942; 214 exposed (E 180, B 30, A 4); identity tier-A
+    4, X-confirmed 4;
+  - generator failures: 28.
+- **Sealed check:** 12 fixtures, 28 lines. H, X and F agree on every line.
+  No group is VOID, and no fixture is disputed or malformed.
