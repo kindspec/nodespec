@@ -1035,3 +1035,80 @@ scratch clone and got a byte-identical `arm0.json`.
     rule, or of P's 988 constructible triples, are stratum D, because its
     history figures are per corpus. So whether D can reach 60 is left to
     commit 5.
+
+## 2026-10-13 — §14. Arms M, P and S (§11.3 commit 5)
+
+Arms M, P and S ran once, as one bound invocation (`arms`, README R-arms),
+bound to the validation commit `18bcb9e`. Its transcript is
+`results/transcripts/2026-10-13T052435Z-arms.txt`, its output is
+`results/arms.json`, and its marker is `results/executed/arms.json`.
+
+- **Before launch:**
+  - `git fetch --prune` was run.
+  - Four local branches of this clone, already squash-merged and with
+    their upstreams gone, still held commit 4's pre-squash marker. They
+    made `reverify.sh` fail with "arm0's marker was added 2 times". They
+    were deleted; their shas are kept with the archive.
+  - Then `reverify.sh` passed (arm0 executed once, every other arm 0), and
+    `binding.check` reported `arms` bound.
+  - Memory available was 11G, and the machine was quiet.
+  - Peak memory was estimated without running the arms. Every corpus's
+    walk, selection, authors and select's blob cache, all kept alive as
+    `cmd_arms` keeps them, measured 850 MiB. Adding R's cache over every
+    selected version's diagram (5,517 distinct diagrams) measured
+    1,192 MiB. Allowing for the cases' merged and S texts, the estimate
+    was about 1.7–3.5 GiB, under the 5G gate.
+- **The run.**
+  - It started at 2026-10-13T05:24:35Z in its own session, from a neutral
+    run directory, so the argv names only relative symlinks: `--bundle-dir
+    bundles --work-dir work --private-map private-map.tsv --private-table
+    private-table.tsv`.
+  - It ended at 07:49:59Z with exit 0.
+  - Peak resident memory was 1,680,180 KiB, recorded with
+    `getrusage(RUSAGE_CHILDREN)`, because `/usr/bin/time` is not installed.
+  - All 123 corpora were opened. None is NO VERDICT.
+- **The bytes as written.**
+  - The transcript's sha256 as written,
+    `0037c177d8379b7a1313099d0fc580d7077391144d16f02406f7f3402c7a6152`, is also
+    the committed file's. It needed no redaction.
+  - The raw stdout, `mermaid-arms.out`, has sha256 `9f2614b5…`. It and a
+    copy of the transcript as written are kept in the archive.
+  - `arms.json` as written, sha256
+    `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, held
+    987 host paths. Each was X's G0 object, the absolute path of the
+    merged file in X's temporary directory. That prefix is replaced by
+    `<tmp>` in the committed file, sha256
+    `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`. No
+    other byte changed. The original is kept in the archive.
+  - `x_view` reads any G0 object as `path`, so the replacement changes no
+    comparison.
+  - No owner-mapped corpus name or pin appears in the outputs. This was
+    checked against the private files, with a positive control.
+- **S's edit mix:** Arm 0's frozen mix (2,765 classified edits, §8.4).
+- **Cases in `arms.json`: 14,529.**
+
+  | arm | stratum D | stratum F |
+  |---|---|---|
+  | M-merge | 3 | 5 |
+  | M-PR | 14 | 0 |
+  | P | 5,249 | 5,286 |
+  | S | 1,998 | 1,974 |
+
+  - **Decided** (the harness's `decided`, §7.5): M-merge 2 (F), M-PR 0,
+    P 308 (10 D, 298 F), S 3,816.
+  - **Tier-A records:** none in any M or P case.
+  - **Exposed M cases:** 1, an M-merge case whose outcome is E.
+- **X on every case** (§11.3 item 5; X is X1):
+  - **Timeouts:** 0.
+  - **Disagreements:** 728 (S 516, P 208, M-merge 4). Of these, 472 are X
+    failures with the detail "output lacks records or an exposure": X
+    printed JSON without the `records` and `exposure.exposed` that
+    `x_view` reads. 276 of the 472 are on cases whose outcome is E.
+    §10.5 counts each as a disagreement.
+- **S rates**, properties of the edit generator (Appendix B.2), not of real
+  editing:
+  - D: n 1,996; 255 exposed (E 220, B 33, A 2); identity A 2, X-confirmed 2.
+  - F: n 1,942; 214 exposed (E 180, B 30, A 4); identity A 4, X-confirmed 4.
+  - Generator failures: 28.
+- **Nothing else ran.** No model was launched, and no sealed material was
+  read. The sealed run and the aggregate are commit 6.
