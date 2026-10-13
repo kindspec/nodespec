@@ -1112,3 +1112,67 @@ bound to the validation commit `18bcb9e`. Its transcript is
   - Generator failures: 28.
 - **Nothing else ran.** No model was launched, and no sealed material was
   read. The sealed run and the aggregate are commit 6.
+
+### Corrections to §14
+
+Entries are appended, never edited, so these correct §14 above.
+`results/arms.json` is unchanged.
+
+- **The X disagreements: 728, all of one kind.** §14's "472 are X
+  failures" undercounts them.
+  - 472 cases carry the plain detail "X failed: output lacks records or an
+    exposure".
+  - The other 256 are in redacted corpora. Their `x_detail` reads
+    `(redacted: ab1d73528ee51ef9)`, which is the sha256 prefix of the same
+    text.
+  - So every one of the 728 disagreements (S 516, P 208, M-merge 4) is
+    this kind. H's outcome is E in 407 of them, not 276.
+- **What X printed.** §14 says X "printed JSON without the `records` and
+  `exposure.exposed`". That is wrong. X exited 0 and printed
+  `records: []` and `exposure: null`. That is X's documented output when it
+  rules an input outside its own subset (its CHOICES.md entries 12, 15 and
+  16), and it was checked here on a planted input.
+  - A review rebuilt 635 of the 728 cases from the bundles. In those, X's
+    outcome was INPUT-OUT-OF-SUBSET in 249 and E in 386.
+  - The causes were:
+    - HTML-like text in a label: 162;
+    - an empty label: 147;
+    - HTML in a subgraph title: 94;
+    - HTML in an edge label: 64;
+    - a lowercase `end` in an unquoted label: 44;
+    - a bracket or quote in an unquoted label: 41;
+    - a link without a target: 22;
+    - a `mermaid-nocode` fence: 20;
+    - an empty subgraph title: 20;
+    - an unclosed shape bracket: 19;
+    - other: 2.
+  - The 20 fence cases are X departing from §3's pattern, which was not in
+    its §10.3 allotment.
+  - These rebuild figures are the review's. They were not re-derived here,
+    because rebuilding the cases is outside the committed files. The
+    counts 728, 472, 256 and 407, and the redaction hash, were checked
+    against `arms.json`.
+- **They are real disagreements.** Under §10.5 every one of the 728 is a
+  disagreement, because X reports no exposure; none is an artefact. V5 did
+  not catch them because all 53 V-fixtures are inside X's subset.
+- **The redacted paths were not G0 objects.** In `arms.json` as written,
+  986 of the 987 host paths are objects of X's E records, and 1 is in an
+  S-ORDER record. The replacement changes no comparison for a different
+  reason than §14 gave: `norm_records` drops E, and it compares S-ORDER by
+  category alone.
+- **Tier-A records before the truth filter.** §14's "Tier-A records: none
+  in any M or P case" holds for the records after §8.3's truth filter.
+  Before that filter (`records_unfiltered`), 3 decided P cases in stratum
+  F hold tier-A structure records, G4, G4 and G3, and X confirms all
+  three.
+- **The redaction is a departure from §11.1.** §11.1 says a bound run's
+  output "is the content of its commit". The committed `arms.json` is not
+  the bytes the run wrote:
+  - as written: sha256
+    `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, kept in
+    the archive;
+  - committed: sha256
+    `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`.
+
+  §8's precedent covered transcripts only, not a bound output, so this is
+  not covered by it. Whether to keep the redaction is put to the owner.
