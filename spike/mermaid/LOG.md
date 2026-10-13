@@ -917,3 +917,60 @@ Entries are appended, never edited, so these correct §12 above.
   true of `harness/`, `x/`, `r/` and `v-fixtures/`. `PRE-REGISTRATION.md`'s
   `e29f097c339b9751beab29108549bef207b74889` is a file, so that sha is its
   git blob sha.
+
+## 2026-10-13 — §13. Arm 0 (§11.3 commit 4)
+
+Arm 0 (§8.1, a census with no merging) ran once, bound to the validation
+commit `18bcb9e`. Its transcript is
+`results/transcripts/2026-10-13T003143Z-arm0.txt`, its output is
+`results/arm0.json`, and its marker is `results/executed/arm0.json`.
+
+- **The run.**
+  - Before launch, `reverify.sh` passed and `binding.check` reported
+    `arm0` bound, with 0 executions of any arm. Memory available was 11G.
+  - It ran from 2026-10-13T00:31:43Z to 02:19:15Z and exited 0.
+  - All 123 corpora were opened, each from a fresh clone of its verified
+    bundle. None is NO VERDICT.
+  - In the transcript's argv, the bundle, work and private-file paths are
+    replaced by placeholders, as in §8. The private files are named only
+    as held by the owner.
+  - Nothing in the outputs names an owner-mapped corpus or its pin. That
+    was checked by comparing them against the private map and table, and
+    only counts were printed.
+- **R's configuration**, as recorded in the output, is the one §4.4 pins
+  (§12): Mermaid 12.1.0, Node v24.20.0, jsdom on.
+- **Coverage, distinct blobs at the pins in the subset (§8.1):**
+
+  | stratum | selected paths | distinct blobs at the pins | R parses | in the subset | coverage |
+  |---|---|---|---|---|---|
+  | D | 321 | 231 | 226 | 210 | 0.909 |
+  | F | 2,238 | 1,586 | 1,556 | 1,404 | 0.885 |
+
+  Under §8.1's coverage bar ("A stratum with fewer than 90% of its
+  distinct blobs in the subset contributes no case to any floor. A FOUND
+  record from it still counts, since F3 checks its own four states"),
+  stratum F, at 0.885, contributes no case to any floor. Stratum D, at
+  0.909, does.
+- **Cases, from history only (totals over all corpora):**
+  - **M-merge:**
+    - 50,938 merges with two parents;
+    - 206 multi-base, 19 add/add, 7 delete/modify, 15 convergent;
+    - 8 evaluable.
+  - **M-PR:**
+    - 216,105 pull requests listed;
+    - 213,164 whose commits touch no selected path;
+    - 0 with a commit list missing;
+    - 1,165 not reachable or not one parent, 5 over 250 commits, 215
+      rebase, 1,512 squash, 44 under neither rule;
+    - 14 evaluable.
+  - **P:**
+    - 10,737 candidates;
+    - 202 dropped by the predecessor rule;
+    - 9,547 non-commuting;
+    - 988 constructible.
+  - **Edit mix:** 2,765 of 5,563 modifying edits classified into
+    Appendix B's operations.
+
+  `results/arm0.json` holds the rest, per corpus and stratum.
+- **Nothing else ran.** No model was launched, no merge was made, and no
+  sealed material was read. Arms M, P and S have not run.
