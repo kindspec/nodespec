@@ -1176,3 +1176,5 @@ Entries are appended, never edited, so these correct §14 above.
 
   §8's precedent covered transcripts only, not a bound output, so this is
   not covered by it. Whether to keep the redaction is put to the owner.
+
+- **The owner's ruling on the redaction (2026-10-13).** The owner ruled to keep the committed `arms.json`, with its `<tmp>` placeholders. This is disclosed as a departure from §11.1, with both sha256s: as written `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, committed `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`. The original stays in the archive.
