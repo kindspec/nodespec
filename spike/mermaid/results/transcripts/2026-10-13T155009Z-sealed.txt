@@ -1,0 +1,243 @@
+# mermaid-spike sealed
+# argv: mermaid_spike.py sealed --tar sealed.tar --nonce-hex c107ec98f547e0142346388dbe336dec45edcbf61f8a5907fa4f6679c9084719
+# start: 2026-10-13T15:50:09Z
+# nodespec HEAD: 18792c133892804a9d79e40f7239fc09d6650fac
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: True (validation commit 18bcb9ec700ae3d439c4fc221c3087d2c36cf788)
+
+
+# executed: 2026-10-13T15:50:09Z
+{
+ "malformed": [],
+ "sealed": [
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "A",
+   "name": "s01-i1-f-bare-rename",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s01-i1-f-bare-rename",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "A",
+   "name": "s02-i1-d-bare-delete",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s02-i1-d-bare-delete",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "A",
+   "name": "s03-i1-f-ghost-rename",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "B",
+   "name": "s03-i1-f-ghost-rename",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "A",
+   "name": "s04-i1-d-ghost-delete",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "B",
+   "name": "s04-i1-d-ghost-delete",
+   "x": true
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "A",
+   "name": "s05-i2-f-bare-click",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s05-i2-f-bare-click",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "A",
+   "name": "s06-i2-d-labels",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "B",
+   "name": "s06-i2-d-labels",
+   "x": true
+  },
+  {
+   "f": true,
+   "group": "identity",
+   "h": true,
+   "line": "A",
+   "name": "s07-i3-d-bare-label",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s07-i3-d-bare-label",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "structure",
+   "h": true,
+   "line": "A",
+   "name": "s08-g1-f-two-mentions",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "B",
+   "name": "s08-g1-f-two-mentions",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "structure",
+   "h": true,
+   "line": "A",
+   "name": "s09-g3-d-two-mentions-none",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "B",
+   "name": "s09-g3-d-two-mentions-none",
+   "x": false
+  },
+  {
+   "f": true,
+   "group": "structure",
+   "h": true,
+   "line": "A",
+   "name": "s10-g2-f-dedupe-both",
+   "x": true
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "B",
+   "name": "s10-g2-f-dedupe-both",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "A",
+   "name": "s11-clean-f-rename-and-relabel",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s11-clean-f-rename-and-relabel",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "A",
+   "name": "s11-clean-f-rename-and-relabel",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "B",
+   "name": "s11-clean-f-rename-and-relabel",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "A",
+   "name": "s12-clean-d-move-retitle-both",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "identity",
+   "h": false,
+   "line": "B",
+   "name": "s12-clean-d-move-retitle-both",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "A",
+   "name": "s12-clean-d-move-retitle-both",
+   "x": false
+  },
+  {
+   "f": false,
+   "group": "structure",
+   "h": false,
+   "line": "B",
+   "name": "s12-clean-d-move-retitle-both",
+   "x": false
+  }
+ ]
+}
+
+# end: 2026-10-13T15:50:19Z
+# exited: exit status 0

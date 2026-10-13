@@ -1,0 +1,12 @@
+# mermaid-spike red-first check for the owner's ruling of 2026-10-13 (LOG §15)
+# argv: ruling/redfirst.py
+# start: 2026-10-13T15:51:41Z
+# nodespec HEAD: 18792c133892804a9d79e40f7239fc09d6650fac
+# bound: False
+
+RED   PASS  the frozen verdict() on the unfiltered summary raises TypeError: '<' not supported between instances of 'str' and 'NoneType'
+            at aggregate.py:167: for c in sorted(cases, key=lambda c: c["key"]):
+GREEN PASS  the frozen verdict() on the summary less 9822 null-key cases returns a verdict, byte-identical to results/verdict-by-ruling.json
+
+# end: 2026-10-13T15:51:42Z
+# exited: exit status 0

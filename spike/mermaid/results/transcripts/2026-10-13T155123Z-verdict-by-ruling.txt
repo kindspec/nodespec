@@ -1,0 +1,21 @@
+# mermaid-spike verdict by the owner's ruling of 2026-10-13 (LOG §15)
+# argv: ruling/verdict_by_ruling.py
+# start: 2026-10-13T15:51:23Z
+# nodespec HEAD: 18792c133892804a9d79e40f7239fc09d6650fac
+# python: 3.13.5
+# bound: False (the bound `aggregate` is never run, by the owner's ruling)
+
+summary: every field but `cases` equals bound_summary's; the kept cases equal its non-null-key cases, in order
+dropped: 9822 null-key cases of 14529
+  M-PR, other early exit: 11
+  M-merge, other early exit: 2
+  P, non-commuting: 3954
+  P, other early exit: 5824
+  S, other early exit: 31
+dropped cases that are exposed: 0, decided: 0, with records: 0, run through X: 0
+identity: NO VERDICT 1 exposed, none silent
+structure: NO VERDICT floor: 9 decided cases under the caps, below 60; agreement 8/9 below 98%
+wrote results/verdict-by-ruling.json, sha256 a65620a544f35e17071987d4298bc5669e7be2e4a50fd289d12a3421b2672666
+
+# end: 2026-10-13T15:51:24Z
+# exited: exit status 0

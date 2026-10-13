@@ -19,6 +19,8 @@ deliberate, not an oversight.
   spike/*/results/          CC-BY-4.0
   spike/*/x/                CC-BY-4.0 (X, the second extractor, as its file header says)
   spike/*/v-fixtures/       CC0-1.0 (F's V-fixtures)
+  spike/*/sealed/           CC0-1.0 (F's sealed fixtures, as a tar, and its nonce)
+  spike/*/ruling/           MIT (the verdict by the owner's ruling, LOG §15)
   spike/*/LOG.md            CC-BY-4.0
 
 Full texts are in LICENSES/.
