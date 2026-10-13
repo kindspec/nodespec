@@ -1035,3 +1035,146 @@ scratch clone and got a byte-identical `arm0.json`.
     rule, or of P's 988 constructible triples, are stratum D, because its
     history figures are per corpus. So whether D can reach 60 is left to
     commit 5.
+
+## 2026-10-13 — §14. Arms M, P and S (§11.3 commit 5)
+
+Arms M, P and S ran once, as one bound invocation (`arms`, README R-arms),
+bound to the validation commit `18bcb9e`. Its transcript is
+`results/transcripts/2026-10-13T052435Z-arms.txt`, its output is
+`results/arms.json`, and its marker is `results/executed/arms.json`.
+
+- **Before launch:**
+  - `git fetch --prune` was run.
+  - Four local branches of this clone, already squash-merged and with
+    their upstreams gone, still held commit 4's pre-squash marker. They
+    made `reverify.sh` fail with "arm0's marker was added 2 times". They
+    were deleted; their shas are kept with the archive.
+  - Then `reverify.sh` passed (arm0 executed once, every other arm 0), and
+    `binding.check` reported `arms` bound.
+  - Memory available was 11G, and the machine was quiet.
+  - Peak memory was estimated without running the arms. Every corpus's
+    walk, selection, authors and select's blob cache, all kept alive as
+    `cmd_arms` keeps them, measured 850 MiB. Adding R's cache over every
+    selected version's diagram (5,517 distinct diagrams) measured
+    1,192 MiB. Allowing for the cases' merged and S texts, the estimate
+    was about 1.7–3.5 GiB, under the 5G gate.
+- **The run.**
+  - It started at 2026-10-13T05:24:35Z in its own session, from a neutral
+    run directory, so the argv names only relative symlinks: `--bundle-dir
+    bundles --work-dir work --private-map private-map.tsv --private-table
+    private-table.tsv`.
+  - It ended at 07:49:59Z with exit 0.
+  - Peak resident memory was 1,680,180 KiB, recorded with
+    `getrusage(RUSAGE_CHILDREN)`, because `/usr/bin/time` is not installed.
+  - All 123 corpora were opened. None is NO VERDICT.
+- **The bytes as written.**
+  - The transcript's sha256 as written,
+    `0037c177d8379b7a1313099d0fc580d7077391144d16f02406f7f3402c7a6152`, is also
+    the committed file's. It needed no redaction.
+  - The raw stdout, `mermaid-arms.out`, has sha256 `9f2614b5…`. It and a
+    copy of the transcript as written are kept in the archive.
+  - `arms.json` as written, sha256
+    `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, held
+    987 host paths. Each was X's G0 object, the absolute path of the
+    merged file in X's temporary directory. That prefix is replaced by
+    `<tmp>` in the committed file, sha256
+    `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`. No
+    other byte changed. The original is kept in the archive.
+  - `x_view` reads any G0 object as `path`, so the replacement changes no
+    comparison.
+  - No owner-mapped corpus name or pin appears in the outputs. This was
+    checked against the private files, with a positive control.
+- **S's edit mix:** Arm 0's frozen mix (2,765 classified edits, §8.4).
+- **Cases in `arms.json`: 14,529.**
+
+  | arm | stratum D | stratum F |
+  |---|---|---|
+  | M-merge | 3 | 5 |
+  | M-PR | 14 | 0 |
+  | P | 5,249 | 5,286 |
+  | S | 1,998 | 1,974 |
+
+  - **Decided** (the harness's `decided`, §7.5): M-merge 2 (F), M-PR 0,
+    P 308 (10 D, 298 F), S 3,816.
+  - **Tier-A records:** none in any M or P case.
+  - **Exposed M cases:** 1, an M-merge case whose outcome is E.
+- **X on every case** (§11.3 item 5; X is X1):
+  - **Timeouts:** 0.
+  - **Disagreements:** 728 (S 516, P 208, M-merge 4). Of these, 472 are X
+    failures with the detail "output lacks records or an exposure": X
+    printed JSON without the `records` and `exposure.exposed` that
+    `x_view` reads. 276 of the 472 are on cases whose outcome is E.
+    §10.5 counts each as a disagreement.
+- **S rates**, properties of the edit generator (Appendix B.2), not of real
+  editing:
+  - D: n 1,996; 255 exposed (E 220, B 33, A 2); identity A 2, X-confirmed 2.
+  - F: n 1,942; 214 exposed (E 180, B 30, A 4); identity A 4, X-confirmed 4.
+  - Generator failures: 28.
+- **Nothing else ran.** No model was launched, and no sealed material was
+  read. The sealed run and the aggregate are commit 6.
+
+### Corrections to §14
+
+Entries are appended, never edited, so these correct §14 above.
+`results/arms.json` is unchanged.
+
+- **The X disagreements: 728, all of one kind.** §14's "472 are X
+  failures" undercounts them.
+  - 472 cases carry the plain detail "X failed: output lacks records or an
+    exposure".
+  - The other 256 are in redacted corpora. Their `x_detail` reads
+    `(redacted: ab1d73528ee51ef9)`, which is the sha256 prefix of the same
+    text.
+  - So every one of the 728 disagreements (S 516, P 208, M-merge 4) is
+    this kind. H's outcome is E in 407 of them, not 276.
+- **What X printed.** §14 says X "printed JSON without the `records` and
+  `exposure.exposed`". That is wrong. X exited 0 and printed
+  `records: []` and `exposure: null`. That is X's documented output when it
+  rules an input outside its own subset (its CHOICES.md entries 12, 15 and
+  16), and it was checked here on a planted input.
+  - A review rebuilt 635 of the 728 cases from the bundles. In those, X's
+    outcome was INPUT-OUT-OF-SUBSET in 249 and E in 386.
+  - The causes were:
+    - HTML-like text in a label: 162;
+    - an empty label: 147;
+    - HTML in a subgraph title: 94;
+    - HTML in an edge label: 64;
+    - a lowercase `end` in an unquoted label: 44;
+    - a bracket or quote in an unquoted label: 41;
+    - a link without a target: 22;
+    - a `mermaid-nocode` fence: 20;
+    - an empty subgraph title: 20;
+    - an unclosed shape bracket: 19;
+    - other: 2.
+  - The 20 fence cases are X departing from §3's pattern, which was not in
+    its §10.3 allotment.
+  - These rebuild figures are the review's. They were not re-derived here,
+    because rebuilding the cases is outside the committed files. The
+    counts 728, 472, 256 and 407, and the redaction hash, were checked
+    against `arms.json`.
+- **They are real disagreements.** Under §10.5 every one of the 728 is a
+  disagreement, because X reports no exposure; none is an artefact. V5 did
+  not catch them because all 53 V-fixtures are inside X's subset.
+- **The redacted paths were not G0 objects.** In `arms.json` as written,
+  986 of the 987 host paths are objects of X's E records, and 1 is in an
+  S-ORDER record. The replacement changes no comparison for a different
+  reason than §14 gave: `norm_records` drops E, and it compares S-ORDER by
+  category alone.
+- **Tier-A records before the truth filter.** §14's "Tier-A records: none
+  in any M or P case" holds for the records after §8.3's truth filter.
+  Before that filter (`records_unfiltered`), 3 decided P cases in stratum
+  F hold tier-A structure records, G4, G4 and G3, and X confirms all
+  three.
+- **The redaction is a departure from §11.1.** §11.1 says a bound run's
+  output "is the content of its commit". The committed `arms.json` is not
+  the bytes the run wrote:
+  - as written: sha256
+    `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, kept in
+    the archive;
+  - committed: sha256
+    `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`.
+
+  §8's precedent covered transcripts only, not a bound output, so this is
+  not covered by it. Whether to keep the redaction is put to the owner.
+
+- **The owner's ruling on the redaction (2026-10-13).** The owner ruled to keep the committed `arms.json`, with its `<tmp>` placeholders. This is disclosed as a departure from §11.1, with both sha256s: as written `7dc6ae7993f59628361c99acb80140b606a56c4a33a8d0de218184300d19bad3`, committed `2a9396f05f18f1c8c3b1e5001b860cbd14146f10b6280528d9c4535124bd32d3`. The original stays in the archive.

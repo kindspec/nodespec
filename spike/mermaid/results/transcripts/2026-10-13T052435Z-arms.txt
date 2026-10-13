@@ -1,0 +1,139 @@
+# mermaid-spike arms
+# argv: mermaid_spike.py arms --bundle-dir bundles --work-dir work --private-map private-map.tsv --private-table private-table.tsv
+# start: 2026-10-13T05:24:35Z
+# nodespec HEAD: 895d7d5e93763ab30268c22efb0e0e592c5a58d9
+# python: 3.13.5
+# git: git version 2.47.3
+# node: v24.20.0
+# bound: True (validation commit 18bcb9ec700ae3d439c4fc221c3087d2c36cf788)
+
+S's edit mix: Arm 0's frozen mix (2765 classified edits)
+
+# executed: 2026-10-13T05:24:35Z
+1c-neurofish/onec-client-mcp-devkit: M 0 cases, P 1 cases
+CGIC-AI/psfn-framework: M 1 cases, P 70 cases
+CapitalismGame/capitalism_game: M 0 cases, P 1 cases
+Cogni-AI-OU/cogni-ai-agents: M 2 cases, P 318 cases
+EA31337/ansible-role-metatrader: M 0 cases, P 2 cases
+EntEthAlliance/rnd-rwa-erc3643-eas: M 0 cases, P 5 cases
+Isskar/Isschat: M 0 cases, P 3 cases
+NixOS/nix-security-tracker: M 0 cases, P 17 cases
+Pipelex/mthds-ui: M 0 cases, P 5 cases
+Team801Horsepower/robot-code-2026: M 0 cases, P 11 cases
+TheBoutrosLab/pipeline-StableLift: M 0 cases, P 11 cases
+UPPMAX/HPC-python: M 0 cases, P 2 cases
+ai-runway/airunway: M 0 cases, P 1 cases
+apache/airflow: M 12 cases, P 481 cases
+backstage/backstage: M 0 cases, P 134 cases
+c3g/GenPipes: M 0 cases, P 2 cases
+cardano-foundation/cardano-tool-compass: M 0 cases, P 11 cases
+cloudon-one/multi-cloud-runway: M 0 cases, P 1 cases
+eclaire-labs/eclaire: M 0 cases, P 6 cases
+eeadata/WISE.WFD.Documentation: M 0 cases, P 9 cases
+fluxninja/aperture: M 0 cases, P 272 cases
+friends-of-tutorials/containerized-server: M 0 cases, P 1 cases
+gpo/grassroots: M 0 cases, P 17 cases
+grafana/grafana: M 1 cases, P 35 cases
+istio/istio: M 0 cases, P 2 cases
+kubernetes/community: M 0 cases, P 0 cases
+kubernetes/enhancements: M 1 cases, P 350 cases
+langchain-ai/langchain: M 0 cases, P 1 cases
+lily-osp/6DoF_arm: M 0 cases, P 8 cases
+litexlang/golitex: M 0 cases, P 1891 cases
+lsst/rtn-096: M 0 cases, P 2 cases
+lyft/flinkk8soperator: M 0 cases, P 1 cases
+machinemates-ai/gemini-research-mcp: M 0 cases, P 76 cases
+mermaid-js/mermaid: M 1 cases, P 44 cases
+microbiomedata/nmdc-schema: M 0 cases, P 73 cases
+microbus-io/fabric: M 0 cases, P 92 cases
+microsoft/semantic-kernel: M 0 cases, P 0 cases
+motormetrics/motormetrics: M 0 cases, P 177 cases
+neurogenomics/jacquard: M 0 cases, P 8 cases
+nf-core/seqinspector: M 0 cases, P 1 cases
+open-telemetry/opentelemetry-specification: M 0 cases, P 177 cases
+openwall/john-packages: M 0 cases, P 13 cases
+pagopa/p4pa-doc: M 0 cases, P 37 cases
+rolebasedgroup/rbg-planner: M 0 cases, P 1 cases
+sdmlua/fimbox: M 0 cases, P 1 cases
+seqeralabs/nf-metro: M 2 cases, P 202 cases
+u:00cb874f77d0: M 0 cases, P 1 cases
+u:016b2b21a9ef: M 0 cases, P 30 cases
+u:0d59d01311eb: M 0 cases, P 1 cases
+u:0ee7299f4fa0: M 0 cases, P 2 cases
+u:11b7589e054b: M 0 cases, P 1 cases
+u:1c7b9dc8b5f9: M 0 cases, P 2 cases
+u:25fbe8a74d19: M 0 cases, P 11 cases
+u:289f2dfa76e6: M 0 cases, P 1 cases
+u:2ad466e8bcd4: M 0 cases, P 5 cases
+u:2d52ca5e1a9c: M 0 cases, P 0 cases
+u:2fa92053cce9: M 0 cases, P 24 cases
+u:34499c64f620: M 0 cases, P 1 cases
+u:34b7da78989a: M 0 cases, P 1 cases
+u:3ff9d6dc1a19: M 0 cases, P 45 cases
+u:42d3eb82f9e7: M 0 cases, P 2 cases
+u:446300671358: M 0 cases, P 11 cases
+u:46f775271128: M 0 cases, P 80 cases
+u:574461e980b7: M 0 cases, P 48 cases
+u:57e4919874b9: M 0 cases, P 1 cases
+u:58d9e12ccb51: M 0 cases, P 22 cases
+u:5f2fe5f022b2: M 0 cases, P 20 cases
+u:5fe6b3b437ec: M 0 cases, P 63 cases
+u:6a23680190c3: M 0 cases, P 22 cases
+u:6a93f3f06876: M 0 cases, P 8 cases
+u:7879c8191ef8: M 0 cases, P 9 cases
+u:7886fe5987aa: M 0 cases, P 2 cases
+u:7947a8ee4171: M 0 cases, P 87 cases
+u:7c84d0c7ed80: M 0 cases, P 1 cases
+u:810fd4b901dd: M 0 cases, P 101 cases
+u:841df77495c6: M 0 cases, P 4 cases
+u:894998e519cc: M 0 cases, P 38 cases
+u:8e1733addf9f: M 0 cases, P 15 cases
+u:954608073c97: M 1 cases, P 0 cases
+u:9643c029770e: M 1 cases, P 913 cases
+u:9741d650f73b: M 0 cases, P 22 cases
+u:990542d13c98: M 0 cases, P 1 cases
+u:9b8ca9a982e6: M 0 cases, P 61 cases
+u:9f6e90c4b21f: M 0 cases, P 2 cases
+u:a0f18a2bddab: M 0 cases, P 5 cases
+u:a1b1c881eca0: M 0 cases, P 2 cases
+u:a206ca68dd21: M 0 cases, P 4 cases
+u:a24cc41c1725: M 0 cases, P 62 cases
+u:a4dbf57caa69: M 0 cases, P 5 cases
+u:b13914916b23: M 0 cases, P 33 cases
+u:b40ec60fce4d: M 0 cases, P 115 cases
+u:b76cb92cbb71: M 0 cases, P 22 cases
+u:b7eba22683e6: M 0 cases, P 8 cases
+u:b94d723467b6: M 0 cases, P 2 cases
+u:bada77215092: M 0 cases, P 2 cases
+u:bd42d3f0cf3d: M 0 cases, P 1 cases
+u:beed2edc8218: M 0 cases, P 15 cases
+u:bfab12d1b7f0: M 0 cases, P 11 cases
+u:c01e4a629024: M 0 cases, P 57 cases
+u:c275c39b3d43: M 0 cases, P 11 cases
+u:c8c749f37b08: M 0 cases, P 108 cases
+u:cd318a65ce47: M 0 cases, P 2933 cases
+u:cdb5cf5c9d84: M 0 cases, P 54 cases
+u:d25420525d11: M 0 cases, P 2 cases
+u:e045db2342ba: M 0 cases, P 1 cases
+u:e282fecb2c0b: M 0 cases, P 11 cases
+u:e3c71646d083: M 0 cases, P 140 cases
+u:e4ca45f584ec: M 0 cases, P 101 cases
+u:e71e25c4aab6: M 0 cases, P 235 cases
+u:e94e5016629f: M 0 cases, P 35 cases
+u:e9888febc37c: M 0 cases, P 1 cases
+u:e9ca1546f616: M 0 cases, P 28 cases
+u:ec749c095229: M 0 cases, P 7 cases
+u:f2291c40fb5a: M 0 cases, P 5 cases
+u:f408c3dad832: M 0 cases, P 196 cases
+u:f7d60695578e: M 0 cases, P 1 cases
+u:fd3a4806defd: M 0 cases, P 58 cases
+uclahs-cds/pipeline-StableLift: M 0 cases, P 11 cases
+vibbic/biosegment: M 0 cases, P 1 cases
+vteam-com/fCheck: M 0 cases, P 2 cases
+vulppi-dev/galfus-engine: M 0 cases, P 11 cases
+w3c/vc-barcodes: M 0 cases, P 2 cases
+w3c/yaml-ld: M 0 cases, P 6 cases
+S rates (properties of the edit generator): {"D": {"exposed": 255, "exposed_A": 2, "exposed_B": 33, "exposed_E": 220, "identity_a": 2, "label": "a property of the edit generator (Appendix B.2), not of real editing", "n": 1996, "x_confirmed_identity_a": 2}, "F": {"exposed": 214, "exposed_A": 4, "exposed_B": 30, "exposed_E": 180, "identity_a": 4, "label": "a property of the edit generator (Appendix B.2), not of real editing", "n": 1942, "x_confirmed_identity_a": 4}, "generator_failures": 28}
+
+# end: 2026-10-13T07:49:59Z
+# exited: exit status 0
