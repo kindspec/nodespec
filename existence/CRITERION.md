@@ -61,12 +61,10 @@ edits of it, *ours* and *theirs*, such that all of these hold:
    are one.
 5. **Nothing in the merged file shows it newly.** That record is tier A
    (§5.4): no lint of Appendix C fails on the merged file, for one of the
-   record's objects, where it did not already fail in an input. L1 fails
-   for a node with no node statement of its own. In a chart written in
-   bare `a --> b` style every node already fails it, so a node nobody
-   meant looks like every other node; in a chart whose every node has a
-   statement, the same node has none and L1 flags it, which makes the
-   record tier B.
+   record's objects, where it did not already fail in an input. In a chart written in bare
+   `a --> b` style, every node already fails L1, so a node nobody meant
+   looks like every other node; in a fully labelled chart the same node
+   has no label and L1 flags it, which makes the record tier B.
 
 One case meeting all five meets the bar. Cases are synthetic, written for
 this document, released CC0-1.0 as org contract §6 sets for fixtures.
@@ -109,8 +107,8 @@ this document, released CC0-1.0 as org contract §6 sets for fixtures.
   a scratch tree: two relabels on adjacent lines (git conflicts), two
   relabels three lines apart (clean, no record), and a rename against a
   new edge in a fully labelled chart, which merged clean with an I1 record
-  at tier B because the edge's dangling end becomes a node with no node
-  statement, which L1 flags. The first was not kept.
+  at tier B because the edge's dangling end becomes a node with no label,
+  which L1 flags. The first was not kept.
 - **The review of `run.py`** ran the harness on inputs of its own, none a
   candidate. Two met conditions 2 to 5: a rename against a new edge in a
   bare `a --> b` chart, a clean merge that Mermaid parses with an I1

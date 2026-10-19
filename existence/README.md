@@ -4,6 +4,7 @@
 `CRITERION.md` fixes, before any case ran, what a constructed silent-wrong
 merge of a Mermaid flowchart is. `cases/` holds the candidates, each a
 `base.mmd`, `ours.mmd` and `theirs.mmd` with a line on what each leg does.
+`RESULT.md` gives the verdict and every candidate's result.
 `run.py` runs each once through the Mermaid spike's harness, unchanged,
 and appends one line per candidate to `results.jsonl`, the only file it
 writes.

@@ -10,7 +10,7 @@ stock git merges a Mermaid flowchart silently wrong. It has run, and both of
 its questions ended NO VERDICT (`spike/mermaid/LOG.md` §15). Real merged
 history put identity at risk once, and git refused that merge, so nothing went
 wrong silently. Structure decided 9 cases against a floor of 60. The spike is
-closed, and identity is parked: public history rarely exposes it, as the
+closed, and identity in real history is parked: public history rarely exposes it, as the
 pre-registration predicted (`spike/mermaid/PRE-REGISTRATION.md` §1.5).
 
 nodespec is the **node kind** in [kindspec](https://github.com/kindspec) — a
