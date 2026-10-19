@@ -1,0 +1,6 @@
+flowchart LR
+    user[User] --> api[API]
+    api --> db[(Orders DB)]
+    api --> auth[Auth service]
+    worker[Worker] --> db
+    style worker fill:#fdd

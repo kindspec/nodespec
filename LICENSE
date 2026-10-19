@@ -22,6 +22,10 @@ deliberate, not an oversight.
   spike/*/sealed/           CC0-1.0 (F's sealed fixtures, as a tar, and its nonce)
   spike/*/ruling/           MIT (the verdict by the owner's ruling, LOG §15)
   spike/*/LOG.md            CC-BY-4.0
+  existence/*.md            CC-BY-4.0
+  existence/cases/          CC0-1.0 (synthetic cases, as org contract §6 sets)
+  existence/run.py          MIT
+  existence/results.jsonl   CC-BY-4.0
 
 Full texts are in LICENSES/.
 
