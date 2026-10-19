@@ -1,16 +1,17 @@
 # SPDX-License-Identifier: MIT
 """Run each candidate in cases/ once, in name order, against CRITERION.md §1.
 
-    python3 -I -S -B existence/run.py RESULTS.jsonl
+    python3 -I -S -B existence/run.py
 
 Calls the spike's harness at spike/mermaid/harness, unchanged: case.prepare
 reads the three inputs (stratum F, a .mmd file) and R parses them; gitops
 merges them as commits with stock git and no config; case.outcome parses the
 merged file under R and judges it with the spike's oracle.
 
-RESULTS holds one JSON line per candidate that has run, and only grows: a
+existence/results.jsonl, the only file it writes, holds one JSON line per
+candidate that has run, with the R and git it ran under, and only grows: a
 candidate already in it is never run again, and only candidates not yet in it
-run. The summary is printed, not stored.
+run. The summary is printed.
 
 Conditions 2 to 5 are judged here. Condition 1, that each leg is one
 Appendix B.2 operation, is a property of the case files, judged by review and
@@ -29,6 +30,7 @@ from ms import rbridge as RB  # noqa: E402
 
 IDENTITY = {"I1", "I2", "I3", "I4"}
 PATH = "diagram/diagram.mmd"
+RESULTS = os.path.join(HERE, "results.jsonl")
 NOT_PARSED = "R does not parse the merged diagram"
 
 
@@ -38,8 +40,9 @@ def run_one(name, R):
     row = {"case": name, "condition 1": "by review", "failed": [], "met": False}
     prep = C.prepare("F", *texts, R)
     if prep["excluded"]:
-        # The harness cannot judge these inputs: none of 2 to 5 is reached.
-        row.update(outcome="not judgeable", why=prep["excluded"], failed=["2", "3", "4", "5"])
+        # The harness cannot judge these inputs, so 4 and 5 cannot hold; 2
+        # and 3 are not tested.
+        row.update(outcome="not judgeable", why=prep["excluded"], failed=["4", "5"])
         return row
     m = G.merge_texts(PATH, *(t.encode("utf-8") for t in texts))
     res = C.outcome(prep, texts, m, R, path=PATH)
@@ -68,7 +71,8 @@ def run_one(name, R):
     return row
 
 
-def main(results):
+def main():
+    results = RESULTS
     done = []
     if os.path.exists(results):
         done = [json.loads(line) for line in open(results, encoding="utf-8") if line.strip()]
@@ -79,19 +83,21 @@ def main(results):
         sys.exit(f"every candidate in cases/ is already in {results}; each runs once")
     RB.check_install()
     R = RB.RCache()
+    git = G.version()
     with open(results, "a", encoding="utf-8") as f:
         for n in todo:
             row = run_one(n, R)
+            row.update(r=R.config, git=git)
             f.write(json.dumps(row, sort_keys=True) + "\n")
             f.flush()
             done.append(row)
     met = [r["case"] for r in done if r["met"]]
     print(json.dumps({"ran now": todo, "candidates": len(done), "met": met,
                       "verdict (conditions 2 to 5)": "met" if met else "not met",
-                      "r": R.config, "git": G.version()}, sort_keys=True))
+                      "r": R.config, "git": git}, sort_keys=True))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 1:
         sys.exit(__doc__)
-    main(sys.argv[1])
+    main()

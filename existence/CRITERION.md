@@ -40,8 +40,11 @@ edits of it, *ours* and *theirs*, such that all of these hold:
    An edge statement whose end is a new node, `api --> cache[Cache]`, adds
    a node and an edge at once; candidates 01, 03 and 06 have that shape
    and are reported as written, with this noted. Candidates 08 to 10 add
-   edges only between existing nodes. This condition is a property of the
-   case files: review judges it, and `run.py` records it so.
+   edges only between existing nodes. Read as one statement-level
+   operation, as Mermaid writes it, 01, 03 and 06 meet this condition;
+   read as one node or one edge, they do not, and a result on them is
+   reported with that noted. This condition is a property of the case
+   files: review judges it, and `run.py` records it so.
 2. **Git merges it cleanly.** Stock `git merge` of the three texts as
    commits, through the spike's hermetic wrapper
    (`harness/ms/gitops.py` `merge_texts`: no user or system config, no
@@ -57,8 +60,8 @@ edits of it, *ours* and *theirs*, such that all of these hold:
    different node than its author wrote, or two authors' distinct nodes
    are one.
 5. **Nothing in the merged file shows it newly.** That record is tier A
-   (§5.4): no lint of Appendix C fails on the merged file for an object it
-   did not already fail for in an input. In a chart written in bare
+   (§5.4): no lint of Appendix C fails on the merged file, for one of the
+   record's objects, where it did not already fail in an input. In a chart written in bare
    `a --> b` style, every node already fails L1, so a node nobody meant
    looks like every other node; in a fully labelled chart the same node
    has no label and L1 flags it, which makes the record tier B.
@@ -76,12 +79,13 @@ this document, released CC0-1.0 as org contract §6 sets for fixtures.
 - **Each is run once**, in name order, by `run.py`, which calls the spike's
   harness functions at nodespec `main`, unchanged: `ms/case.py`'s
   `prepare` and `outcome`, which merge, parse under R and judge. R is
-  installed from the committed `package-lock.json`. `results.jsonl` only
-  grows, and `run.py` never runs a candidate already in it.
+  installed from the committed `package-lock.json`. `run.py` writes only
+  `existence/results.jsonl`, with the R and git each candidate ran under;
+  the file only grows, and `run.py` never runs a candidate already in it.
 - **Every candidate is reported**, whether or not it meets §1, with every
   condition of 2 to 5 that failed; 1 is judged by review. A candidate the
   harness cannot judge at all, its inputs outside the spike's subset, is
-  reported as not judgeable. No candidate is edited after it has run.
+  reported as not judgeable, failing 4 and 5, with 2 and 3 not tested. No candidate is edited after it has run.
 - **Verdict:** **met** if any candidate meets all five; **not met** if
   none of the ten does. "Not met" sends the question back to the owner;
   it does not by itself decide that nodespec is not built.
@@ -106,12 +110,14 @@ this document, released CC0-1.0 as org contract §6 sets for fixtures.
   at tier B because the edge's dangling end becomes a node with no label,
   which L1 flags. The first was not kept.
 - **The review of `run.py`** ran the harness on inputs of its own, none a
-  candidate. One, a rename against a new edge in a bare `a --> b` chart,
-  met conditions 2 to 5: a clean merge, Mermaid parsing it, and an I1
-  record at tier A. It is not a candidate and is not part of the verdict.
+  candidate. Two met conditions 2 to 5: a rename against a new edge in a
+  bare `a --> b` chart, a clean merge that Mermaid parses with an I1
+  record at tier A; and an input that fails condition 1, one leg making
+  three edits. It is not a candidate and is not part of the verdict.
   Candidate 08 has its shape and was written after it, as were 09 and 10.
 - The review also found that the first approved text had been edited
   after approval (the smoke-test paragraph), that `run.py` numbered three
-  outcomes wrongly and could re-run a candidate under a new output path,
+  outcomes wrongly and could re-run a candidate under a new output path
+  (it now writes one fixed file),
   and that the labelled chart of 01 to 07 makes most identity errors
   lint-visible. The revision above answers each.
