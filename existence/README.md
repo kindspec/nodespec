@@ -5,7 +5,9 @@
 merge of a Mermaid flowchart is. `cases/` holds the candidates, each a
 `base.mmd`, `ours.mmd` and `theirs.mmd` with a line on what each leg does.
 `run.py` runs each once through the Mermaid spike's harness, unchanged,
-and writes `results.jsonl`.
+and appends one line per candidate to the results file it is given,
+`results.jsonl` here.
 
-The case files are released under CC0-1.0, as org contract §6 sets for
-fixtures; the prose is CC-BY-4.0 and `run.py` MIT.
+The case files, with the one-line README beside each, are released under
+CC0-1.0, as org contract §6 sets for fixtures; `CRITERION.md` and this
+file are CC-BY-4.0, and `run.py` MIT.
