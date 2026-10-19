@@ -1,13 +1,16 @@
 # nodespec
 
-**Status: not started.** This repository is a stub. It exists so the decisions
-already made are not lost, and so the design pass can begin from them rather
-than from a blank page. A pre-registered spike, `spike/mermaid/`, asked whether
+**Status: earned its existence; the design pass is next.** There is no
+specification yet. `existence/RESULT.md` records that stock git merges a
+Mermaid flowchart silently wrong in constructed cases that meet a criterion
+fixed before they ran (`existence/CRITERION.md`), which with the product
+need meets the bar set for this kind. The first surface is named-node
+diagrams. A pre-registered spike, `spike/mermaid/`, asked whether
 stock git merges a Mermaid flowchart silently wrong. It has run, and both of
 its questions ended NO VERDICT (`spike/mermaid/LOG.md` §15). Real merged
 history put identity at risk once, and git refused that merge, so nothing went
 wrong silently. Structure decided 9 cases against a floor of 60. The spike is
-closed, and identity is parked: public history rarely exposes it, as the
+closed, and identity in real history is parked: public history rarely exposes it, as the
 pre-registration predicted (`spike/mermaid/PRE-REGISTRATION.md` §1.5).
 
 nodespec is the **node kind** in [kindspec](https://github.com/kindspec) — a
@@ -22,7 +25,7 @@ part of every one of them:
 |---|---|---|---|
 | [rowspec](https://github.com/kindspec/rowspec) | rows | opaque row ids | draft 0, published |
 | [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | design pass |
-| **nodespec** | nodes | **named, not positional** | not started |
+| **nodespec** | nodes | **named, not positional** | existence earned; design pass next |
 
 ## The thing that makes this different from rowspec
 
