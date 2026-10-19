@@ -10,12 +10,12 @@ specific to nodespec, and wins where the two conflict.
 
 ## Status
 
-**Nothing is specified yet, and the kind has earned its existence**
-(`existence/RESULT.md`). Its format is decided:
-`docs/adjudications/0001-mermaid-profile.md`. nodespec is the **nodes kind** — identity is
+**The kind has earned its existence** (`existence/RESULT.md`), and its
+format is decided: `docs/adjudications/0001-mermaid-profile.md`.
+`SPEC.md` is draft 0, written from it. nodespec is the **nodes kind** — identity is
 named, not positional — alongside [rowspec](https://github.com/kindspec/rowspec) and [blockspec](https://github.com/kindspec/blockspec).
 
-There is no `SPEC.md`, no conformance suite and no implementation, and saying so
+There is no conformance suite and no implementation, and saying so
 is cheaper than being asked.
 
 ## Before writing anything
