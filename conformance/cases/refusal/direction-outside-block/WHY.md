@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `direction-outside-block`.
 
-**Pins the provisional reading (§12):** A direction statement only in a block, at most one per block (§4.9).
-
 ## Input
 
 ````text
@@ -22,7 +20,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> A direction statement, `direction LR`, sets a block's direction. It stands only in a block (provisional): at the top level it is refused as `direction-outside-block`.
+> A direction statement, `direction LR`, sets a block's direction. It stands only in a block: at the top level it is refused as `direction-outside-block`.
 
 ## Reasoning
 

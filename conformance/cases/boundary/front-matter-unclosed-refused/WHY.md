@@ -22,7 +22,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.3:
 
-> A file with no statement line is refused as `no-header`. A first statement line that does not match `header` is refused as `no-header`, and the lines after it are classified as if a header stood in its place (provisional).
+> A file with no statement line is refused as `no-header`. A first statement line that does not match `header` is refused as `no-header`, and the lines after it are classified as if a header stood in its place.
 
 ## Reasoning
 

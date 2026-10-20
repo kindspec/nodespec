@@ -35,7 +35,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.2:
 
-> A directive: the line holds `%%{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10).
+> A directive, class shorthand or shape data: the line holds `%%{`, `:::` or `@{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner, 2026-10-20).
 
 ## Reasoning
 

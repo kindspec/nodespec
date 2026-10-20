@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `stray-direction`.
 
-**Pins the provisional reading (§12):** Which refusals apply once a line is refused, and that refusals of a line or a file carry no id (§9).
-
 ## Input
 
 ````text
@@ -17,7 +15,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §9:
 
-> `stray-direction` applies to a line whatever else applies to it, except to front matter lines, which §4.9 exempts; `reserved-id` applies only to a line that nothing else refuses (§4.4).
+> `stray-direction` applies to a line whatever else applies to it, except to front matter lines and to comments refused for `:::` or `@{`, which §4.9 exempts; `reserved-id` applies only to a line that nothing else refuses (§4.4).
 
 §4.4:
 

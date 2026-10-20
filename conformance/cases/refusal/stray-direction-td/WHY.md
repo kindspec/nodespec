@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `stray-direction`.
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 ## Input
 
 ````text
@@ -21,7 +19,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> The words compare exactly (provisional, as Mermaid's lexer does): `direction` in lower case, and `TB`, `BT`, `RL`, `LR` and `TD` in upper case. `a[go direction lr]`, `a[go direction Lr]`, `a[go Direction LR]` and `a[go DIRECTION LR]` each declare their node in Mermaid, and none is `stray-direction`.
+> The words compare exactly, as Mermaid's lexer does: `direction` in lower case, and `TB`, `BT`, `RL`, `LR` and `TD` in upper case. `a[go direction lr]`, `a[go direction Lr]`, `a[go Direction LR]` and `a[go DIRECTION LR]` each declare their node in Mermaid, and none is `stray-direction`.
 
 ## Reasoning
 

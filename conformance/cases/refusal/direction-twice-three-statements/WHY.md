@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `direction-twice`.
 
-**Pins the provisional reading (§12):** Every direction statement in a block after the first is `direction-twice` (§4.9).
-
 ## Input
 
 ````text
@@ -23,7 +21,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> A block holds at most one direction statement (provisional): every direction statement in a block after its first is refused as `direction-twice`, the third and later ones included (provisional).
+> A block holds at most one direction statement: every direction statement in a block after its first is refused as `direction-twice`, the third and later ones included.
 
 §9:
 

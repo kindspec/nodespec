@@ -50,10 +50,6 @@ def test_markdown_title_on_a_subgraph_line_is_malformed():
     }
 
 
-def test_not_admitted_forms_in_a_style_line_are_malformed():
-    assert got(H + "  a[A]\n  style a fill:red:::x\n") == {("malformed-line", None)}
-
-
 def test_not_admitted_forms_in_a_block_are_not_admitted():
     assert got(H + "  a[A]\n  subgraph s\n    a:::c\n  end\n") == {("not-admitted", None)}
 

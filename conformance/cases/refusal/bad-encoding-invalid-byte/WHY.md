@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `bad-encoding`.
 
-**Pins the provisional reading (§12):** UTF-8 is required; a leading BOM and a lone CR are refused (§3).
-
 ## Input
 
 ````text
@@ -19,7 +17,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §3:
 
-> A file is UTF-8 (provisional). Bytes that are not well-formed UTF-8 are refused as `bad-encoding`.
+> A file is UTF-8. Bytes that are not well-formed UTF-8 are refused as `bad-encoding`.
 
 §3:
 
@@ -27,7 +25,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §9:
 
-> `bad-encoding` and `lone-cr` are about the whole file, and when either applies, nothing else is checked: both are reported when both apply, and `leading-bom` is not reported (provisional).
+> `bad-encoding` and `lone-cr` are about the whole file, and when either applies, nothing else is checked: both are reported when both apply, and `leading-bom` is not reported.
 
 ## Reasoning
 

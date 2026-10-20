@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** One class per `classDef` and per `class` line, and one target per `style` line (§4.8).
-
 ## Input
 
 ````text
@@ -18,7 +16,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.8:
 
-> One statement, one class, one style target (provisional):
+> One statement, one class, one style target:
 
 §4.8:
 

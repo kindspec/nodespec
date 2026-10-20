@@ -23,7 +23,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 ## Reasoning
 
-`@` is left out of unquoted labels; the line holds no `@{`, so rule 11 does not apply.
+`@` is left out of unquoted labels; the line holds no `@{`, so §4.2 rule 3 does not apply, and no `"` then a backtick, so §4.3 rule 11 does not.
 
 ## Other identifiers
 

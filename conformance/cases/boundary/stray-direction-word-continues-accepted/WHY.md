@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 **Twin:** `boundary/stray-direction-line-ends-in-direction-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input

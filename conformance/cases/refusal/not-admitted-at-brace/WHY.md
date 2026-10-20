@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `not-admitted`.
 
-**Pins the provisional reading (§12):** `@{ … }` is not admitted (§4.10).
-
 ## Input
 
 ````text
@@ -16,19 +14,23 @@ a@{ shape: rect }
 
 Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold markers dropped.
 
-§4.3:
+§4.2:
 
-> Holds `:::` or `@{`, or a `"` directly followed by `` ` ``: `not-admitted`.
+> A directive, class shorthand or shape data: the line holds `%%{`, `:::` or `@{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner, 2026-10-20).
 
 §4.10:
 
-> `@{ … }`, Mermaid's newer shape and edge data form (provisional).
+> A line that holds `:::` or `@{` is `not-admitted` wherever the characters stand, label text included (the owner, 2026-10-20): `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`, `subgraph s [a:::b]`, `subgraph s ["a@{b"]`, `style a fill:#f00 :::x`, `linkStyle 0 :::x` and a comment `%% use ::: here` are each `not-admitted`, although Mermaid reads the characters in a label as text. §4.2 rule 3 decides this before any rule of §4.3, so no first word changes it.
+
+§4.10:
+
+> `@{ … }`, Mermaid's newer shape and edge data form, in any line (§4.2 rule 3).
 
 ## Reasoning
 
-The line matches no earlier production and holds `@{`.
+The line holds `@{`, so §4.2 rule 3 refuses it as `not-admitted`.
 
 ## Other identifiers
 
-- `malformed-line`: Rule 11 comes before rule 12.
+- `malformed-line`: §4.2 rule 3 classifies the line before it could be a statement line, and a classified line is never read as something else.
 - `duplicate-declaration`: The refused line declares nothing.

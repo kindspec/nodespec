@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** UTF-8 is required; a leading BOM and a lone CR are refused (§3).
-
 ## Input
 
 ````text

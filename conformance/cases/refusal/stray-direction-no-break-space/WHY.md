@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `stray-direction`.
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 ## Input
 
 ````text
@@ -23,7 +21,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> Here, in both clauses (provisional for the second), a whitespace character is any of U+0009 to U+000D, U+0020, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF, which is what Mermaid's lexer counts; U+00A0 between the words swallows the line as a space does.
+> Here, in both clauses, a whitespace character is any of U+0009 to U+000D, U+0020, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF, which is what Mermaid's lexer counts; U+00A0 between the words swallows the line as a space does.
 
 ## Reasoning
 

@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 ## Input
 
 ````text

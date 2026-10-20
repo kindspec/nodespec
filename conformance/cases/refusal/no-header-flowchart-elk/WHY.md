@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `no-header`.
 
-**Pins the provisional reading (§12):** After a `no-header` line, the lines that follow are read as if a header stood there; the header's direction is optional; and `flowchart-elk` is not admitted (§4.3).
-
 ## Input
 
 ````text
@@ -17,11 +15,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.3:
 
-> A header in another case (`Flowchart`), with another direction (`td`, `<`, `v`), with `flowchart-elk`, or with a `;` after it does not match. The direction is optional, as in the spike's subset (provisional).
+> A header in another case (`Flowchart`), with another direction (`td`, `<`, `v`), with `flowchart-elk`, or with a `;` after it does not match. The direction is optional, as in the spike's subset.
 
 §4.3:
 
-> `flowchart-elk` is not admitted (provisional).
+> `flowchart-elk` is not admitted.
 
 ## Reasoning
 

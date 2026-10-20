@@ -402,7 +402,7 @@ CASES = [
     ("style-quote", H + '  a[A]\n  style a font-family:"x"\n', one("malformed-line")),
     ("style-empty-hex", H + "  a[A]\n  style a fill:#\n", one("malformed-line")),
     ("style-uppercase-unit", H + "  a[A]\n  style a width:5PX\n", one("malformed-line")),
-    ("style-triple-colon", H + "  a[A]\n  style a fill:::x\n", one("malformed-line")),
+    ("style-triple-colon", H + "  a[A]\n  style a fill:::x\n", one("not-admitted")),
     # --- §4.9 ----------------------------------------------------------------
     ("direction-in-block", H + "  a[A]\n  subgraph s\n    direction LR\n    a\n  end\n", OK),
     ("direction-outside-block", H + "  direction LR\n", one("direction-outside-block")),

@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** Style lists are narrower than Mermaid's (§4.8).
-
 ## Input
 
 ````text

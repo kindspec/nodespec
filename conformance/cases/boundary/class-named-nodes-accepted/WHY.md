@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** `default`, `direction` and `hasOwnProperty` are reserved, ids of the form `L_…_…_N` are reserved, and a class may not be `node` (§4.4).
-
 **Twin:** `boundary/class-named-node-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input
@@ -24,7 +22,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.4:
 
-> A class may not be `node` (provisional): a `classDef` or `class` naming the class `node` is refused as `reserved-id`.
+> A class may not be `node`: a `classDef` or `class` naming the class `node` is refused as `reserved-id`.
 
 ## Reasoning
 

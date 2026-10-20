@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `stray-direction`.
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 **Twin:** `boundary/stray-direction-glued-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 **Twin:** `boundary/stray-direction-in-comment-accepted`, which differs from this file by 7 byte edits (Levenshtein distance over bytes).

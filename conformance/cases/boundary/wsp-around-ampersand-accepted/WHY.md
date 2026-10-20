@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** Links and `&` have `WSP` on both sides, and only the spike's links are admitted (§4.6).
-
 **Twin:** `boundary/wsp-missing-after-ampersand-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 **Twin:** `boundary/wsp-missing-before-ampersand-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
@@ -24,7 +22,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.6:
 
-> Links and `&` have `WSP` on both sides (provisional): Mermaid also reads `a-->b`, but without the spaces `A---oB` is a circle-headed link to `B` and `a&b` is one node.
+> Links and `&` have `WSP` on both sides: Mermaid also reads `a-->b`, but without the spaces `A---oB` is a circle-headed link to `B` and `a&b` is one node.
 
 §4.1:
 
