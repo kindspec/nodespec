@@ -1,6 +1,5 @@
 {
   "refusal": [
     "direction-outside-block"
-  ],
-  "provisional": "A direction statement only in a block, at most one per block (§4.9)."
+  ]
 }

@@ -1,6 +1,5 @@
 {
   "refusal": [
     "malformed-line"
-  ],
-  "provisional": "An unquoted label holds no `~~~` (§4.5)."
+  ]
 }

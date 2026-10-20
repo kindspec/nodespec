@@ -1,6 +1,5 @@
 {
   "refusal": [
     "statement-in-block"
-  ],
-  "provisional": "`edge-id-on-group` applies only to top-level edge statements (§4.6)."
+  ]
 }

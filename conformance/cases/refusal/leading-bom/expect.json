@@ -1,6 +1,5 @@
 {
   "refusal": [
     "leading-bom"
-  ],
-  "provisional": "UTF-8 is required; a leading BOM and a lone CR are refused (§3)."
+  ]
 }
