@@ -664,8 +664,8 @@ this before any rule of §4.3, so no first word changes it. A Markdown
 string never matches a node or edge label (§4.5), so in a node or edge
 statement it is always `not-admitted` (§4.3 rule 11). Where an earlier
 rule of §4.3 decides a line holding a Markdown string, the line gets
-that rule's refusal: for example, in a line whose first word is `subgraph`,
-`end`, `direction`, `classDef`, `class` or `style` it is
+that rule's refusal: for example, in a line whose first word is
+`subgraph`, `end`, `direction`, `classDef`, `class` or `style` it is
 `malformed-line` (a subgraph title in Markdown included), and in a
 `linkStyle` line it is `link-style`. Other forms
 Mermaid accepts and this grammar does not, such as `;`, `-- text -->`,
