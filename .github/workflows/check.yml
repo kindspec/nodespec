@@ -51,6 +51,16 @@ jobs:
       - name: conformance cases
         if: always()
         run: just conform
+      # Not §9 conformance: the reference checker must report exactly what
+      # each case lists.
+      - name: conformance cases, judged exactly
+        if: always()
+        run: just conform-exact
+      # Every mutant of the checker and the runner must be killed by a test;
+      # about 45 seconds.
+      - name: mutation gate
+        if: always()
+        run: just mutants
 
   # One name for the matrix, green only when every leg is, for a ruleset to
   # require if one is turned on.
