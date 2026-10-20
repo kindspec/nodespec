@@ -73,7 +73,8 @@ not part of the first line: the lines are read as if it were absent.
 
 A line ends at LF, or at CR followed by LF; the line ending is not part
 of the line. The last line need not end with one. **A CR that is not
-followed by LF is refused as `lone-cr` (provisional).** Mermaid reads a
+followed by LF, that is a byte 0x0D not followed by a byte 0x0A, is
+refused as `lone-cr` (provisional).** Mermaid reads a
 lone CR as a line end and git does not, so to git a file whose lines
 end in CR is one line, and every two edits to it touch the same line.
 
@@ -178,8 +179,8 @@ line that breaks one does not match:
 
 Two more are refusals of their own: an `id` that is reserved, in a line
 that matches, is `reserved-id` (§4.4); and text that Mermaid reads as a
-direction statement, in any line but a comment or a direction
-statement, is `stray-direction` (§4.9).
+direction statement, in any line but a comment, a front matter line or
+a direction statement, is `stray-direction` (§4.9).
 
 ### 4.2 Lines
 
@@ -190,8 +191,9 @@ that is classified is never also read as something else.
    before or after it, that line and every line up to and including the
    next such line, or to the end of the file if there is none, are
    refused together as `not-admitted` (§4.10). Mermaid's matcher takes
-   `---` with trailing whitespace, and indented only when both fences
-   are indented alike; with one fence indented, or the two indented
+   `---` with trailing whitespace, and indented, by any whitespace but a
+   line end (U+00A0 included), only when both fences are indented
+   alike; with one fence indented, or the two indented
    differently, Mermaid does not parse the file. The profile refuses
    every one of these forms the same way. These lines are not
    statement lines, so the header comes after them.
@@ -561,9 +563,9 @@ starts to the end of that line; the whitespace may include line ends.
 What it swallows is gone: `a[go direction LR]` declares no node, an
 edge labelled `|direction RL|` is no edge, and a member line ending
 in `direction` followed by a line starting with `LR` holds neither. So
-a line other than a comment or a line that matches `direction-stmt` is
-refused as `stray-direction` when **(provisional, in this exact
-form)**:
+a line other than a comment, a front matter line or a line that
+matches `direction-stmt` is refused as `stray-direction` when
+**(provisional, in this exact form)**:
 
 - it holds `direction`, then one or more whitespace characters, then
   `TB`, `BT`, `RL`, `LR` or `TD`; or
@@ -581,10 +583,18 @@ them before it lexes. **Front matter lines are exempt too
 (provisional)**: Mermaid removes front matter before it lexes, so
 `title: go direction LR` in it swallows nothing (the file is still
 `not-admitted`, §4.2). **A directive line is not exempt
-(provisional)**: Mermaid removes only the text from `%%{` to `}%%`, and
-lexes what is left of the line, so `a[go direction LR %%{x}%%]`
-declares no node. A directive line holding the text is refused as both
-`not-admitted` and `stray-direction`.
+(provisional)**: Mermaid removes only the text its directive pattern
+matches and lexes the rest. That span can end before `}%%`
+(`a[A %%{x direction LR}%%]` loses only `%%{x direction `), and when
+the directive is unclosed it runs past the end of the line. Text
+outside the span is lexed: `a[go direction LR %%{x}%%]` declares no
+node. A directive line
+holding the text is refused as both `not-admitted` and
+`stray-direction`, even where the text stands inside the removed span
+and Mermaid swallows nothing, as in
+`%%{init: {"theme": "direction LR"}}%%`. That case is refused
+deliberately: the line is refused anyway, and one rule over the whole
+line is simpler to apply than one over Mermaid's span.
 
 **The words compare exactly (provisional, as Mermaid's lexer does)**:
 `direction` in lower case, and `TB`, `BT`, `RL`, `LR` and `TD` in upper
@@ -625,11 +635,13 @@ Refused as `not-admitted`:
 
 A line is `not-admitted` only as §4.2 and §4.3 say. So `:::`, `@{` and
 a Markdown string are `not-admitted` only where §4.3 rule 11 reaches
-them: in a node or edge statement, at the top level or in a block. In
-a line whose first word is `subgraph`, `classDef`, `class` or `style`,
-§4.3's rules 1 and 4 come first, and the same text is
-`malformed-line`, a subgraph title in Markdown included
-**(provisional)**. Other forms
+them: in a node or edge statement, including its node or edge label,
+at the top level or in a block. Where an earlier rule of §4.3 decides
+the line, the same text gets that rule's refusal **(provisional)**:
+for example, in a line whose first word is `subgraph`, `end`,
+`direction`, `classDef`, `class` or `style` it is `malformed-line` (a
+subgraph title in Markdown included), and in a `linkStyle` line it is
+`link-style`. Other forms
 Mermaid accepts and this grammar does not, such as `;`, `-- text -->`,
 the other links, other ids, `classDef c1,c2` and `class a c1,c2`, are
 `malformed-line`.
@@ -827,7 +839,7 @@ A checker MUST refuse:
 
 1. `bad-encoding`: bytes that are not well-formed UTF-8 (§3)
 2. `leading-bom`: a byte-order mark at the start of the file (§3)
-3. `lone-cr`: a CR not followed by LF (§3)
+3. `lone-cr`: a byte 0x0D not followed by 0x0A (§3)
 4. `conflict-marker`: a line that starts with seven `<`, `=`, `>` or
    `|` (§4.2)
 5. `no-header`: no statement line, or a first one that is not a header
@@ -839,8 +851,8 @@ A checker MUST refuse:
    reaches it (§4.10)
 8. `reserved-id`: an id that is reserved, or a class named `node`
    (§4.4)
-9. `stray-direction`: text Mermaid would read as a direction statement
-   where none stands (§4.9)
+9. `stray-direction`: text matching §4.9's pattern, outside comments,
+   front matter and direction statements (§4.9)
 10. `subgraph-without-id`: a subgraph line with no explicit id (§4.7,
     D1)
 11. `declaration-in-edge`: a node declared inside an edge statement
