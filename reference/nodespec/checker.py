@@ -363,10 +363,11 @@ def check(data):
     for i, line in enumerate(lines):
         # §4.9: stray-direction applies whatever else applies, to any line
         # but a comment, a front matter line or a line that matches
-        # `direction-stmt`. A directive line is not exempt.
+        # `direction-stmt`. A directive line is not exempt, and §4.2 rule 3
+        # classifies it before rule 5 could make it a comment.
         stray = (
             i >= front
-            and not g.is_comment(line)
+            and not (g.is_comment(line) and "%%{" not in line)
             and not g.is_direction_stmt(line)
             and is_stray_direction(line)
         )

@@ -250,3 +250,14 @@ def test_a_line_that_matches_nothing_is_not_admitted_though_its_text_is_label_te
 def test_a_closing_fence_indented_by_nbsp_does_not_close():
     # The front matter then runs to the end of the file (§4.2 rule 1).
     assert got("---\nx: 1\n" + NBSP + "---\n" + H) == {("not-admitted", None), ("no-header", None)}
+
+
+@pytest.mark.parametrize("line", ["%% x %%{ direction LR", "%% x %%{y}%% direction"])
+def test_a_directive_line_shaped_like_a_comment_is_not_exempt(line):
+    # §4.2 rule 3 (directive) comes before rule 5 (comment), so the line is a
+    # directive line, and §4.9 exempts only comment lines.
+    assert got(H + line + "\n  a[A]\n") == {("not-admitted", None), ("stray-direction", None)}
+
+
+def test_a_comment_holding_the_text_is_still_exempt():
+    assert got(H + "%% x direction LR\n%% ends in direction\n  a[A]\n") == set()
