@@ -9,11 +9,12 @@ something the grammar has to decide, the text takes a reading, marks
 it **(provisional)**, and lists it in §12. Each provisional reading
 waits for the owner.
 
-There is no conformance suite yet. Its cases are to be written from
-this text alone, by someone who has not written a checker, and a
-reference checker is then run against them unchanged, under a mutation
-gate (0001, *What is decided already*). Every rule below is meant to be
-decidable from this text without reading Mermaid's source.
+The conformance suite is `conformance/cases/` (§10). Its cases were
+written from this text alone, by someone who had not written a
+checker, and the reference checker, `reference/nodespec/`, is run
+against them unchanged, under a mutation gate (0001, *What is decided
+already*). Every rule below is meant to be decidable from this text
+without reading Mermaid's source.
 
 ---
 
@@ -966,11 +967,19 @@ different refusal. The numbering is not a precedence order.
 
 ## 10. Conformance
 
-The suite does not exist yet. When it does, a case is a directory of
-exact bytes holding one input file and one `expect.json`: either the
-file is in the profile, or the identifiers that apply to it, each with
-its ids where the entry has them (§9). A checker conforms when it
-reports what each case expects. Every input a case accepts is a Mermaid
+The suite is `conformance/cases/`; its `README.md` defines every
+field. A case is a directory of exact bytes holding one input file and
+one `expect.json`: either the file is in the profile, or every
+identifier that applies to it, each with its ids where the entry has
+them (§9). A case is judged by §9's rule: a refusal passes if its
+identifier, and its id where the entry has one, are among those the
+case lists, and which applicable refusal is reported is not specified.
+A checker conforms when every case passes.
+
+A case whose outcome depends on a provisional reading carries a
+`provisional` tag: the text of the §12 bullet it pins, so a change to
+that reading can be traced to the cases it touches. The tag does not
+change how a case is judged. Every input a case accepts is a Mermaid
 flowchart, and the suite's tooling can check that each parses in
 Mermaid as §2 pins it.
 
