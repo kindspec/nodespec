@@ -215,3 +215,38 @@ def test_not_admitted_text_reached_by_rule_11_in_a_block():
 def test_whole_file_refusals():
     assert got(b"\xef\xbb\xbfflowchart TD\r\xff") == {("lone-cr", None), ("bad-encoding", None)}
     assert got(b"\xef\xbb\xbfflowchart TD\r") == {("lone-cr", None)}
+
+
+# --- bc2cf0b: non-WSP fences, and syntax-like label text ---------------------------
+
+
+def test_spec_example_of_nbsp_indented_fences():
+    # §4.2 rule 1's own example: a U+00A0 before each fence.
+    text = NBSP + "---\n" + NBSP + "---\nflowchart TD\na --> b\n"
+    assert got(text) == {
+        ("no-header", None),
+        ("malformed-line", None),
+        ("undeclared-id", "a"),
+        ("undeclared-id", "b"),
+    }
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "  b[B]\n  a[A]\n  a -->|x:::y| b\n",
+        '  b[B]\n  a[A]\n  a -->|"x@{y"| b\n',
+    ],
+)
+def test_edge_label_text_that_matches_is_text(text):
+    assert got(H + text) == set()
+
+
+def test_a_line_that_matches_nothing_is_not_admitted_though_its_text_is_label_text():
+    assert got(H + "  a[x:::y] q\n") == {("not-admitted", None)}
+    assert got(H + '  a["x@{y"] q\n') == {("not-admitted", None)}
+
+
+def test_a_closing_fence_indented_by_nbsp_does_not_close():
+    # The front matter then runs to the end of the file (§4.2 rule 1).
+    assert got("---\nx: 1\n" + NBSP + "---\n" + H) == {("not-admitted", None), ("no-header", None)}

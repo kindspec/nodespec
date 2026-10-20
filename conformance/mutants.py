@@ -319,6 +319,19 @@ MUTANTS = [
     ("stray-direction-lower-case", CHECKER, '"]+(?:TB|BT|RL|LR|TD)"', '"]+(?:TB|BT|RL|LR|TD|lr)"'),
     ("L-form-without-underscores", CHECKER, r'_[A-Za-z0-9_]+_[0-9]+")', r'_[A-Za-z0-9]+_[0-9]+")'),
     ("subgraph-skips-one-wsp", GRAMMAR, '"*subgraph" + _WSP + "*")', '"*subgraph" + _WSP + "?")'),
+    # --- bc2cf0b ---------------------------------------------------------------
+    (
+        "front-matter-fence-any-whitespace",
+        CHECKER,
+        'if lines and lines[0].strip(g.WSP_CHARS) == "---":',
+        'if lines and lines[0].strip() == "---":',
+    ),
+    (
+        "front-matter-close-any-whitespace",
+        CHECKER,
+        'if lines[j].strip(g.WSP_CHARS) == "---":',
+        'if lines[j].strip() == "---":',
+    ),
     # --- the case runner ---------------------------------------------------
     (
         "runner-ignores-the-identifier",
