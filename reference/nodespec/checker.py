@@ -291,11 +291,23 @@ def _classify(line, block):
             st.names = [(m, _NODE_OR_SUBGRAPH, "a member line")]
             return st, None
         return None, ("malformed-line", f"the bare id `{m}` stands at the top level")
-    # 11. :::, @{, a Markdown string
-    if ":::" in line or "@{" in line or '"`' in line:
+    # 11. a Markdown string (`:::` and `@{` were refused by §4.2 rule 3)
+    if '"`' in line:
         return None, ("not-admitted", f"the line {shown} is not admitted")
     # 12.
     return None, ("malformed-line", f"the line {shown} matches no statement")
+
+
+# §4.2 rule 3: a directive, class shorthand or shape data, anywhere in a line.
+_RULE_3 = ("%%{", ":::", "@{")
+
+
+def _rule_3_text(line):
+    """The first of §4.2 rule 3's texts that the line holds, or None."""
+    for t in _RULE_3:
+        if t in line:
+            return t
+    return None
 
 
 def _decode(data):
@@ -363,11 +375,12 @@ def check(data):
     for i, line in enumerate(lines):
         # §4.9: stray-direction applies whatever else applies, to any line
         # but a comment, a front matter line or a line that matches
-        # `direction-stmt`. A directive line is not exempt, and §4.2 rule 3
-        # classifies it before rule 5 could make it a comment.
+        # `direction-stmt`. A line §4.2 rule 3 refuses is not a comment,
+        # since rule 3 classifies it before rule 5 is tried.
+        rule_3 = _rule_3_text(line)
         stray = (
             i >= front
-            and not (g.is_comment(line) and "%%{" not in line)
+            and not (g.is_comment(line) and rule_3 is None)
             and not g.is_direction_stmt(line)
             and is_stray_direction(line)
         )
@@ -383,8 +396,8 @@ def check(data):
         if line[:7] in ("<" * 7, "=" * 7, ">" * 7, "|" * 7):
             refuse("conflict-marker", f"the line {_show(line)} is a conflict marker")
             continue
-        if "%%{" in line:
-            refuse("not-admitted", f"the line {_show(line.strip(g.WSP_CHARS))} holds a directive")
+        if rule_3 is not None:
+            refuse("not-admitted", f"the line {_show(line.strip(g.WSP_CHARS))} holds `{rule_3}`")
             continue
         if g.is_blank(line) or g.is_comment(line):
             continue

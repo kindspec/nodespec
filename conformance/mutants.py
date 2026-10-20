@@ -50,7 +50,12 @@ MUTANTS = [
     ("unclosed-front-matter-is-one-line", CHECKER, "front = len(lines)", "front = 1"),
     ("conflict-marker-of-six", CHECKER, "if line[:7] in", "if line[:6] in"),
     ("conflict-marker-no-pipes", CHECKER, '"|" * 7', '"|" * 8'),
-    ("directive-needs-brace", CHECKER, 'if "%%{" in line:', 'if "%%{{" in line:'),
+    (
+        "directive-needs-brace",
+        CHECKER,
+        '_RULE_3 = ("%%{", ":::", "@{")',
+        '_RULE_3 = ("%%{{", ":::", "@{")',
+    ),
     ("comment-may-hold-eq-quote", GRAMMAR, "'=\"' not in line", "'==\"' not in line"),
     ("comment-may-hold-eq", GRAMMAR, "'=\"' not in line", "'=' not in line"),
     ("comment-may-start-with-brace", GRAMMAR, r"\x20-\x7a\x7c-\x7e", r"\x20-\x7a\x7b-\x7e"),
@@ -89,8 +94,32 @@ MUTANTS = [
     ),
     ("accdescr-brace-admitted", CHECKER, r"accDescr[ \t]*[:{])", r"accDescr[ \t]*[:])"),
     ("click-admitted", CHECKER, 'if fw == "click" or', 'if fw == "clicks" or'),
-    ("markdown-string-malformed", CHECKER, "or '\"`' in line:", "or '\"``' in line:"),
-    ("triple-colon-malformed", CHECKER, 'if ":::" in line or', 'if "::::" in line or'),
+    ("markdown-string-malformed", CHECKER, "if '\"`' in line:", "if '\"``' in line:"),
+    # --- the owner's ruling: `:::` and `@{` in any line (§4.2 rule 3) ----------
+    (
+        "triple-colon-admitted",
+        CHECKER,
+        '_RULE_3 = ("%%{", ":::", "@{")',
+        '_RULE_3 = ("%%{", "::::", "@{")',
+    ),
+    (
+        "at-brace-admitted",
+        CHECKER,
+        '_RULE_3 = ("%%{", ":::", "@{")',
+        '_RULE_3 = ("%%{", ":::", "@{{")',
+    ),
+    (
+        "rule-3-line-contributes",
+        CHECKER,
+        'holds `{rule_3}`")\n            continue\n',
+        'holds `{rule_3}`")\n            pass\n',
+    ),
+    (
+        "rule-3-text-never-found",
+        CHECKER,
+        "        if t in line:\n            return t",
+        "        if t in line:\n            return None",
+    ),
     # --- §4.4 --------------------------------------------------------------
     (
         "hasownproperty-not-reserved",
@@ -352,7 +381,12 @@ MUTANTS = [
         "return []",
     ),
     # --- review fixes --------------------------------------------------------
-    ("directive-shaped-like-a-comment-exempt", CHECKER, '"%%{" not in line)', '"%%[" not in line)'),
+    (
+        "rule-3-comment-exempt",
+        CHECKER,
+        "g.is_comment(line) and rule_3 is None)",
+        "g.is_comment(line) and True)",
+    ),
     (
         "runner-floor-inverted",
         RUNNER,

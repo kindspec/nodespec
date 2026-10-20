@@ -147,68 +147,6 @@ def test_third_direction_statement():
     assert [f.identifier for f in check(text)] == ["direction-twice", "direction-twice"]
 
 
-# --- §4.10: :::, @{ and Markdown strings, by the rule that decides the line --------
-
-
-@pytest.mark.parametrize(
-    "line",
-    [
-        '  subgraph s ["`T`"]',
-        "  subgraph s [a@{b]",
-        "  classDef c fill:red:::x",
-        "  classDef c fill:@{x",
-        "  class a:::b c",
-        '  class a c"`',
-        "  style a fill:red@{x",
-        '  style a font-family:"`x`"',
-        "  end x:::y",
-        "  direction LR:::x",
-    ],
-)
-def test_not_admitted_text_on_earlier_rules_lines_is_malformed(line):
-    assert ("malformed-line", None) in got(H + "  a[A]\n" + line + "\n")
-    assert ("not-admitted", None) not in got(H + "  a[A]\n" + line + "\n")
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "  subgraph s [a:::b]\n  end\n",
-        '  subgraph s ["a@{b"]\n  end\n',
-        "  a[x:::y]\n",
-        '  a["x@{y"]\n',
-    ],
-)
-def test_not_admitted_text_inside_a_label_that_matches_is_label_text(text):
-    # §4.10: rule 11 is reached only by a line no earlier rule decides. An
-    # unquoted label may hold `:` and a quoted one `@` and `{` (§4.1), so these
-    # lines match their productions and are accepted.
-    assert got(H + text) == set()
-
-
-def test_not_admitted_text_on_a_linkstyle_line_is_link_style():
-    assert got(H + "  a[A]\n  linkStyle 0 stroke:red:::x\n") == {("link-style", None)}
-
-
-@pytest.mark.parametrize(
-    "line",
-    [
-        '  a["`x`"]',
-        "  a:::c",
-        "  a@{ shape: rect }",
-        '  a[A] -->|"`x`"| b',
-        "  a[A] --> b:::c",
-        "  a e1@{ curve: x }--> b",
-    ],
-)
-def test_not_admitted_text_reached_by_rule_11(line):
-    assert got(H + "  b[B]\n" + line + "\n") == {("not-admitted", None)}
-
-
-def test_not_admitted_text_reached_by_rule_11_in_a_block():
-    assert got(H + "  a[A]\n  subgraph s\n    a:::c\n  end\n") == {("not-admitted", None)}
-
-
 # --- §9: bad-encoding and lone-cr are both reported; leading-bom is not -----------
 
 
@@ -217,7 +155,7 @@ def test_whole_file_refusals():
     assert got(b"\xef\xbb\xbfflowchart TD\r") == {("lone-cr", None)}
 
 
-# --- bc2cf0b: non-WSP fences, and syntax-like label text ---------------------------
+# --- bc2cf0b: non-WSP fences ---------------------------
 
 
 def test_spec_example_of_nbsp_indented_fences():
@@ -229,22 +167,6 @@ def test_spec_example_of_nbsp_indented_fences():
         ("undeclared-id", "a"),
         ("undeclared-id", "b"),
     }
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "  b[B]\n  a[A]\n  a -->|x:::y| b\n",
-        '  b[B]\n  a[A]\n  a -->|"x@{y"| b\n',
-    ],
-)
-def test_edge_label_text_that_matches_is_text(text):
-    assert got(H + text) == set()
-
-
-def test_a_line_that_matches_nothing_is_not_admitted_though_its_text_is_label_text():
-    assert got(H + "  a[x:::y] q\n") == {("not-admitted", None)}
-    assert got(H + '  a["x@{y"] q\n') == {("not-admitted", None)}
 
 
 def test_a_closing_fence_indented_by_nbsp_does_not_close():
@@ -261,3 +183,119 @@ def test_a_directive_line_shaped_like_a_comment_is_not_exempt(line):
 
 def test_a_comment_holding_the_text_is_still_exempt():
     assert got(H + "%% x direction LR\n%% ends in direction\n  a[A]\n") == set()
+
+
+# --- the owner's ruling (2026-10-20): `:::` and `@{` in any line ------------------
+# §4.2 rule 3 refuses a line holding `%%{`, `:::` or `@{` as not-admitted before
+# any production is tried; §4.3 rule 11 now covers Markdown strings only.
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        # SPEC.md §4.10's own list
+        "  a[x:::y]",
+        '  a["x@{y"]',
+        "  a[A]\n  b[B]\n  a -->|x:::y| b",
+        "  subgraph s [a:::b]\n  end",
+        '  subgraph s ["a@{b"]\n  end',
+        "  a[A]\n  style a fill:#f00 :::x",
+        "  linkStyle 0 :::x",
+        "%% use ::: here",
+        # and every other kind of line
+        "  a:::c",
+        "  a[A]\n  b[B]\n  a:::c --> b",
+        "  a@{ shape: rect }",
+        "  a[A]\n  b[B]\n  a e1@{ curve: x }--> b",
+        "  classDef c fill:red:::x",
+        "  classDef c fill:@{x",
+        "  a[A]\n  classDef c fill:red\n  class a:::b c",
+        "  a[A]\n  style a fill:red@{x",
+        "  subgraph s\n  end x:::y",
+        "  subgraph s\n    direction LR:::x\n  end",
+        "  accTitle: a:::b",
+        "  click a:::b",
+        "%%@{",
+        "  a[x:::y] q",
+    ],
+)
+def test_syntax_like_text_is_not_admitted_in_any_line(line):
+    assert ("not-admitted", None) in got(H + line + "\n")
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("  a[x:::y]\n", {("not-admitted", None)}),
+        ('  a["x@{y"]\n', {("not-admitted", None)}),
+        ("%% use ::: here\n", {("not-admitted", None)}),
+        # rule 3 decides before §4.3, so no first word changes it
+        ("  a[A]\n  style a fill:#f00 :::x\n", {("not-admitted", None)}),
+        ("  linkStyle 0 :::x\n", {("not-admitted", None)}),
+        ("  classDef c fill:red:::x\n", {("not-admitted", None)}),
+        ("  end x:::y\n", {("not-admitted", None)}),
+    ],
+)
+def test_rule_3_is_the_only_refusal_of_its_line(text, expected):
+    assert got(H + text) == expected
+
+
+def test_a_refused_line_declares_nothing():
+    # the node statement is refused, so the edge names an undeclared id
+    assert got(H + "  a[x:::y]\n  b[B]\n  b --> a\n") == {
+        ("not-admitted", None),
+        ("undeclared-id", "a"),
+    }
+
+
+def test_a_subgraph_line_holding_it_opens_no_block():
+    assert got(H + "  a[A]\n  subgraph s [a:::b]\n    a\n  end\n") == {
+        ("not-admitted", None),
+        ("malformed-line", None),
+        ("unbalanced-block", None),
+    }
+
+
+def test_rule_3_does_not_move_the_header():
+    # A rule 3 line is not a statement line, so the header comes after it.
+    assert got("%% a:::b\n" + H + "  a[A]\n") == {("not-admitted", None)}
+
+
+def test_a_comment_holding_it_is_not_exempt_from_stray_direction():
+    assert got(H + "%% x::: direction LR\n") == {
+        ("not-admitted", None),
+        ("stray-direction", None),
+    }
+
+
+def test_a_conflict_marker_holding_it_is_a_conflict_marker():
+    assert got(H + "<<<<<<< a:::b\n") == {("conflict-marker", None)}
+
+
+def test_front_matter_holding_it_is_front_matter():
+    assert got("---\nx: a:::b @{c\n---\n" + H) == {("not-admitted", None)}
+
+
+@pytest.mark.parametrize("text", ["  a[x::y]\n", '  a["x@y"]\n', '  a["x{y"]\n', "  a[x:: :y]\n"])
+def test_near_misses_are_label_text(text):
+    assert got(H + text) == set()
+
+
+@pytest.mark.parametrize(
+    "line",
+    ['  a["`x`"]', '  b[B]\n  a[A] -->|"`x`"| b', '  a["`x`"] --> b'],
+)
+def test_markdown_strings_are_rule_11(line):
+    assert got(H + line + "\n") == {("not-admitted", None)}
+
+
+@pytest.mark.parametrize(
+    "line, expected",
+    [
+        ('  subgraph s ["`T`"]\n  end', {("malformed-line", None), ("unbalanced-block", None)}),
+        ('  a[A]\n  style a font-family:"`x`"', {("malformed-line", None)}),
+        ('  linkStyle 0 x"`y', {("link-style", None)}),
+    ],
+)
+def test_markdown_strings_get_the_refusal_of_an_earlier_rule(line, expected):
+    assert got(H + line + "\n") == expected
