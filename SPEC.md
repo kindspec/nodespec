@@ -49,13 +49,16 @@ it; the profile defines no other value.
 `maxEdges: 100000`. Each statement here about what Mermaid does was
 checked against that install. The grammar is written so that every
 file it accepts parses in Mermaid, with the nodes, edges, edge ids,
-members, directions and classes this document reads from it. A file
-this document accepts that Mermaid reads otherwise is a defect in this
-document.
+members, directions and classes this document reads from it, classes
+as Mermaid's renderer receives them. Before Mermaid parses a file it
+removes comments and directives and rewrites some quotes; §4.2 and
+§4.5 refuse every text those steps would change, so the claim covers
+them. A file this document accepts that Mermaid reads otherwise is a
+defect in this document.
 
-A nodespec file is one whole file holding one flowchart, conventionally
-named `*.mmd` **(provisional)**. A Mermaid fence inside a Markdown file
-is outside draft 0.
+A nodespec file is one whole file holding one flowchart. A Mermaid
+fence inside a Markdown file is outside draft 0 **(provisional)**. (Not
+normative: such files are conventionally named `*.mmd`.)
 
 ## 3. Encoding and lines
 
@@ -64,13 +67,17 @@ UTF-8 are refused as `bad-encoding`.
 
 **A file that begins with a byte-order mark is refused as `leading-bom`
 (provisional).** Mermaid ignores a leading U+FEFF. Refusing it now can
-be relaxed later without making any accepted file invalid.
+be relaxed later without making any accepted file invalid. The mark is
+not part of the first line: the lines are read as if it were absent.
 
 A line ends at LF, or at CR followed by LF; the line ending is not part
 of the line. The last line need not end with one. **A CR that is not
 followed by LF is refused as `lone-cr` (provisional).** Mermaid reads a
 lone CR as a line end and git does not, so to git a file whose lines
 end in CR is one line, and every two edits to it touch the same line.
+
+A file refused as `bad-encoding` or `lone-cr` is checked no further
+(§9).
 
 `WSP` is a space (U+0020) or a tab (U+0009), and nothing else. Other
 whitespace characters, such as U+00A0, never match `WSP`.
@@ -96,7 +103,8 @@ lead         = %x21 / %x23-27 / %x2A-2C / %x2E / %x30-3F / %x41-5A
              / %x5E-7A / %x7E / nonascii
                ; an lchar that is not WSP, - / or \
 qchar        = HTAB / %x20-21 / %x23-7E / nonascii   ; not "
-nonascii     = %xA0-D7FF / %xE000-10FFFF
+nonascii     = %xA0-2027 / %x202A-D7FF / %xE000-10FFFF
+               ; not U+2028 or U+2029 (§4.2)
 cchar        = HTAB / %x20-7E / nonascii
 
 id           = 1*( ALPHA / DIGIT / "_" )                  ; §4.4
@@ -157,10 +165,14 @@ A production matches a line only if it matches the whole line. Two
 constraints that ABNF does not carry are part of the productions, so a
 line that breaks one does not match:
 
+- a `comment` does not hold `="` (§4.2);
+- an `unquoted` label does not hold `~~~` (§4.5);
 - a `quoted` label holds at least one character that is not `WSP`, does
   not begin with `` ` ``, and does not end with `=` (§4.5);
-- a `unit` is not `v`, and a `name` is not `v`, does not begin with
-  `v-`, and is not a reserved word (§4.8).
+- a `unit` is not the one-letter word `v`, so `vh` is a unit; neither a
+  `name` nor the part of it before its first `-` is `v` or a reserved
+  word; and the `name` before a `:` is not `accTitle` or `accDescr`
+  (§4.8).
 
 Two more are refusals of their own: an `id` that is reserved, in a line
 that matches, is `reserved-id` (§4.4); and text that Mermaid reads as a
@@ -172,33 +184,52 @@ statement, is `stray-direction` (§4.9).
 Each line is classified by the first rule below that matches it. A line
 that is classified is never also read as something else.
 
-1. **A conflict marker**: the line's first seven characters are seven
+1. **Front matter.** If the file's first line is `---`, alone or
+   followed by `WSP`, that line and every line up to and including the
+   next such line, or to the end of the file if there is none, are
+   refused together as `not-admitted` (§4.10). Mermaid's matcher also
+   takes `---` with trailing whitespace. These lines are not statement
+   lines, so the header comes after them.
+2. **A conflict marker**: the line's first seven characters are seven
    `<`, seven `=`, seven `>` or seven `|`. Refused as
    `conflict-marker`.
-2. **A blank line** matches `blank`. It is allowed anywhere.
-3. **A comment** matches `comment`. It is allowed anywhere, inside a
-   block included, and is otherwise ignored. A comment has its own
-   line: Mermaid refuses `%%` after a statement on the same line. A
-   line holding only `%%`, with nothing after it, is not a comment;
-   Mermaid reads it as a node named `%%`.
-4. **A directive**: the line begins, after `WSP`, with `%%{`. Refused
-   as `not-admitted` (§4.10).
-5. Every other line is a **statement line**. The first statement line
-   of a file must match `header` (§4.3); later statement lines are
+3. **A directive**: the line holds `%%{` anywhere, in a comment or a
+   label included. Refused as `not-admitted` (§4.10). Mermaid reads
+   `%%{` as the start of a directive wherever it stands and removes the
+   text up to the next `}%%`, across lines: a comment `%% see %%{x`
+   above an edge statement removes the edge.
+4. **A blank line** matches `blank`. It is allowed anywhere.
+5. **A comment** matches `comment`. It is allowed anywhere, inside a
+   block included **(provisional, as are blank lines in a block)**, and
+   is otherwise ignored. A comment has its own line: Mermaid refuses
+   `%%` after a statement on the same line. A line holding only `%%`,
+   with nothing after it, is not a comment; Mermaid reads it as a node
+   named `%%`. A comment holding `="` is not a comment either, because
+   Mermaid rewrites quotes before it removes comments (§4.5), so `="`
+   in a comment changes a later label; such a line is a statement line,
+   and is `malformed-line`.
+6. Every other line is a **statement line**. The first statement line
+   of a file is the header's place (§4.3); later statement lines are
    classified by §4.3's rules.
+
+U+2028 and U+2029 are left out of every character class: Mermaid's
+comment stripper reads each as a line end, so `a[x<U+2028>%% y]` loses
+the rest of its line. A line holding either matches no production.
 
 ### 4.3 The header, and statement lines
 
 **The first statement line is the header**: `flowchart` or `graph`,
 then optionally a direction. Blank lines and comments may come before
-it. A file with no statement line, or whose first statement line does
-not match `header`, is refused as `no-header`. So is a header in
-another case (`Flowchart`), with another direction (`td`, `<`, `v`),
-with `flowchart-elk`, or with a `;` after it. The direction is
-optional, as in the spike's subset **(provisional)**.
+it. A file with no statement line is refused as `no-header`. A first
+statement line that does not match `header` is refused as `no-header`,
+and the lines after it are classified as if a header stood in its
+place **(provisional)**. A header in another case (`Flowchart`), with
+another direction (`td`, `<`, `v`), with `flowchart-elk`, or with a
+`;` after it does not match. The direction is optional, as in the
+spike's subset **(provisional)**.
 
-`flowchart-elk` is not admitted **(provisional)**. It
-chooses a layout engine, which Mermaid also lets configuration choose,
+`flowchart-elk` is not admitted **(provisional)**. It chooses a layout
+engine, which Mermaid also lets configuration choose,
 and configuration is not admitted (§4.10).
 
 After the header, the **first word** of a statement line is its text
@@ -242,12 +273,12 @@ A bare id at the top level matches `member-line`, and is
 `malformed-line` there. It is not a declaration: a declaration names a
 shape (0001, *What it costs*).
 
-`;` is not admitted anywhere outside a label **(provisional)**, so a
-statement line ending in `;`, two statements on one line, and a member
-line `a;` are `malformed-line`, and a header ending in `;` is
-`no-header`. Mermaid accepts `;` as a statement separator, and reads it
+`;` is not admitted anywhere outside a label (the owner, 2026-10-19:
+refused for now), so a statement line ending in `;`, two statements on
+one line, and a member line `a;` are `malformed-line`, and a header
+ending in `;` is `no-header`. Mermaid accepts `;` as a statement separator, and reads it
 differently by statement: `graph TD ;` does not parse, and in a
-`classDef` it joins two styles into one.
+`classDef` or a `style` it joins two styles into one.
 
 ### 4.4 Ids
 
@@ -271,6 +302,20 @@ or reads it as something else. `default` is among them, so
 `classDef default`, Mermaid's class for every node, is refused
 **(provisional)**.
 
+**`hasOwnProperty` is reserved too (provisional).** Mermaid accepts
+it as an id, but a block in which a member line naming it is followed
+by another member line throws a `TypeError`
+(`prims[type].hasOwnProperty is not a function`). The other names of
+JavaScript's `Object.prototype` (`constructor`, `toString`, `__proto__`
+and the rest) parse in every position, in that one included.
+
+**A class may not be `node` (provisional)**: a `classDef` or `class`
+naming the class `node` is refused as `reserved-id`. Mermaid applies
+the styles of the classes `default` and `node` to every node, so
+`classDef node`, like `classDef default`, styles every node without
+naming one. `node`
+remains an id for a node, a subgraph or an edge.
+
 **`direction` is reserved too (provisional)**, and refused as
 `reserved-id`. Mermaid accepts it as an id, but a line whose first word
 is `direction` is read as a direction statement (§4.3), and one that
@@ -285,8 +330,13 @@ statement whose id equals an existing edge's id is dropped without a
 word; a node declared before the edge keeps its id, and a `class`
 naming it then classes the node and the edge.
 
-`reserved-id` applies wherever an id stands in a line that matches a
-production: in a declaration and wherever it is named.
+`reserved-id` applies wherever an id stands in a line that §4.3
+classifies as a statement and refuses for nothing else: in a
+declaration and wherever it is named. A reserved word in a line that is
+refused for another reason, such as a bare `graph` at the top level
+(`malformed-line`), is not also `reserved-id` (§9). The `L_…` form is
+reserved for ids only; a style word of that form, `fill:L_x_y_0`, is
+an ordinary `name`.
 
 ### 4.5 Node statements and labels
 
@@ -306,8 +356,13 @@ fourteen:
 
 **A label is unquoted or quoted.** An unquoted label has at least one
 character that is not `WSP`; its first such character is not `-`, `/`
-or `\`, since `(-`, `[/` and `[\` open other shapes; and it holds none
-of `[ ] ( ) { } | " @`. A quoted label is `"`, then text without `"`,
+or `\`, since `(-`, `[/` and `[\` open other shapes; it holds none
+of `[ ] ( ) { } | " @`; and it holds no `~~~`. Mermaid reads `~~~` at
+the start of a label's text, or after a `/` or `\` in a trapezoid, as
+an invisible link, so `a[~~~]`, `a[/x/~~~ y/]` and `a -->|~~~ x| b` do
+not parse; the profile refuses `~~~` anywhere in an unquoted label,
+which is simpler to check **(provisional)**. A quoted label may hold
+it. A quoted label is `"`, then text without `"`,
 then `"`, with nothing between the quotes and the delimiters around
 them.
 The text holds a character that is not `WSP`, and:
@@ -357,13 +412,33 @@ not admitted **(provisional)**: `<-.->`, `<==>`, `o-.-o` and `x==x`;
 and a head at the start only, `o-->`, `x-->` or `<---`, which Mermaid
 reads without that head. They are `malformed-line`. So is a label
 written inside the link, `-- yes -->`, `-. yes .->` or `== yes ==>`
-**(provisional)**: the pipe form says the same, and the inline form's
-label ends at the first run of the link's own characters.
+(the owner, 2026-10-19: refused for now): the pipe form says the same,
+and the inline form's label ends at the first run of the link's own
+characters.
 
 **What edges a statement makes.** Each link makes one edge from every
-id of the group before it to every id of the group after it:
-`a & b --> c & d` makes four edges, and `a --> b --> c` makes two. Two
-statements may make the same edge; Mermaid keeps both.
+id of the group before it to every id of the group after it, in that
+order: `a & b --> c & d` makes four edges, and `a --> b --> c` makes
+two. The edges of a file are a list, not a set: `a & a --> b` makes two
+edges from `a` to `b`, and Mermaid keeps both.
+
+**Two edges without edge ids that have the same start, the same end,
+the same link and the same label are refused as `duplicate-edge`**
+(the owner, 2026-10-19). The same link means the same characters
+(`-->` and `--->` differ); the same label means both have none, or both
+have one whose text between the `|`s is the same once leading and
+trailing `WSP` is removed **(provisional)**. An unnamed edge has no
+identity but its ends, link and label, so two of them are one edge
+written twice: both branches adding it in different places, or both
+moving it, then merge loud instead of drawing it twice.
+
+**A file whose statements make more than 500 edges is refused as
+`too-many-edges`** (the owner, 2026-10-19). Mermaid's default
+configuration accepts 500 edges and refuses 501 ("Edge limit
+exceeded"); the profile's premise is that its files render wherever
+Mermaid does, and a page's configuration is not the file's to choose.
+§2's pinned `maxEdges: 100000` is for checking Mermaid's reading, not
+a limit of the profile.
 
 **An edge id is declared by the one edge that carries it** (D1). So an
 edge id is allowed only on a link with one id on each side. **An edge
@@ -389,11 +464,13 @@ reads `subgraph s` followed by a space as a subgraph with no id, titled
 `subgraph` and in which, after `subgraph` and the `WSP` that follows,
 the text is empty, or begins with `"`, or holds `WSP` before its first
 `[` (or anywhere, if it has none) that is not followed, after any more
-`WSP`, by that `[`. Those are the forms Mermaid gives an id of its own:
-`subgraph`, `subgraph My Title`, `subgraph "My Title"`, and
-`subgraph s ` with a trailing space. Any other top-level line whose
-first word is `subgraph` and that does not match `subgraph-line` is
-`malformed-line`.
+`WSP`, by that `[`. Those are the forms Mermaid refuses, or gives an id
+of its own or an id holding a space: `subgraph` alone throws a
+`TypeError`; `subgraph My Title`, `subgraph "My Title"` and
+`subgraph s ` with a trailing space get an id `subGraphN` of Mermaid's
+numbering; and `subgraph a1 b1 [T]` gets the id `a1 b1`. Any other
+top-level line whose first word is `subgraph` and that does not match
+`subgraph-line` is `malformed-line`.
 
 `end-line` is `end` alone. Mermaid reads `end x` as the end of the
 block and a node `x`.
@@ -419,15 +496,20 @@ A `class` line ends at its class id: Mermaid refuses `WSP` after it.
 the last style.
 
 **A style list** is narrower than what Mermaid accepts
-**(provisional)**. Mermaid lexes a style as tokens of the diagram, so
-a value that holds `--`, `-.`, `&`, `:::`, `==`, `>`, `(`, `"`, `@`, a
-keyword, or the word `v` after a digit or `#` does not parse, and `;`
-joins two styles into one. The grammar admits CSS-like items: a name,
-`:`, and words that are a colour (`#f9f`), a number with an optional
-unit and `%` (`4px`, `.5`, `50%`), or a name (`Arial`, `sans-serif`,
-`!important`). A `unit` is lower-case letters other than `v`. A `name`
-is not `v`, does not begin with `v-`, and is not a reserved word
-(§4.4).
+**(provisional)**. Mermaid lexes a style as tokens of the diagram, so a
+value that holds `--`, `-.`, `==`, `~~~`, `:::`, `>`, `(`, `"` or `@`,
+or a word that begins with `&` or `*`, does not parse; nor does a word
+that is a keyword, or that begins with a keyword and `-` (`class-x`,
+`end-x`, `flowchart-elk`), or the word `v` alone, after a digit or `#`,
+or before `-`; nor a property named `accTitle` or `accDescr`. `&`, `*`
+and `::` inside a word do parse, and are still not admitted. `;` joins
+two styles into one. The grammar admits CSS-like items: a name, `:`,
+and words that are a colour (`#f9f`), a number with an optional unit
+and `%` (`4px`, `.5`, `50%`, `100vh`), or a name (`Arial`,
+`sans-serif`, `!important`). A `unit` is any run of lower-case letters
+except the one-letter `v`. Neither a `name` nor its part before its
+first `-` is `v` or a reserved word (§4.4), and a property's name is
+not `accTitle` or `accDescr`.
 
 ### 4.9 Direction
 
@@ -448,7 +530,8 @@ What it swallows is gone: `a[go direction LR]` declares no node, an
 edge labelled `|direction RL|` is no edge, and a member line ending
 in `direction` followed by a line starting with `LR` holds neither. So
 a line other than a comment or a line that matches `direction-stmt` is
-refused as `stray-direction` when:
+refused as `stray-direction` when **(provisional, in this exact
+form)**:
 
 - it holds `direction`, then one or more whitespace characters, then
   `TB`, `BT`, `RL`, `LR` or `TD`; or
@@ -467,24 +550,27 @@ them before it lexes.
 
 0001 leaves open which Mermaid statements beyond the spike's subset the
 profile admits (*Open, for the specification and its cases*). Until
-each is decided with its reason, the profile refuses it. That can be
-relaxed later without making any accepted file invalid.
+each is decided with its reason, the profile refuses it: a refusal can
+be relaxed later without making any accepted file invalid, and an
+admission cannot be withdrawn without breaking files. The owner
+confirmed that rule on 2026-10-19 for front matter, `%%{init}`
+directives, `:::`, `;` and inline edge labels: each is refused for now
+and may be admitted later.
 
 Refused as `not-admitted`:
 
-- **Front matter**, a file whose first line is `---`. Its first
-  statement line is then not a header, so `no-header` applies too, and
-  either is a correct report (§9).
-- **Directives**, a line beginning `%%{`. Front matter and directives
-  configure how Mermaid reads and draws the rest of the file, and the
-  rules here were checked under one fixed configuration (§2).
+- **Front matter**, as §4.2 rule 1 reads it.
+- **Directives**, any line holding `%%{` (§4.2 rule 3). Front matter
+  and directives configure how Mermaid reads and draws the rest of the
+  file, and the rules here were checked under one fixed configuration
+  (§2).
 - **`click`**, which attaches a link or a callback to a node; the
   spike's model carried it only as text (0001 names it open).
 - **`accTitle` and `accDescr`**, which are not in the spike's subset.
-- **`:::`**, a class given inside a node or edge statement
-  **(provisional)**. A class has one form, the `class` statement, which
-  D4 orders; `a:::c --> b` would give a class from an edge statement,
-  which D1 says names and declares nothing.
+- **`:::`**, a class given inside a node or edge statement. A class
+  has one form, the `class` statement, which D4 orders; `a:::c --> b`
+  would give a class from an edge statement, which D1 says names and
+  declares nothing.
 - **`@{ … }`**, Mermaid's newer shape and edge data form
   **(provisional)**. Its body is a YAML mapping that the grammar would
   have to pin, and on an edge id it changes that edge.
@@ -528,20 +614,19 @@ two `classDef` lines join their styles.
 ### 5.2 Names
 
 Every other place an id stands names it. A name must be declared, by a
-declaration anywhere in the file, before or after it, except as §7
-orders `class`. **An id that is named and not declared is refused as
+declaration anywhere in the file, before or after it; §7 orders `class`
+lines. **An id that is named and not declared is refused as
 `undeclared-id`.**
 
 | statement | names | each may be |
 | --- | --- | --- |
-| edge statement | each id of its groups | node or subgraph (*) |
+| edge statement | each id of its groups | node or subgraph |
 | member line | its id | node or subgraph (D3) |
 | `style` | its target | node or subgraph (D1) |
 | `class` | each target | node, subgraph or edge (D1) |
 | `class` | its last id, the class | class |
 
-(*) The subgraph is **(provisional)**; see below. A `class`
-statement's targets are the ids before its last one.
+A `class` statement's targets are the ids before its last one.
 
 **A statement that names an id declared as a kind it may not name is
 refused as `wrong-kind`**: `style e1 …` where `e1` is an edge id, since
@@ -549,12 +634,15 @@ Mermaid drops a style on an edge without a word; `class a b` where `b`
 is a node; an edge to an edge id or a class; a member line naming an
 edge id. Mermaid accepts each and reads something other than what it
 says: an edge to an edge id ends at no node, and an edge to a class
-makes a node with the class's name.
+makes a node with the class's name. **`wrong-kind` applies to a name
+only when the id is declared and none of its declarations is of a kind
+that place may name.** An id declared both as a node and as a class is
+`kind-clash` (§5.3), and an edge naming it is not also `wrong-kind`.
 
-0001's example is an edge between two nodes, and D1 says an edge names
-declared ids. Mermaid accepts an edge to a subgraph, and the profile
-admits one **(provisional)**. D1 still holds for it: an edge to a
-subgraph that the other branch deleted names an undeclared id.
+**An edge may end at a subgraph** (the owner, 2026-10-19). Mermaid
+accepts one, and D1 still holds for it: an edge to a subgraph that the
+other branch deleted names an undeclared id. What it does not catch, an
+id reused as the other kind, is in §11.
 
 ### 5.3 One id, one kind
 
@@ -592,7 +680,8 @@ refused as `undeclared-id` for `c`.
 
 **D3. Membership is a member line.** Every block stands at the top
 level. A block holds only member lines, direction statements, comments
-and blank lines (§4.3):
+and blank lines (§4.3; the comments and blank lines are
+**(provisional)**):
 
 - a node statement in a block is refused as `declaration-in-block`;
 - an edge statement, or a `classDef`, `class` or `style` statement, in
@@ -629,23 +718,38 @@ refuse a cycle (0001).
 index in file order, so an edge added above it on another branch
 silently restyles a different edge (0001).
 
-**A `class` statement comes after the declaration of every id it
-names.** Mermaid drops a class given to a node, subgraph or edge not
-yet declared; with class lines last, moving a declaration cannot strip
-its class (0001). A `class` line that comes before the line declaring
-an id it names is refused as `class-before-declaration`. The lines that
-declare are §5.1's: a node statement, a subgraph line, the edge
-statement holding `id@`, and the `classDef` line.
+**Every `class` line comes after every other statement line
+(provisional).** That is 0001's "with class lines last", read
+literally. A `class` line that has, anywhere after it, a statement line
+that is not a `class` line is refused as `class-not-last`; only blank
+lines, comments and other `class` lines may follow one. Two Mermaid
+behaviours make the order matter:
 
-The class a `class` statement gives is one of the ids it
-names, so its `classDef` line comes first too **(provisional)**. That
-is D4 as 0001 words it, "every id it names". Mermaid itself applies a
-class whose `classDef` comes later.
+- Mermaid drops a class given to a node, subgraph or edge not yet
+  declared (0001).
+- A `style` line, an edge or a member line that names a subgraph makes
+  Mermaid create a vertex with the subgraph's id. When Mermaid hands
+  the chart to its renderer, that vertex's class list replaces the
+  subgraph's, and a vertex created after the `class` line has none:
+  `class s c` followed by `style s …`, `a --> s` or a member line `s`
+  renders `s` without `c`.
 
-D4 orders nothing else. Declarations, edges, blocks and `style` lines
-may come in any order: Mermaid creates a node that an edge, a member
-line or a `style` names before its node statement, and the node
-statement then gives it its label and shape.
+With every `class` line last, both are impossible, and moving a
+declaration or adding a name on another branch cannot strip a class.
+The rule also puts every `classDef` before every `class` line, which
+Mermaid does not need.
+
+**An id is the target of at most one `style` line and at most one
+`class` line (provisional).** A second is refused as `styled-twice`.
+Mermaid applies both, in file order, so where they set the same
+property the later one wins; two branches that each style or class the
+same id would merge clean, and the order of their lines would decide
+the picture.
+
+Apart from `class` lines, D4 orders nothing. Declarations, edges,
+blocks and `style` lines may come in any order: Mermaid creates a node
+that an edge, a member line or a `style` names before its node
+statement, and the node statement then gives it its label and shape.
 
 ## 8. Checking one file (D5)
 
@@ -675,10 +779,10 @@ A checker MUST refuse:
    (§4.3)
 6. `malformed-line`: a statement line §4.3 sends to no other entry
    (§4.3)
-7. `not-admitted`: front matter, a directive, `click`, `accTitle`,
+7. `not-admitted`: front matter, `%%{`, `click`, `accTitle`,
    `accDescr`, `:::`, `@{` or a Markdown string (§4.10)
-8. `reserved-id`: an id that is a reserved word or has the form of an
-   automatic edge id (§4.4)
+8. `reserved-id`: an id that is reserved, or a class named `node`
+   (§4.4)
 9. `stray-direction`: text Mermaid would read as a direction statement
    where none stands (§4.9)
 10. `subgraph-without-id`: a subgraph line with no explicit id (§4.7,
@@ -688,26 +792,60 @@ A checker MUST refuse:
 12. `duplicate-declaration`: an id declared twice as one kind (§5.1,
     D1)
 13. `undeclared-id`: an id named and declared nowhere (§5.2, D1)
-14. `wrong-kind`: an id named where its kind may not be named (§5.2,
-    D1, D2)
+14. `wrong-kind`: an id named where none of its kinds may be named
+    (§5.2, D1, D2)
 15. `kind-clash`: an id declared as two kinds (§5.3, D2)
 16. `edge-id-on-group`: an edge id on a link with `&` on either side
     (§4.6, D1)
-17. `declaration-in-block`: a node statement in a block (§6, D3)
-18. `statement-in-block`: an edge, `classDef`, `class` or `style`
+17. `duplicate-edge`: two unnamed edges with the same ends, link and
+    label (§4.6)
+18. `too-many-edges`: more than 500 edges (§4.6)
+19. `declaration-in-block`: a node statement in a block (§6, D3)
+20. `statement-in-block`: an edge, `classDef`, `class` or `style`
     statement in a block (§6, D3)
-19. `nested-block`: a subgraph line in a block (§6, D3)
-20. `unbalanced-block`: an `end` with no open block, or a block never
+21. `nested-block`: a subgraph line in a block (§6, D3)
+22. `unbalanced-block`: an `end` with no open block, or a block never
     closed (§4.3, §6)
-21. `member-twice`: an id on more than one member line (§6, D3)
-22. `membership-cycle`: subgraphs that hold one another (§6, D3)
-23. `direction-outside-block`: a direction statement at the top level
+23. `member-twice`: an id on more than one member line (§6, D3)
+24. `membership-cycle`: subgraphs that hold one another (§6, D3)
+25. `direction-outside-block`: a direction statement at the top level
     (§4.9)
-24. `direction-twice`: a second direction statement in one block
+26. `direction-twice`: a second direction statement in one block
     (§4.9)
-25. `link-style`: a `linkStyle` line (§7, D4)
-26. `class-before-declaration`: a `class` line before the declaration
-    of an id it names (§7, D4)
+27. `link-style`: a `linkStyle` line (§7, D4)
+28. `class-not-last`: a `class` line with a statement line after it
+    that is not a `class` line (§7, D4)
+29. `styled-twice`: an id targeted by two `style` lines or two `class`
+    lines (§7, D4)
+
+**Which refusals apply (provisional).** One rule decides it:
+
+- `bad-encoding` and `lone-cr` are about the whole file, and when
+  either applies, nothing else is checked.
+- **A line that §4.2 to §4.10 refuses contributes nothing else.** It
+  declares nothing, names nothing, opens and closes no block, and is
+  not a member line, a direction statement, a `style` line, a `class`
+  line or an edge for any later rule. The refusals of a single line are
+  `conflict-marker`, `no-header` (for its line), `malformed-line`,
+  `not-admitted` (front matter included), `reserved-id`,
+  `stray-direction`, `subgraph-without-id`, `declaration-in-edge`,
+  `edge-id-on-group`, `declaration-in-block`, `statement-in-block`,
+  `nested-block`, `unbalanced-block` (for an `end-line`),
+  `direction-outside-block`, `direction-twice` (for the second
+  statement) and `link-style`. `stray-direction` applies to a line
+  whatever else applies to it; `reserved-id` applies only to a line
+  that nothing else refuses (§4.4).
+- Every other rule (`duplicate-declaration`, `undeclared-id`,
+  `wrong-kind`, `kind-clash`, `duplicate-edge`, `too-many-edges`, the
+  end-of-file `unbalanced-block`, `member-twice`, `membership-cycle`,
+  `class-not-last` and `styled-twice`) is checked on the lines that are
+  not refused.
+
+So `a[A] --> b` declares nothing; a node statement in a block declares
+nothing, and an edge naming that node is `undeclared-id` too; a refused
+`subgraph` line opens no block, so its member lines are top-level
+`malformed-line` and its `end` is `unbalanced-block`; and a
+`no-header` line is followed by lines read as usual.
 
 **Every refusal is reported with its identifier**, spelled exactly,
 where a program can read it without parsing the message. The message
@@ -719,10 +857,10 @@ they apply to:
 - `edge-id-on-group`: the edge id;
 - `member-twice`: the id named on more than one member line;
 - `membership-cycle`: a subgraph on the cycle;
-- `class-before-declaration`: the id whose declaration comes after the
-  `class` line.
+- `styled-twice`: the id targeted twice.
 
-The other entries are about a line or the whole file, and carry no id.
+The other entries are about a line or the whole file, and carry no id
+**(provisional)**.
 
 **Several refusals may apply to one file, and which one is reported is
 not specified**, as in rowspec §9. A checker reports any one that
@@ -753,29 +891,38 @@ Merge cases, if the suite has them, check the merged file as one file
 
 0001 names four merges that are clean, stay in the profile, and that no
 rule over one file can tell from a deliberate edit (0001, *Not
-prevented*, which has the full text):
+prevented*, which has the full text). Two of them reach further here.
 
 - **An id reused for a new meaning.** One branch deletes `cache` and
   declares a different node named `cache`; the other branch's new edge
   to `cache` lands on the new node. The id is the node's identity, so
-  reusing it says it is the same node.
+  reusing it says it is the same node. **The same holds across kinds**
+  (the owner, 2026-10-19): one branch replaces the node `x` with a
+  subgraph `x`, or the reverse, and the other adds an edge to `x` or a
+  member line naming `x`. The merged file declares `x` once, as the new
+  kind, and the other branch's edge or member line silently lands on
+  it, since an edge may end at either kind and a member line may name
+  either.
 - **The same declaration added on both branches at the same place.**
   Git keeps one line, so two authors' identical `cache[Cache]` are one
-  node, with both branches' edges.
-- **A delete against a move of the same declaration.** One branch
-  deletes a node, an edge carrying an id, or a subgraph; the other
-  moves that declaration's line. Git keeps the moved line, and the
-  deleted thing comes back: a node with none of its edges, an edge
-  without its `class` line, a subgraph with its member lines. A
-  canonical statement order would refuse the move; draft 0 does not
-  require one (0001, *Open*).
+  node, with both branches' edges. The same is true of an identical
+  unnamed edge added at the same place.
+- **A delete against a move of the same line.** One branch deletes a
+  node, an edge carrying an id, a subgraph, a member line or an unnamed
+  edge; the other moves that line elsewhere. Git keeps the moved line,
+  and the deleted thing comes back: a node with none of its edges, an
+  edge without its `class` line, a subgraph with its member lines, a
+  member nested again, an edge drawn again. A canonical statement order
+  would refuse the move; draft 0 does not require one (0001, *Open*).
+  Where both branches move the same unnamed edge, or both add it in
+  different places, the merged file holds it twice and is refused as
+  `duplicate-edge` (§4.6).
 - **A class redefined** on one branch while the other assigns it: the
   assignment gets the new style.
 
 0001 also records that Mermaid renders neither a `direction` in a
-nested subgraph nor edges into a nested subgraph, whether it is nested
-by a member line or by a block written inside another. The profile
-admits both; they are Mermaid's limits, not merges.
+nested subgraph nor edges into a nested subgraph. The profile admits
+both; they are Mermaid's limits, not merges.
 
 ## 12. Provisional, and not decided
 
@@ -783,28 +930,37 @@ Each reading marked **(provisional)** above is listed here. Each is
 where 0001 is silent and the grammar had to say something; each waits
 for the owner.
 
-- The file is one whole `*.mmd` file; fences are outside draft 0 (§2).
+- A Markdown fence is outside draft 0 (§2).
 - UTF-8 is required; a leading BOM and a lone CR are refused (§3).
-- The header's direction is optional, and `flowchart-elk` is not
-  admitted (§4.3).
-- `;` is not admitted outside a label (§4.3).
+- After a `no-header` line, the lines that follow are read as if a
+  header stood there; the header's direction is optional; and
+  `flowchart-elk` is not admitted (§4.3).
+- Comments and blank lines may stand inside a block (§4.2, §6).
 - Ids are ASCII letters, digits and `_` (§4.4).
-- `classDef default` is refused, with `default` reserved (§4.4).
-- `direction` is reserved as an id (§4.4).
-- Ids of the form `L_…_…_N` are reserved (§4.4).
-- Links and `&` have `WSP` on both sides (§4.6).
-- Only the spike's links are admitted, and only the pipe form of an
-  edge label (§4.6).
+- `default`, `direction` and `hasOwnProperty` are reserved, ids of the
+  form `L_…_…_N` are reserved, and a class may not be `node` (§4.4).
+- An unquoted label holds no `~~~` (§4.5).
+- Links and `&` have `WSP` on both sides, and only the spike's links
+  are admitted (§4.6).
 - An edge id on a link with `&` on either side is refused (§4.6).
+- How `duplicate-edge` compares labels (§4.6).
 - One class per `classDef` and per `class` line, and one target per
   `style` line (§4.8).
 - Style lists are narrower than Mermaid's (§4.8).
 - A direction statement only in a block, at most one per block (§4.9).
-- `:::` and `@{ … }` are not admitted (§4.10).
-- An edge end may name a subgraph (§5.2).
+- The exact form of the `stray-direction` rule (§4.9).
+- `@{ … }` is not admitted (§4.10).
 - Two member lines naming one id in one block are refused (§6).
-- A `class` line comes after the `classDef` of the class it gives
+- Every `class` line comes last (§7).
+- An id is the target of at most one `style` line and one `class` line
   (§7).
+- Which refusals apply once a line is refused, and that refusals of a
+  line or a file carry no id (§9).
+
+**Decided by the owner, 2026-10-19**: an edge may end at a subgraph,
+with the cross-kind reuse it allows named in §11; `duplicate-edge`;
+`too-many-edges`; and front matter, `%%{init}` directives, `:::`, `;`
+and inline edge labels refused for now, to be admitted later if at all.
 
 **Not decided**, and with no reading here:
 
