@@ -6,6 +6,8 @@
 
 **Twin:** `boundary/quoted-label-tilde-accepted`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
 
+**Twin:** `boundary/unquoted-label-double-tilde-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+
 ## Input
 
 ````text

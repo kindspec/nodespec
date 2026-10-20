@@ -6,6 +6,8 @@
 
 **Twin:** `boundary/l-form-non-digit-tail-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
+**Twin:** `boundary/l-form-empty-tail-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+
 ## Input
 
 ````text

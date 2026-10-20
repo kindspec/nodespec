@@ -15,4 +15,6 @@ been settled by an amendment and is now a set of cases:
 | more than one `WSP` after `subgraph` | f34b25c | e7e643e | §4.7: the whole run | `boundary/subgraph-two-spaces-before-id-accepted`, `boundary/subgraph-tab-and-space-before-id-accepted`, `boundary/subgraph-two-spaces-before-id-trailing-wsp-refused` |
 | a front-matter fence indented by U+00A0 | e7e643e | bc2cf0b | §4.2: not a fence | `boundary/front-matter-no-break-space-fences-refused`, `boundary/front-matter-no-break-space-fences-with-title-refused`, `boundary/front-matter-closed-by-a-no-break-space-fence-refused` |
 
-No new ambiguity was found in re-checking the tree against bc2cf0b.
+No new ambiguity was found in re-checking the tree against bc2cf0b, nor in
+the rules a later review found without a case: SPEC.md decides each of those,
+and each is now a case.

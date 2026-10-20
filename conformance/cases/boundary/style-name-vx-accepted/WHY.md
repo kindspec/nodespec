@@ -6,6 +6,8 @@
 
 **Twin:** `boundary/style-name-v-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
+**Twin:** `boundary/style-name-v-hyphen-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+
 ## Input
 
 ````text

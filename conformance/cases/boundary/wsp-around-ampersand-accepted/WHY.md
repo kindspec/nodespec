@@ -6,6 +6,8 @@
 
 **Twin:** `boundary/wsp-missing-after-ampersand-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
+**Twin:** `boundary/wsp-missing-before-ampersand-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+
 ## Input
 
 ````text

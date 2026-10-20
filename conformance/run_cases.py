@@ -50,7 +50,7 @@ from nodespec import ID_ENTRIES, IDENTIFIERS, check  # noqa: E402
 DEFAULT_ROOT = os.path.join(HERE, "cases")
 # conformance/cases may grow but never shrink unnoticed: a tree that lost
 # cases, or went missing, is no verdict.
-MIN_CASES = 270
+MIN_CASES = 301
 INPUT, EXPECT, WHY = "input.mmd", "expect.json", "WHY.md"
 
 
