@@ -979,8 +979,9 @@ A checker conforms when every case passes.
 A case whose outcome depends on a provisional reading carries a
 `provisional` tag: the text of the §12 bullet it pins, so a change to
 that reading can be traced to the cases it touches. The tag does not
-change how a case is judged. Every input a case accepts is a Mermaid
-flowchart, and the suite's tooling can check that each parses in
+change how a case is judged.
+
+Every input a case accepts is a Mermaid flowchart that parses in
 Mermaid as §2 pins it.
 
 Merge cases, if the suite has them, check the merged file as one file
