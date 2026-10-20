@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Runs a conformance case tree against the reference checker.
 
-    python conformance/run_cases.py [ROOT]
+    python conformance/run_cases.py [--exact] [ROOT]
 
 ROOT defaults to conformance/cases, laid out as
 
@@ -12,9 +12,9 @@ ROOT defaults to conformance/cases, laid out as
                                     "ids": {identifier: [id, ...]}}
     <group>/<case>/WHY.md       what the case is for
 
-`expect.json` may also carry a "provisional" tag: the case rests on a reading
-SPEC.md marks provisional. Such a case is judged like any other and counted
-apart.
+`expect.json` may also carry a "provisional" tag, a non-empty string naming
+the reading SPEC.md marks provisional that the case rests on. Such a case is
+judged like any other and counted apart.
 
 A case is judged as SPEC.md §9 judges a refusal: a report passes if its
 identifier, and its id where the entry has one, are among those the case
@@ -22,12 +22,20 @@ names. The checker reports every refusal it finds, and each is a report, so
 each is judged: an accepting case passes on no finding, and a refusing case on
 at least one finding, every one of which is among the case's.
 
+`--exact` judges more strictly, for the reference checker and not for §9
+conformance: a refusing case passes only if the checker reports exactly the
+identifiers the case names and, for each entry about an id, exactly its ids.
+§9 lets a conforming checker report any one refusal that applies, so another
+checker failing `--exact` is not thereby non-conforming; the reference checker
+reports every refusal it finds, and `--exact` holds it to all of them.
+
 Exit codes, so that "every case passed" and "no case ran" never look alike:
 
-    0   every case passed, or there is no tree at a ROOT given (it says so)
+    0   every case passed
     1   at least one case failed
-    2   no verdict: the tree holds no case, a case is malformed, or the
-        default tree is missing or holds fewer than MIN_CASES cases
+    2   no verdict: there is no tree at ROOT, the tree holds no case, a case
+        is malformed or stands at the wrong depth, or the default tree holds
+        fewer than MIN_CASES cases
 """
 
 import json
@@ -61,6 +69,10 @@ def load_expect(path):
     extra = set(exp) - {"accept", "refusal", "ids", "provisional"}
     if extra:
         raise Malformed(f"{EXPECT} has unknown keys: {', '.join(sorted(extra))}")
+    if "provisional" in exp and not (
+        isinstance(exp["provisional"], str) and exp["provisional"].strip()
+    ):
+        raise Malformed(f"{EXPECT}'s provisional tag is not a non-empty string")
     if "accept" in exp:
         if exp["accept"] is not True or "refusal" in exp or "ids" in exp:
             raise Malformed(f'{EXPECT} must be {{"accept": true}} or a refusal')
@@ -91,12 +103,28 @@ def load_expect(path):
     return exp
 
 
-def judge(findings, exp):
+def expected_set(exp):
+    """Every (identifier, id) a refusing case names; id is None for an entry
+    that carries none."""
+    ids = exp.get("ids", {})
+    return {(r, i) for r in exp["refusal"] for i in (ids[r] if r in ID_ENTRIES else [None])}
+
+
+def judge(findings, exp, exact=False):
     """The reasons a case fails; empty when it passes."""
     if "accept" in exp:
         return [f"expected accept, got {f.message} [{f.identifier}]" for f in findings]
     if not findings:
         return ["expected a refusal, got accept"]
+    if exact:
+        want, have = expected_set(exp), {(f.identifier, f.id) for f in findings}
+        out = [
+            f"missing [{r}]" + (f" for `{i}`" if i else "") for r, i in sorted(want - have, key=str)
+        ]
+        out += [
+            f"extra [{r}]" + (f" for `{i}`" if i else "") for r, i in sorted(have - want, key=str)
+        ]
+        return out
     allowed, ids = set(exp["refusal"]), exp.get("ids", {})
     out = []
     for f in findings:
@@ -108,31 +136,36 @@ def judge(findings, exp):
 
 
 def cases(root):
-    for group in sorted(os.listdir(root)):
-        gdir = os.path.join(root, group)
-        if not os.path.isdir(gdir):
-            continue
-        for case in sorted(os.listdir(gdir)):
-            cdir = os.path.join(gdir, case)
-            if os.path.isdir(cdir):
-                yield f"{group}/{case}", cdir
+    """(name, directory, misplaced): every directory two levels below ROOT is
+    a case; any other directory holding a case's files is misplaced."""
+    out = []
+    for dirpath, dirnames, files in os.walk(root):
+        dirnames.sort()
+        rel = os.path.relpath(dirpath, root)
+        depth = 0 if rel == "." else rel.count(os.sep) + 1
+        if depth == 2:
+            out.append((rel.replace(os.sep, "/"), dirpath, False))
+        elif {INPUT, EXPECT} & set(files):
+            out.append((rel.replace(os.sep, "/"), dirpath, True))
+    return sorted(out)
 
 
 def main(argv=None):
     args = sys.argv[1:] if argv is None else list(argv)
+    exact = "--exact" in args
+    args = [a for a in args if a != "--exact"]
     if len(args) > 1 or (args and args[0].startswith("-")):
-        print("usage: run_cases.py [ROOT]", file=sys.stderr)
+        print("usage: run_cases.py [--exact] [ROOT]", file=sys.stderr)
         return 2
     root = args[0] if args else DEFAULT_ROOT
     if not os.path.isdir(root):
-        if not args:
-            print(f"no case tree at {root}: no verdict")
-            return 2
-        print(f"no case tree at {root}: nothing to run")
-        return 0
+        print(f"no case tree at {root}: no verdict")
+        return 2
     passed, failed, malformed, provisional = [], [], [], []
-    for name, cdir in cases(root):
+    for name, cdir, misplaced in cases(root):
         try:
+            if misplaced:
+                raise Malformed("holds a case's files but is not two levels below ROOT")
             if not os.path.isfile(os.path.join(cdir, INPUT)):
                 raise Malformed(f"has no {INPUT}")
             exp = load_expect(os.path.join(cdir, EXPECT))
@@ -146,7 +179,7 @@ def main(argv=None):
             print(f"note: {name} has no {WHY}")
         if "provisional" in exp:
             provisional.append(name)
-        reasons = judge(check(data), exp)
+        reasons = judge(check(data), exp, exact)
         if reasons:
             failed.append(name)
             tag = " (provisional)" if "provisional" in exp else ""

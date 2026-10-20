@@ -3,6 +3,8 @@
 
 import json
 
+import pytest
+
 import run_cases
 
 H = "flowchart TD\n"
@@ -25,10 +27,10 @@ def run(root, capsys):
     return rc, capsys.readouterr().out
 
 
-def test_no_tree_says_so_and_exits_0(tmp_path, capsys):
+def test_a_root_given_that_does_not_exist_is_no_verdict(tmp_path, capsys):
     rc, out = run(tmp_path / "absent", capsys)
-    assert rc == 0
-    assert "no case tree" in out
+    assert rc == 2
+    assert "no case tree" in out and "no verdict" in out
 
 
 def test_empty_tree_is_no_verdict(tmp_path, capsys):
@@ -109,7 +111,7 @@ def test_wrong_id_fails(tmp_path, capsys):
 
 def test_provisional_is_judged_and_counted(tmp_path, capsys):
     case(tmp_path, "g/p", H + "  a[A]\n", {"accept": True, "provisional": "§4.4"})
-    case(tmp_path, "g/q", H + "  a[A]\n", {"refusal": ["leading-bom"], "provisional": True})
+    case(tmp_path, "g/q", H + "  a[A]\n", {"refusal": ["leading-bom"], "provisional": "§3"})
     rc, out = run(tmp_path, capsys)
     assert rc == 1
     assert "FAIL g/q (provisional)" in out
@@ -175,3 +177,106 @@ def test_a_default_tree_below_its_floor_is_no_verdict(capsys, monkeypatch):
     monkeypatch.setattr(run_cases, "MIN_CASES", 10**6)
     assert run_cases.main([]) == 2
     assert "fewer than its floor" in capsys.readouterr().out
+
+
+def run_exact(root, capsys):
+    rc = run_cases.main(["--exact", str(root)])
+    return rc, capsys.readouterr().out
+
+
+def test_exact_passes_on_the_exact_set(tmp_path, capsys):
+    case(
+        tmp_path,
+        "g/c",
+        H + "  a --> b\n  c[C]\n  c[C]\n  x y\n",
+        {
+            "refusal": ["undeclared-id", "duplicate-declaration", "malformed-line"],
+            "ids": {"undeclared-id": ["a", "b"], "duplicate-declaration": ["c"]},
+        },
+    )
+    case(tmp_path, "g/ok", H + "  a[A]\n", {"accept": True})
+    assert run_exact(tmp_path, capsys)[0] == 0
+
+
+def test_exact_fails_on_an_identifier_the_checker_does_not_report(tmp_path, capsys):
+    # passes under §9's judging, fails under --exact
+    case(
+        tmp_path,
+        "g/c",
+        H + "  a --> b\n",
+        {"refusal": ["undeclared-id", "malformed-line"], "ids": {"undeclared-id": ["a", "b"]}},
+    )
+    assert run(tmp_path, capsys)[0] == 0
+    rc, out = run_exact(tmp_path, capsys)
+    assert rc == 1
+    assert "missing [malformed-line]" in out
+
+
+def test_exact_fails_on_an_id_the_checker_does_not_report(tmp_path, capsys):
+    case(
+        tmp_path,
+        "g/c",
+        H + "  a --> b\n",
+        {"refusal": ["undeclared-id"], "ids": {"undeclared-id": ["a", "b", "z"]}},
+    )
+    assert run(tmp_path, capsys)[0] == 0
+    rc, out = run_exact(tmp_path, capsys)
+    assert rc == 1
+    assert "missing [undeclared-id] for `z`" in out
+
+
+def test_exact_fails_on_an_extra_finding(tmp_path, capsys):
+    case(
+        tmp_path,
+        "g/c",
+        H + "  a --> b\n",
+        {"refusal": ["undeclared-id"], "ids": {"undeclared-id": ["a"]}},
+    )
+    rc, out = run_exact(tmp_path, capsys)
+    assert rc == 1
+    assert "extra [undeclared-id] for `b`" in out
+
+
+def test_exact_still_fails_an_accepted_refusal(tmp_path, capsys):
+    case(tmp_path, "g/c", H + "  a[A]\n", {"refusal": ["malformed-line"]})
+    assert run_exact(tmp_path, capsys)[0] == 1
+
+
+def test_the_committed_tree_matches_exactly(capsys):
+    assert run_cases.main(["--exact"]) == 0
+    assert " 0 failed" in capsys.readouterr().out
+
+
+def test_exact_usage(capsys):
+    assert run_cases.main(["--exact", "a", "b"]) == 2
+    assert run_cases.main(["--strict"]) == 2
+
+
+@pytest.mark.parametrize("tag", [True, "", "   ", 1, ["§4"], None])
+def test_provisional_must_be_a_non_empty_string(tmp_path, capsys, tag):
+    case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True, "provisional": tag})
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED g/c" in out
+
+
+def test_a_case_one_level_down_is_malformed(tmp_path, capsys):
+    case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True})
+    case(tmp_path, "flat", H + "  a[A]\n", {"accept": True})
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED flat" in out
+
+
+def test_a_case_three_levels_down_is_malformed(tmp_path, capsys):
+    case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True})
+    case(tmp_path, "g/c/deeper", H + "  a[A]\n", {"accept": True})
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED g/c/deeper" in out
+
+
+def test_case_files_at_the_root_are_malformed(tmp_path, capsys):
+    case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True})
+    (tmp_path / "expect.json").write_text('{"accept": true}')
+    assert run(tmp_path, capsys)[0] == 2

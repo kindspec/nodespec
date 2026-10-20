@@ -37,6 +37,12 @@ test:
 conform *ARGS:
     uv run --exact python conformance/run_cases.py {{ARGS}}
 
+# The same tree, judged exactly: a refusing case passes only if the checker
+# reports exactly its identifiers and ids. For the reference checker, which
+# reports every refusal it finds; not a test of SPEC.md §9 conformance.
+conform-exact *ARGS:
+    uv run --exact python conformance/run_cases.py --exact {{ARGS}}
+
 # The mutation gate: every mutant of the checker must be killed by a test
 mutants:
     uv run --exact python conformance/mutants.py

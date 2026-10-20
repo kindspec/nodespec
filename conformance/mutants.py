@@ -231,8 +231,8 @@ MUTANTS = [
     (
         "stray-comments-not-exempt",
         CHECKER,
-        "and not g.is_comment(line)\n",
-        "and not g.is_blank(line)\n",
+        "and not (g.is_comment(line) and",
+        "and not (g.is_blank(line) and",
     ),
     (
         "stray-direction-stmt-not-exempt",
@@ -351,6 +351,58 @@ MUTANTS = [
         'return ["expected a refusal, got accept"]',
         "return []",
     ),
+    # --- review fixes --------------------------------------------------------
+    ("directive-shaped-like-a-comment-exempt", CHECKER, '"%%{" not in line)', '"%%[" not in line)'),
+    (
+        "runner-floor-inverted",
+        RUNNER,
+        "if not args and total < MIN_CASES:",
+        "if not args and total > MIN_CASES:",
+    ),
+    (
+        "runner-floor-on-any-root",
+        RUNNER,
+        "if not args and total < MIN_CASES:",
+        "if args and total < MIN_CASES:",
+    ),
+    (
+        "runner-missing-root-is-a-pass",
+        RUNNER,
+        '        print(f"no case tree at {root}: no verdict")\n        return 2\n',
+        '        print(f"no case tree at {root}: no verdict")\n        return 0\n',
+    ),
+    (
+        "runner-provisional-any-string",
+        RUNNER,
+        'and exp["provisional"].strip()',
+        'and exp["provisional"] is not None',
+    ),
+    (
+        "runner-provisional-any-type",
+        RUNNER,
+        'isinstance(exp["provisional"], str)',
+        'isinstance(exp["provisional"], object)',
+    ),
+    ("runner-case-at-any-depth", RUNNER, "        if depth == 2:", "        if depth >= 2:"),
+    (
+        "runner-misplaced-skipped",
+        RUNNER,
+        "elif {INPUT, EXPECT} & set(files):",
+        "elif {INPUT, EXPECT} & set():",
+    ),
+    (
+        "runner-exact-ignores-missing",
+        RUNNER,
+        "sorted(want - have, key=str)",
+        "sorted(want - want, key=str)",
+    ),
+    (
+        "runner-exact-ignores-extra",
+        RUNNER,
+        "sorted(have - want, key=str)",
+        "sorted(have - have, key=str)",
+    ),
+    ("runner-exact-off", RUNNER, 'exact = "--exact" in args', 'exact = "--exact" not in args'),
     (
         "runner-no-tree-is-a-pass",
         RUNNER,
@@ -360,6 +412,12 @@ MUTANTS = [
 ]
 
 EQUIVALENT = {
+    "comment-may-start-with-brace": (
+        "a comment whose first character after `%%` is `{` holds `%%{`, so §4.2 rule 3 "
+        "makes it a directive line before rule 5 is tried, and the stray-direction "
+        "exemption excludes any line holding `%%{` as well; `is_comment` is never asked "
+        "about such a line where its answer matters"
+    ),
     "keeps-the-final-empty-line": (
         "the empty text after a final line end is then read as one more line, which is "
         "blank; a blank line is allowed anywhere and contributes nothing, and front matter "
