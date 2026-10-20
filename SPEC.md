@@ -193,10 +193,15 @@ that is classified is never also read as something else.
    refused together as `not-admitted` (§4.10). Mermaid's matcher takes
    `---` with trailing whitespace, and indented, by any whitespace but a
    line end (U+00A0 included), only when both fences are indented
-   alike; with one fence indented, or the two indented
-   differently, Mermaid does not parse the file. The profile refuses
-   every one of these forms the same way. These lines are not
-   statement lines, so the header comes after them.
+   alike; with one fence indented, or the two indented differently,
+   Mermaid does not parse the file. The profile refuses every one of
+   these forms, though not always with this rule's identifier. A line
+   indented by anything other than `WSP`, such as U+00A0, is not a
+   fence here **(provisional)**: it is the first statement line, so the
+   file is `no-header`, and the lines after it, the closing fence
+   included, are read under §4.3 and are `malformed-line`. The lines of
+   front matter are not statement lines, so the header comes after
+   them.
 2. **A conflict marker**: the line's first seven characters are seven
    `<`, seven `=`, seven `>` or seven `|`. Refused as
    `conflict-marker`.
@@ -634,10 +639,17 @@ Refused as `not-admitted`:
   subset left out.
 
 A line is `not-admitted` only as §4.2 and §4.3 say. So `:::`, `@{` and
-a Markdown string are `not-admitted` only where §4.3 rule 11 reaches
-them: in a node or edge statement, including its node or edge label,
-at the top level or in a block. Where an earlier rule of §4.3 decides
-the line, the same text gets that rule's refusal **(provisional)**:
+a Markdown string are `not-admitted` only where they would otherwise
+be read as syntax, which is where §4.3 rule 11 reaches them: in a line
+that matches none of §4.3's earlier rules, at the top level or in a
+block. **Label text that matches its production is just text
+(provisional)**: `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`,
+`subgraph s [a:::b]` and `subgraph s ["a@{b"]` each match, are
+accepted, and Mermaid reads each as a label or title holding those
+characters. A Markdown string never matches a label (§4.5), so in a
+node or edge statement it is always `not-admitted`. Where an earlier
+rule of §4.3 decides a line that does not match, the text gets that
+rule's refusal **(provisional)**:
 for example, in a line whose first word is `subgraph`, `end`,
 `direction`, `classDef`, `class` or `style` it is `malformed-line` (a
 subgraph title in Markdown included), and in a `linkStyle` line it is
@@ -1028,8 +1040,13 @@ for the owner.
 - In the `L_…_…_N` form, the characters include `_` (§4.4).
 - Trailing whitespace in `stray-direction`'s second clause uses §4.9's
   whitespace set, not `WSP` (§4.9).
-- `:::`, `@{` and a Markdown string are `malformed-line` in subgraph,
-  `classDef`, `class` and `style` lines (§4.10).
+- `:::`, `@{` and a Markdown string are `not-admitted` only where they
+  would be read as syntax; label text that matches its production is
+  just text; and in subgraph, `classDef`, `class` and `style` lines
+  that do not match, the same text is `malformed-line` (§4.10).
+- A front matter fence indented by anything other than `WSP`, such as
+  U+00A0, is not a fence: the file is `no-header`, with
+  `malformed-line` for the lines after it (§4.2).
 - `edge-id-on-group` applies only to top-level edge statements (§4.6).
 - Every direction statement in a block after the first is
   `direction-twice` (§4.9).
