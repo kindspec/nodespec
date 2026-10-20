@@ -362,9 +362,13 @@ def check(data):
     block = None
     for i, line in enumerate(lines):
         # §4.9: stray-direction applies whatever else applies, to any line
-        # but a comment or a line that matches `direction-stmt`.
+        # but a comment, a front matter line or a line that matches
+        # `direction-stmt`. A directive line is not exempt.
         stray = (
-            not g.is_comment(line) and not g.is_direction_stmt(line) and is_stray_direction(line)
+            i >= front
+            and not g.is_comment(line)
+            and not g.is_direction_stmt(line)
+            and is_stray_direction(line)
         )
         if stray:
             refuse(

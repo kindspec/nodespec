@@ -231,14 +231,14 @@ MUTANTS = [
     (
         "stray-comments-not-exempt",
         CHECKER,
-        "not g.is_comment(line) and not g.is_direction_stmt",
-        "not g.is_blank(line) and not g.is_direction_stmt",
+        "and not g.is_comment(line)\n",
+        "and not g.is_blank(line)\n",
     ),
     (
         "stray-direction-stmt-not-exempt",
         CHECKER,
-        "and not g.is_direction_stmt(line) and",
-        "and not g.is_end_line(line) and",
+        "and not g.is_direction_stmt(line)\n",
+        "and not g.is_end_line(line)\n",
     ),
     ("direction-flag-not-set", CHECKER, "block.direction = True", "block.direction = False"),
     # --- §5 ----------------------------------------------------------------
@@ -303,6 +303,22 @@ MUTANTS = [
         'for kind in ("style", "class"):',
         'for kind in ("style", "style"):',
     ),
+    # --- readings settled after draft 0's first text (e7e643e) ---------------
+    (
+        "front-matter-not-exempt-from-stray",
+        CHECKER,
+        "            i >= front\n",
+        "            i >= 0\n",
+    ),
+    (
+        "stray-word-any-case",
+        CHECKER,
+        '_STRAY = re.compile("direction["',
+        '_STRAY = re.compile("[dD]irection["',
+    ),
+    ("stray-direction-lower-case", CHECKER, '"]+(?:TB|BT|RL|LR|TD)"', '"]+(?:TB|BT|RL|LR|TD|lr)"'),
+    ("L-form-without-underscores", CHECKER, r'_[A-Za-z0-9_]+_[0-9]+")', r'_[A-Za-z0-9]+_[0-9]+")'),
+    ("subgraph-skips-one-wsp", GRAMMAR, '"*subgraph" + _WSP + "*")', '"*subgraph" + _WSP + "?")'),
     # --- the case runner ---------------------------------------------------
     (
         "runner-ignores-the-identifier",

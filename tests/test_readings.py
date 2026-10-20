@@ -14,12 +14,9 @@ def got(text):
     return {(f.identifier, f.id) for f in check(text)}
 
 
-def test_stray_direction_applies_to_front_matter_and_directive_lines():
-    # §4.9 exempts comments and direction statements only, read literally.
-    assert got("---\ntitle: direction LR\n---\n" + H) == {
-        ("not-admitted", None),
-        ("stray-direction", None),
-    }
+def test_stray_direction_applies_to_directive_and_conflict_marker_lines():
+    # §4.9 exempts comments, front matter and direction statements; a
+    # directive line is not exempt (SPEC.md as amended in e7e643e).
     assert got(H + "%%{init: {'x': 'direction TB'}}%%\n") == {
         ("not-admitted", None),
         ("stray-direction", None),
@@ -46,8 +43,7 @@ def test_a_comment_holding_eq_quote_is_not_exempt_from_stray_direction():
 
 
 def test_markdown_title_on_a_subgraph_line_is_malformed():
-    # §4.3 rule 1 sends a top-level subgraph line to §4.7 alone, and §4.10
-    # says a line is not-admitted only as §4.2 and §4.3 say.
+    # §4.10, as amended: a subgraph title in Markdown is malformed-line.
     assert got(H + '  subgraph s ["`T`"]\n  end\n') == {
         ("malformed-line", None),
         ("unbalanced-block", None),
