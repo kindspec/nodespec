@@ -4,7 +4,9 @@ deliberate, not an oversight.
   SPEC.md, docs/            CC-BY-4.0
   conformance/cases/        CC0-1.0
   conformance/*.py          MIT
-  reference/, tests/        Apache-2.0 OR MIT
+  reference/, tests/,
+  .github/workflows/,
+  justfile, pyproject.toml  Apache-2.0 OR MIT
   spike/*/*.md,
   spike/*/census/README.md  CC-BY-4.0
   spike/*/census/*          MIT
