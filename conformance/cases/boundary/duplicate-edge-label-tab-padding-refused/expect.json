@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "duplicate-edge"
+  ],
+  "provisional": "How `duplicate-edge` compares labels (§4.6)."
+}

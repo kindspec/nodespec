@@ -1,0 +1,11 @@
+{
+  "refusal": [
+    "reserved-id"
+  ],
+  "ids": {
+    "reserved-id": [
+      "direction"
+    ]
+  },
+  "provisional": "`default`, `direction` and `hasOwnProperty` are reserved, ids of the form `L_…_…_N` are reserved, and a class may not be `node` (§4.4)."
+}

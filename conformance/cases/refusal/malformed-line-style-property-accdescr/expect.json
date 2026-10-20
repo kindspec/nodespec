@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "malformed-line"
+  ],
+  "provisional": "Style lists are narrower than Mermaid's (§4.8)."
+}

@@ -1,0 +1,10 @@
+{
+  "refusal": [
+    "reserved-id"
+  ],
+  "ids": {
+    "reserved-id": [
+      "end"
+    ]
+  }
+}

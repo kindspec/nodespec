@@ -1,0 +1,57 @@
+[project]
+name = "nodespec"
+version = "0.0.0"
+description = "A reference checker for nodespec, a profile of Mermaid flowcharts that must survive version control"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+authors = [{ name = "Cameron Brooks" }]
+keywords = ["mermaid", "flowchart", "git", "merge", "conformance", "specification"]
+# The wheel holds `reference/nodespec`, which is Apache-2.0 OR MIT. The
+# repository as a whole is licensed per directory; see LICENSE and LICENSES/.
+license = "Apache-2.0 OR MIT"
+license-files = ["LICENSE", "LICENSES/*.txt", "reference/LICENSE"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Version Control :: Git",
+]
+
+[project.urls]
+Homepage = "https://github.com/kindspec/nodespec"
+Source = "https://github.com/kindspec/nodespec"
+Issues = "https://github.com/kindspec/nodespec/issues"
+Specification = "https://github.com/kindspec/nodespec/blob/main/SPEC.md"
+
+[project.scripts]
+nodespec = "nodespec.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["reference/nodespec"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# The Mermaid spike is a closed, recorded experiment; its code is kept as it ran.
+extend-exclude = ["spike", "existence"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["nodespec", "run_cases"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["reference", "conformance"]

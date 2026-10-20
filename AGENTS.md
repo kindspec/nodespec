@@ -15,8 +15,23 @@ format is decided: `docs/adjudications/0001-mermaid-profile.md`.
 `SPEC.md` is draft 0, written from it. nodespec is the **nodes kind** — identity is
 named, not positional — alongside [rowspec](https://github.com/kindspec/rowspec) and [blockspec](https://github.com/kindspec/blockspec).
 
-There is no conformance suite and no implementation, and saying so
-is cheaper than being asked.
+`reference/nodespec/` is a reference checker written from `SPEC.md`.
+`conformance/cases/` holds its conformance cases, written from
+`SPEC.md` alone by an author who read no checker, and the checker passes
+them unchanged.
+
+## Commands
+
+```sh
+just setup    just check    just test    just mutants
+just conform [ROOT]       # a case tree, conformance/cases by default
+just conform-exact [ROOT] # the same, requiring exactly the listed refusals
+just run FILE...          # nodespec check FILE...
+```
+
+`reference/` is standard library only, which `tests/test_boundary.py`
+enforces. `just mutants` breaks the checker one token at a time, and a
+test under `tests/` must fail on each mutant.
 
 ## Before writing anything
 
@@ -48,7 +63,10 @@ bar cannot move once the results are in.
   2003 and encoded the lesson architecturally.
 - **Do not port rowspec's identity design.** It does not transfer, and the brief
   explains why with the measurement.
-- **Do not write an implementation before the conformance cases exist.** A format
-  that does not exist yet has nothing to disagree with, and the adversarial
-  discipline cannot be retrofitted — rowspec's second implementation drifted 117
-  cases behind the moment nothing ran it.
+- **Conformance cases are written from `SPEC.md` by an author who has not seen
+  any implementation, and they run in CI against the reference checker,
+  unchanged.** The adversarial discipline cannot be retrofitted, and a suite
+  nothing runs stops checking anything — rowspec's second implementation
+  drifted 117 cases behind the moment nothing ran it. The first instance is
+  #15: its cases were written from `SPEC.md` alone, the checker never saw them,
+  and it passed them unchanged.
