@@ -32,6 +32,15 @@ check: fmt-check lint
 test:
     uv run --exact pytest -q
 
+# A conformance case tree against the reference checker. With no tree at
+# conformance/cases it says so and exits 0.
+conform *ARGS:
+    uv run --exact python conformance/run_cases.py {{ARGS}}
+
+# The mutation gate: every mutant of the checker must be killed by a test
+mutants:
+    uv run --exact python conformance/mutants.py
+
 # Check files against the profile
 run *ARGS:
     uv run python -m nodespec check {{ARGS}}
