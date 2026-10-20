@@ -6,6 +6,5 @@
     "member-twice": [
       "a"
     ]
-  },
-  "provisional": "Two member lines naming one id in one block are refused (§6)."
+  }
 }

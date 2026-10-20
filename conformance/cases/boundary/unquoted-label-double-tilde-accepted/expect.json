@@ -1,4 +1,3 @@
 {
-  "accept": true,
-  "provisional": "An unquoted label holds no `~~~` (§4.5)."
+  "accept": true
 }

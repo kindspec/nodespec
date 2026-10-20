@@ -1,4 +1,3 @@
 {
-  "accept": true,
-  "provisional": "An id is the target of at most one `style` line and one `class` line, so with one class per `class` line an id carries at most one class (§7)."
+  "accept": true
 }

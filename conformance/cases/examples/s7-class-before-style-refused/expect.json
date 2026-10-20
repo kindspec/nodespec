@@ -1,6 +1,5 @@
 {
   "refusal": [
     "class-not-last"
-  ],
-  "provisional": "Every `class` line comes last (§7)."
+  ]
 }

@@ -1,4 +1,3 @@
 {
-  "accept": true,
-  "provisional": "An edge id on a link with `&` on either side is refused (§4.6)."
+  "accept": true
 }

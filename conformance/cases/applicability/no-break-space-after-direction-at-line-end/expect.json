@@ -2,6 +2,5 @@
   "refusal": [
     "malformed-line",
     "stray-direction"
-  ],
-  "provisional": "Trailing whitespace in `stray-direction`'s second clause uses §4.9's whitespace set, not `WSP` (§4.9)."
+  ]
 }

@@ -1,6 +1,5 @@
 {
   "refusal": [
     "direction-twice"
-  ],
-  "provisional": "Every direction statement in a block after the first is `direction-twice` (§4.9)."
+  ]
 }

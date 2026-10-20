@@ -1,4 +1,3 @@
 {
-  "accept": true,
-  "provisional": "Ids are ASCII letters, digits and `_` (§4.4)."
+  "accept": true
 }

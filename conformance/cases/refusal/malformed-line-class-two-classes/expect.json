@@ -1,6 +1,5 @@
 {
   "refusal": [
     "malformed-line"
-  ],
-  "provisional": "One class per `classDef` and per `class` line, and one target per `style` line (§4.8)."
+  ]
 }

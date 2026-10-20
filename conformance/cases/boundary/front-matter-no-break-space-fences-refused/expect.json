@@ -9,6 +9,5 @@
       "a",
       "b"
     ]
-  },
-  "provisional": "A front matter fence indented by anything other than `WSP`, such as U+00A0, is not a fence: it is the first statement line, so the file is `no-header`, and the lines after it are read under §4.3 as after any `no-header` line (§4.2)."
+  }
 }

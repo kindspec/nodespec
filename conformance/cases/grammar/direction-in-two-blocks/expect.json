@@ -1,4 +1,3 @@
 {
-  "accept": true,
-  "provisional": "A direction statement only in a block, at most one per block (§4.9)."
+  "accept": true
 }
