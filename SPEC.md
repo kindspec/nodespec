@@ -52,9 +52,10 @@ file it accepts parses in Mermaid, with the nodes, edges, edge ids,
 members, directions and classes this document reads from it, classes
 as Mermaid's renderer receives them. Before Mermaid parses a file it
 removes comments and directives and rewrites some quotes; §4.2 and
-§4.5 refuse every text those steps would change, so the claim covers
-them. A file this document accepts that Mermaid reads otherwise is a
-defect in this document.
+§4.5 refuse every text those steps would change in any way other than
+removing whole comment lines and normalising line ends, so the claim
+covers them. A file this document accepts that Mermaid reads otherwise
+is a defect in this document.
 
 A nodespec file is one whole file holding one flowchart. A Mermaid
 fence inside a Markdown file is outside draft 0 **(provisional)**. (Not
@@ -170,9 +171,10 @@ line that breaks one does not match:
 - a `quoted` label holds at least one character that is not `WSP`, does
   not begin with `` ` ``, and does not end with `=` (§4.5);
 - a `unit` is not the one-letter word `v`, so `vh` is a unit; neither a
-  `name` nor the part of it before its first `-` is `v` or a reserved
-  word; and the `name` before a `:` is not `accTitle` or `accDescr`
-  (§4.8).
+  `name` nor the part of it before its first `-` is `v` or one of the
+  17 words listed in §4.4; a `name` is not `swimlane-beta` and does not
+  begin with `swimlane-beta-`; and the `name` before a `:` is not
+  `accTitle` or `accDescr` (§4.8).
 
 Two more are refusals of their own: an `id` that is reserved, in a line
 that matches, is `reserved-id` (§4.4); and text that Mermaid reads as a
@@ -184,12 +186,12 @@ statement, is `stray-direction` (§4.9).
 Each line is classified by the first rule below that matches it. A line
 that is classified is never also read as something else.
 
-1. **Front matter.** If the file's first line is `---`, alone or
-   followed by `WSP`, that line and every line up to and including the
+1. **Front matter.** If the file's first line is `---`, with any `WSP`
+   before or after it, that line and every line up to and including the
    next such line, or to the end of the file if there is none, are
-   refused together as `not-admitted` (§4.10). Mermaid's matcher also
-   takes `---` with trailing whitespace. These lines are not statement
-   lines, so the header comes after them.
+   refused together as `not-admitted` (§4.10). Mermaid's matcher takes
+   `---` indented and with trailing whitespace too. These lines are not
+   statement lines, so the header comes after them.
 2. **A conflict marker**: the line's first seven characters are seven
    `<`, seven `=`, seven `>` or seven `|`. Refused as
    `conflict-marker`.
@@ -206,8 +208,9 @@ that is classified is never also read as something else.
    with nothing after it, is not a comment; Mermaid reads it as a node
    named `%%`. A comment holding `="` is not a comment either, because
    Mermaid rewrites quotes before it removes comments (§4.5), so `="`
-   in a comment changes a later label; such a line is a statement line,
-   and is `malformed-line`.
+   in a comment changes a later label; such a line is a statement line.
+   After the header it is `malformed-line`; before the header it is the
+   first statement line, and §4.3's header rule makes it `no-header`.
 6. Every other line is a **statement line**. The first statement line
    of a file is the header's place (§4.3); later statement lines are
    classified by §4.3's rules.
@@ -276,9 +279,12 @@ shape (0001, *What it costs*).
 `;` is not admitted anywhere outside a label (the owner, 2026-10-19:
 refused for now), so a statement line ending in `;`, two statements on
 one line, and a member line `a;` are `malformed-line`, and a header
-ending in `;` is `no-header`. Mermaid accepts `;` as a statement separator, and reads it
-differently by statement: `graph TD ;` does not parse, and in a
-`classDef` or a `style` it joins two styles into one.
+ending in `;` is `no-header`. Mermaid accepts `;` as a statement
+separator, and reads it differently by statement and by what precedes
+it: `graph TD ;` does not parse; in a `classDef` or a `style`, after a
+`#` colour, `fill:#f9f;stroke:#333` joins two styles into one, and
+after a name word, `fill:red;stroke:blue` ends the statement and makes
+a node named `stroke:blue`.
 
 ### 4.4 Ids
 
@@ -427,7 +433,11 @@ the same link and the same label are refused as `duplicate-edge`**
 (the owner, 2026-10-19). The same link means the same characters
 (`-->` and `--->` differ); the same label means both have none, or both
 have one whose text between the `|`s is the same once leading and
-trailing `WSP` is removed **(provisional)**. An unnamed edge has no
+trailing `WSP` is removed **(provisional)**. Labels are compared as
+bytes, not as what they render, so `|x|` and `|"x"|` are different
+labels and those two edges are not duplicates; that is deliberate,
+since deciding which spellings render alike would need Mermaid's label
+rules. An unnamed edge has no
 identity but its ends, link and label, so two of them are one edge
 written twice: both branches adding it in different places, or both
 moving it, then merge loud instead of drawing it twice.
@@ -502,14 +512,18 @@ or a word that begins with `&` or `*`, does not parse; nor does a word
 that is a keyword, or that begins with a keyword and `-` (`class-x`,
 `end-x`, `flowchart-elk`), or the word `v` alone, after a digit or `#`,
 or before `-`; nor a property named `accTitle` or `accDescr`. `&`, `*`
-and `::` inside a word do parse, and are still not admitted. `;` joins
-two styles into one. The grammar admits CSS-like items: a name, `:`,
+and `::` inside a word do parse, and are still not admitted. `;` is
+not admitted (§4.3). The grammar admits CSS-like items: a name, `:`,
 and words that are a colour (`#f9f`), a number with an optional unit
 and `%` (`4px`, `.5`, `50%`, `100vh`), or a name (`Arial`,
 `sans-serif`, `!important`). A `unit` is any run of lower-case letters
 except the one-letter `v`. Neither a `name` nor its part before its
-first `-` is `v` or a reserved word (§4.4), and a property's name is
-not `accTitle` or `accDescr`.
+first `-` is `v` or one of the 17 words listed in §4.4; the other
+reserved ids, such as `hasOwnProperty` and `direction`, parse as style
+words (`fill:hasOwnProperty`, `fill:direction-x`). A `name` is not
+`swimlane-beta` and does not begin with `swimlane-beta-`, which Mermaid
+lexes as a keyword (`swimlane` and `swimlane-x` parse). A property's
+name is not `accTitle` or `accDescr`.
 
 ### 4.9 Direction
 
@@ -744,7 +758,10 @@ Mermaid does not need.
 Mermaid applies both, in file order, so where they set the same
 property the later one wins; two branches that each style or class the
 same id would merge clean, and the order of their lines would decide
-the picture.
+the picture. With one class per `class` line (§4.8), this means **an
+id carries at most one class (provisional)**. Mermaid lets an id carry
+several, so this is a loss of expressiveness against Mermaid: a node
+that needs two classes' styles needs one class that holds both.
 
 Apart from `class` lines, D4 orders nothing. Declarations, edges,
 blocks and `style` lines may come in any order: Mermaid creates a node
@@ -909,20 +926,24 @@ prevented*, which has the full text). Two of them reach further here.
   unnamed edge added at the same place.
 - **A delete against a move of the same line.** One branch deletes a
   node, an edge carrying an id, a subgraph, a member line or an unnamed
-  edge; the other moves that line elsewhere. Git keeps the moved line,
-  and the deleted thing comes back: a node with none of its edges, an
-  edge without its `class` line, a subgraph with its member lines, a
-  member nested again, an edge drawn again. A canonical statement order
-  would refuse the move; draft 0 does not require one (0001, *Open*).
+  edge, or a `class` or `style` line; the other moves that line
+  elsewhere. Git keeps the moved line, and the deleted thing comes
+  back: a node with none of its edges, an edge without its `class`
+  line, a subgraph with its member lines, a member nested again, an
+  edge drawn again, a class or a style applied again. A canonical
+  statement order would refuse the move; draft 0 does not require one
+  (0001, *Open*).
   Where both branches move the same unnamed edge, or both add it in
   different places, the merged file holds it twice and is refused as
   `duplicate-edge` (§4.6).
 - **A class redefined** on one branch while the other assigns it: the
   assignment gets the new style.
 
-0001 also records that Mermaid renders neither a `direction` in a
-nested subgraph nor edges into a nested subgraph. The profile admits
-both; they are Mermaid's limits, not merges.
+0001 records that, in its render, Mermaid drew neither a `direction`
+in a nested subgraph nor edges into a nested subgraph; a later render
+did draw edges into one. The render engine is not pinned here (§2 pins
+the parser), so this document takes no position on either. The profile
+admits both.
 
 ## 12. Provisional, and not decided
 
@@ -952,7 +973,8 @@ for the owner.
 - `@{ … }` is not admitted (§4.10).
 - Two member lines naming one id in one block are refused (§6).
 - Every `class` line comes last (§7).
-- An id is the target of at most one `style` line and one `class` line
+- An id is the target of at most one `style` line and one `class` line,
+  so with one class per `class` line an id carries at most one class
   (§7).
 - Which refusals apply once a line is refused, and that refusals of a
   line or a file carry no id (§9).
