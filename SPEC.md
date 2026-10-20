@@ -330,11 +330,16 @@ some places and not others.
 
 **An id of the form `L_`, one or more characters, `_`, one or more
 characters, `_`, one or more digits, such as `L_a_b_0`, is refused as
-`reserved-id` (provisional).** Mermaid gives every edge without an
-edge id an id of that form, `L_` start `_` end `_` a counter. A node
-statement whose id equals an existing edge's id is dropped without a
-word; a node declared before the edge keeps its id, and a `class`
-naming it then classes the node and the edge.
+`reserved-id` (provisional).** The characters may be any id
+characters, `_` included **(provisional)**, so `L_a_b__0` has the form
+(`a`, then `b_`, then `0`); in regular-expression terms the whole id
+matches `L_.+_.+_[0-9]+`. Mermaid makes exactly that id for an edge
+from `a` to `b_`, and drops a node statement `L_a_b__0[X]` that follows
+the edge. Mermaid gives every edge without an edge id an id of that
+form, `L_` start `_` end `_` a counter. A node statement whose id
+equals an existing edge's id is dropped without a word; a node declared
+before the edge keeps its id, and a `class` naming it then classes the
+node and the edge.
 
 `reserved-id` applies wherever an id stands in a line that §4.3
 classifies as a statement and refuses for nothing else: in a
@@ -471,11 +476,14 @@ reads `subgraph s` followed by a space as a subgraph with no id, titled
 
 **A subgraph line with no explicit id is refused as
 `subgraph-without-id`** (D1). It is a line whose first word is
-`subgraph` and in which, after `subgraph` and the `WSP` that follows,
-the text is empty, or begins with `"`, or holds `WSP` before its first
-`[` (or anywhere, if it has none) that is not followed, after any more
-`WSP`, by that `[`. Those are the forms Mermaid refuses, or gives an id
-of its own or an id holding a space: `subgraph` alone throws a
+`subgraph` and in which, after `subgraph` and the whole run of `WSP`
+that follows it **(provisional)**, the text is empty, or begins with
+`"`, or holds `WSP` before its first `[` (or anywhere, if it has none)
+that is not followed, after any more `WSP`, by that `[`. Skipping the
+whole run is how Mermaid reads it: `subgraph  s` with two spaces, and
+`subgraph`, a tab and a space, then `s`, both give the subgraph the id
+`s`. Those are the forms Mermaid refuses, or gives an id of its own or
+an id holding a space: `subgraph` alone throws a
 `TypeError`; `subgraph My Title`, `subgraph "My Title"` and
 `subgraph s ` with a trailing space get an id `subGraphN` of Mermaid's
 numbering; and `subgraph a1 b1 [T]` gets the id `a1 b1`. Any other
@@ -558,7 +566,20 @@ the words swallows the line as a space does. The text may stand
 anywhere in the line: in a label, a title, a style, an id
 (`xdirection LRX` matches). `stray-direction` applies whatever else
 applies to the line. Comment lines are exempt because Mermaid removes
-them before it lexes.
+them before it lexes. **Front matter lines are exempt too
+(provisional)**: Mermaid removes front matter before it lexes, so
+`title: go direction LR` in it swallows nothing (the file is still
+`not-admitted`, §4.2). **A directive line is not exempt
+(provisional)**: Mermaid removes only the text from `%%{` to `}%%`, and
+lexes what is left of the line, so `a[go direction LR %%{x}%%]`
+declares no node. A directive line holding the text is refused as both
+`not-admitted` and `stray-direction`.
+
+**The words compare exactly (provisional, as Mermaid's lexer does)**:
+`direction` in lower case, and `TB`, `BT`, `RL`, `LR` and `TD` in upper
+case. `a[go direction lr]`, `a[go direction Lr]`, `a[go Direction LR]`
+and `a[go DIRECTION LR]` each declare their node in Mermaid, and none is
+`stray-direction`.
 
 ### 4.10 Not admitted, for now
 
@@ -850,8 +871,9 @@ A checker MUST refuse:
   `nested-block`, `unbalanced-block` (for an `end-line`),
   `direction-outside-block`, `direction-twice` (for the second
   statement) and `link-style`. `stray-direction` applies to a line
-  whatever else applies to it; `reserved-id` applies only to a line
-  that nothing else refuses (§4.4).
+  whatever else applies to it, except to front matter lines, which
+  §4.9 exempts; `reserved-id` applies only to a line that nothing else
+  refuses (§4.4).
 - Every other rule (`duplicate-declaration`, `undeclared-id`,
   `wrong-kind`, `kind-clash`, `duplicate-edge`, `too-many-edges`, the
   end-of-file `unbalanced-block`, `member-twice`, `membership-cycle`,
@@ -969,7 +991,12 @@ for the owner.
   `style` line (§4.8).
 - Style lists are narrower than Mermaid's (§4.8).
 - A direction statement only in a block, at most one per block (§4.9).
-- The exact form of the `stray-direction` rule (§4.9).
+- The exact form of the `stray-direction` rule, including that front
+  matter is exempt, that directive lines are not, and that its words
+  compare exactly (§4.9).
+- In the `L_…_…_N` form, the characters include `_` (§4.4).
+- After `subgraph`, the whole run of `WSP` is skipped before the
+  `subgraph-without-id` test (§4.7).
 - `@{ … }` is not admitted (§4.10).
 - Two member lines naming one id in one block are refused (§6).
 - Every `class` line comes last (§7).
