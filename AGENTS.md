@@ -25,6 +25,7 @@ them unchanged.
 ```sh
 just setup    just check    just test    just mutants
 just conform [ROOT]       # a case tree, conformance/cases by default
+just conform-exact [ROOT] # the same, requiring exactly the listed refusals
 just run FILE...          # nodespec check FILE...
 ```
 
@@ -62,7 +63,10 @@ bar cannot move once the results are in.
   2003 and encoded the lesson architecturally.
 - **Do not port rowspec's identity design.** It does not transfer, and the brief
   explains why with the measurement.
-- **Do not write an implementation before the conformance cases exist.** A format
-  that does not exist yet has nothing to disagree with, and the adversarial
-  discipline cannot be retrofitted — rowspec's second implementation drifted 117
-  cases behind the moment nothing ran it.
+- **Conformance cases are written from `SPEC.md` by an author who has not seen
+  any implementation, and they run in CI against the reference checker,
+  unchanged.** The adversarial discipline cannot be retrofitted, and a suite
+  nothing runs stops checking anything — rowspec's second implementation
+  drifted 117 cases behind the moment nothing ran it. The first instance is
+  #15: its cases were written from `SPEC.md` alone, the checker never saw them,
+  and it passed them unchanged.

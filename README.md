@@ -31,7 +31,7 @@ part of every one of them:
 |---|---|---|---|
 | [rowspec](https://github.com/kindspec/rowspec) | rows | opaque row ids | draft 0, published |
 | [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | design pass |
-| **nodespec** | nodes | **named, not positional** | specification draft 0 and reference checker; cases next |
+| **nodespec** | nodes | **named, not positional** | specification draft 0, conformance cases and reference checker |
 
 ## The thing that makes this different from rowspec
 
