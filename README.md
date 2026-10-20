@@ -1,9 +1,12 @@
 # nodespec
 
-**Status: earned its existence; its specification is drafted.**
+**Status: earned its existence; its specification is drafted, and
+read by a reference checker.**
 `docs/adjudications/0001-mermaid-profile.md` fixes the format, a profile
 of Mermaid flowchart syntax with declared names, and `SPEC.md` is
-draft 0, written from it; its conformance cases come next. `existence/RESULT.md` records that stock git merges a
+draft 0, written from it. `reference/nodespec/` is a checker for it
+(`just run FILE...`); the conformance cases, written from `SPEC.md`
+alone, come next. `existence/RESULT.md` records that stock git merges a
 Mermaid flowchart silently wrong in constructed cases that meet a criterion
 fixed before they ran (`existence/CRITERION.md`), which with the product
 need meets the bar set for this kind. The first surface is named-node
@@ -27,7 +30,7 @@ part of every one of them:
 |---|---|---|---|
 | [rowspec](https://github.com/kindspec/rowspec) | rows | opaque row ids | draft 0, published |
 | [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | design pass |
-| **nodespec** | nodes | **named, not positional** | specification draft 0; cases next |
+| **nodespec** | nodes | **named, not positional** | specification draft 0 and reference checker; cases next |
 
 ## The thing that makes this different from rowspec
 

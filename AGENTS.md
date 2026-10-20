@@ -15,8 +15,21 @@ format is decided: `docs/adjudications/0001-mermaid-profile.md`.
 `SPEC.md` is draft 0, written from it. nodespec is the **nodes kind** — identity is
 named, not positional — alongside [rowspec](https://github.com/kindspec/rowspec) and [blockspec](https://github.com/kindspec/blockspec).
 
-There is no conformance suite and no implementation, and saying so
-is cheaper than being asked.
+`reference/nodespec/` is a reference checker written from `SPEC.md`.
+There is no conformance suite yet, and saying so is cheaper than being
+asked.
+
+## Commands
+
+```sh
+just setup    just check    just test    just mutants
+just conform [ROOT]       # a case tree, conformance/cases by default
+just run FILE...          # nodespec check FILE...
+```
+
+`reference/` is standard library only, which `tests/test_boundary.py`
+enforces. `just mutants` breaks the checker one token at a time, and a
+test under `tests/` must fail on each mutant.
 
 ## Before writing anything
 
