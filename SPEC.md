@@ -190,7 +190,10 @@ that is classified is never also read as something else.
    before or after it, that line and every line up to and including the
    next such line, or to the end of the file if there is none, are
    refused together as `not-admitted` (§4.10). Mermaid's matcher takes
-   `---` indented and with trailing whitespace too. These lines are not
+   `---` with trailing whitespace, and indented only when both fences
+   are indented alike; with one fence indented, or the two indented
+   differently, Mermaid does not parse the file. The profile refuses
+   every one of these forms the same way. These lines are not
    statement lines, so the header comes after them.
 2. **A conflict marker**: the line's first seven characters are seven
    `<`, seven `=`, seven `>` or seven `|`. Refused as
@@ -461,7 +464,12 @@ id on a link with `&` in the group before it or after it is refused as
 `edge-id-on-group` (provisional).** Mermaid gives the id to one edge of
 the group, from the group's last start to its first end, and the
 others get automatic ids; an edit that adds an id to the group moves
-the edge id to another edge without a word.
+the edge id to another edge without a word. `edge-id-on-group` applies
+only to a line that §4.3 classifies as an edge statement (rule 8, at
+the top level) **(provisional)**. A line refused as
+`declaration-in-edge` or `statement-in-block` is not also
+`edge-id-on-group`, since §4.2 reads a classified line as nothing
+else.
 
 ### 4.7 Subgraph blocks
 
@@ -539,9 +547,11 @@ A **direction statement**, `direction LR`, sets a block's direction.
 It stands only in a block **(provisional)**: at the top level it is
 refused as `direction-outside-block`. Mermaid accepts it there and it
 has no effect; the header carries the chart's direction. **A block
-holds at most one direction statement (provisional)**: a second is
-refused as `direction-twice`. Mermaid keeps the last, so two branches
-that each add one merge clean and one of them is lost.
+holds at most one direction statement (provisional)**: every direction
+statement in a block after its first is refused as `direction-twice`,
+the third and later ones included **(provisional)**. Mermaid keeps the
+last, so two branches that each add one merge clean and one of them is
+lost.
 
 **Text Mermaid reads as a direction statement is refused as
 `stray-direction`.** Mermaid's lexer reads any text that matches
@@ -559,7 +569,8 @@ form)**:
   `TB`, `BT`, `RL`, `LR` or `TD`; or
 - with trailing whitespace removed, it ends in `direction`.
 
-Here a whitespace character is any of U+0009 to U+000D, U+0020,
+Here, in both clauses **(provisional for the second)**, a whitespace
+character is any of U+0009 to U+000D, U+0020,
 U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F,
 U+3000 and U+FEFF, which is what Mermaid's lexer counts; U+00A0 between
 the words swallows the line as a space does. The text may stand
@@ -609,10 +620,16 @@ Refused as `not-admitted`:
 - **`@{ … }`**, Mermaid's newer shape and edge data form
   **(provisional)**. Its body is a YAML mapping that the grammar would
   have to pin, and on an edge id it changes that edge.
-- **Markdown strings**, `` "`…`" `` in a label or a title, which the
-  spike's subset left out.
+- **Markdown strings**, `` "`…`" `` in a label, which the spike's
+  subset left out.
 
-A line is `not-admitted` only as §4.2 and §4.3 say. Other forms
+A line is `not-admitted` only as §4.2 and §4.3 say. So `:::`, `@{` and
+a Markdown string are `not-admitted` only where §4.3 rule 11 reaches
+them: in a node or edge statement, at the top level or in a block. In
+a line whose first word is `subgraph`, `classDef`, `class` or `style`,
+§4.3's rules 1 and 4 come first, and the same text is
+`malformed-line`, a subgraph title in Markdown included
+**(provisional)**. Other forms
 Mermaid accepts and this grammar does not, such as `;`, `-- text -->`,
 the other links, other ids, `classDef c1,c2` and `class a c1,c2`, are
 `malformed-line`.
@@ -818,7 +835,8 @@ A checker MUST refuse:
 6. `malformed-line`: a statement line §4.3 sends to no other entry
    (§4.3)
 7. `not-admitted`: front matter, `%%{`, `click`, `accTitle`,
-   `accDescr`, `:::`, `@{` or a Markdown string (§4.10)
+   `accDescr`, or `:::`, `@{` or a Markdown string where §4.3 rule 11
+   reaches it (§4.10)
 8. `reserved-id`: an id that is reserved, or a class named `node`
    (§4.4)
 9. `stray-direction`: text Mermaid would read as a direction statement
@@ -859,7 +877,8 @@ A checker MUST refuse:
 **Which refusals apply (provisional).** One rule decides it:
 
 - `bad-encoding` and `lone-cr` are about the whole file, and when
-  either applies, nothing else is checked.
+  either applies, nothing else is checked: both are reported when both
+  apply, and `leading-bom` is not reported **(provisional)**.
 - **A line that §4.2 to §4.10 refuses contributes nothing else.** It
   declares nothing, names nothing, opens and closes no block, and is
   not a member line, a direction statement, a `style` line, a `class`
@@ -869,11 +888,11 @@ A checker MUST refuse:
   `stray-direction`, `subgraph-without-id`, `declaration-in-edge`,
   `edge-id-on-group`, `declaration-in-block`, `statement-in-block`,
   `nested-block`, `unbalanced-block` (for an `end-line`),
-  `direction-outside-block`, `direction-twice` (for the second
-  statement) and `link-style`. `stray-direction` applies to a line
-  whatever else applies to it, except to front matter lines, which
-  §4.9 exempts; `reserved-id` applies only to a line that nothing else
-  refuses (§4.4).
+  `direction-outside-block`, `direction-twice` (for each direction
+  statement in a block after the first) and `link-style`.
+  `stray-direction` applies to a line whatever else applies to it,
+  except to front matter lines, which §4.9 exempts; `reserved-id`
+  applies only to a line that nothing else refuses (§4.4).
 - Every other rule (`duplicate-declaration`, `undeclared-id`,
   `wrong-kind`, `kind-clash`, `duplicate-edge`, `too-many-edges`, the
   end-of-file `unbalanced-block`, `member-twice`, `membership-cycle`,
@@ -995,6 +1014,15 @@ for the owner.
   matter is exempt, that directive lines are not, and that its words
   compare exactly (§4.9).
 - In the `L_…_…_N` form, the characters include `_` (§4.4).
+- Trailing whitespace in `stray-direction`'s second clause uses §4.9's
+  whitespace set, not `WSP` (§4.9).
+- `:::`, `@{` and a Markdown string are `malformed-line` in subgraph,
+  `classDef`, `class` and `style` lines (§4.10).
+- `edge-id-on-group` applies only to top-level edge statements (§4.6).
+- Every direction statement in a block after the first is
+  `direction-twice` (§4.9).
+- When `bad-encoding` or `lone-cr` applies, both are reported where
+  both apply, and `leading-bom` is not (§9).
 - After `subgraph`, the whole run of `WSP` is skipped before the
   `subgraph-without-id` test (§4.7).
 - `@{ … }` is not admitted (§4.10).
