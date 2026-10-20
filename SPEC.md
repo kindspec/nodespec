@@ -199,7 +199,11 @@ that is classified is never also read as something else.
    indented by anything other than `WSP`, such as U+00A0, is not a
    fence here **(provisional)**: it is the first statement line, so the
    file is `no-header`, and the lines after it, the closing fence
-   included, are read under §4.3 and are `malformed-line`. The lines of
+   included, are read under §4.3 as after any `no-header` line (§9).
+   With a U+00A0 before each fence, the file `---`, `---`,
+   `flowchart TD`, `a --> b` is `no-header` (the first fence),
+   `malformed-line` (the second fence and the header) and
+   `undeclared-id` for `a` and `b`. The lines of
    front matter are not statement lines, so the header comes after
    them.
 2. **A conflict marker**: the line's first seven characters are seven
@@ -635,19 +639,23 @@ Refused as `not-admitted`:
 - **`@{ … }`**, Mermaid's newer shape and edge data form
   **(provisional)**. Its body is a YAML mapping that the grammar would
   have to pin, and on an edge id it changes that edge.
-- **Markdown strings**, `` "`…`" `` in a label, which the spike's
+- **Markdown strings**, `` "`…`" `` in a node or edge label, which the
+  spike's
   subset left out.
 
 A line is `not-admitted` only as §4.2 and §4.3 say. So `:::`, `@{` and
-a Markdown string are `not-admitted` only where they would otherwise
-be read as syntax, which is where §4.3 rule 11 reaches them: in a line
-that matches none of §4.3's earlier rules, at the top level or in a
-block. **Label text that matches its production is just text
-(provisional)**: `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`,
+a Markdown string are `not-admitted` only where §4.3 rule 11 reaches
+them: in a line that matches none of §4.3's earlier rules, at the top
+level or in a block, for example where a label does not match its
+production. **Label text in a line that matches its production is just
+text (provisional)**: `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`,
 `subgraph s [a:::b]` and `subgraph s ["a@{b"]` each match, are
 accepted, and Mermaid reads each as a label or title holding those
-characters. A Markdown string never matches a label (§4.5), so in a
-node or edge statement it is always `not-admitted`. Where an earlier
+characters. The rule is about the line, not the characters:
+`a[x:::y] q` matches no production, so rule 11 reaches it and it is
+`not-admitted`, though its `:::` is label text. A Markdown string never
+matches a node or edge label (§4.5), so in a node or edge statement it
+is always `not-admitted`. Where an earlier
 rule of §4.3 decides a line that does not match, the text gets that
 rule's refusal **(provisional)**:
 for example, in a line whose first word is `subgraph`, `end`,
@@ -1040,13 +1048,17 @@ for the owner.
 - In the `L_…_…_N` form, the characters include `_` (§4.4).
 - Trailing whitespace in `stray-direction`'s second clause uses §4.9's
   whitespace set, not `WSP` (§4.9).
-- `:::`, `@{` and a Markdown string are `not-admitted` only where they
-  would be read as syntax; label text that matches its production is
-  just text; and in subgraph, `classDef`, `class` and `style` lines
-  that do not match, the same text is `malformed-line` (§4.10).
+- `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3
+  rule 11 reaches them; label text in a line that matches its
+  production is just text; and where an earlier rule of §4.3 decides a
+  line that does not match, the text gets that rule's refusal, for
+  example `malformed-line` in a line whose first word is `subgraph`,
+  `end`, `direction`, `classDef`, `class` or `style`, and `link-style`
+  in a `linkStyle` line (§4.10).
 - A front matter fence indented by anything other than `WSP`, such as
-  U+00A0, is not a fence: the file is `no-header`, with
-  `malformed-line` for the lines after it (§4.2).
+  U+00A0, is not a fence: it is the first statement line, so the file
+  is `no-header`, and the lines after it are read under §4.3 as after
+  any `no-header` line (§4.2).
 - `edge-id-on-group` applies only to top-level edge statements (§4.6).
 - Every direction statement in a block after the first is
   `direction-twice` (§4.9).
