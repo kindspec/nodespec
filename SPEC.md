@@ -181,8 +181,12 @@ line that breaks one does not match:
 
 Two more are refusals of their own: an `id` that is reserved, in a line
 that matches, is `reserved-id` (§4.4); and text that Mermaid reads as a
-direction statement, in any line but a comment, a front matter line or
-a direction statement, is `stray-direction` (§4.9).
+direction statement, in any line but a comment (one refused for `:::`
+or `@{` included), a front matter line or a direction statement, is
+`stray-direction` (§4.9). And a line that
+holds `:::` or `@{` is `not-admitted` before any production is tried
+(§4.2 rule 3), so a label that the grammar admits holding them, such
+as `a[x:::y]`, is still refused.
 
 ### 4.2 Lines
 
@@ -211,11 +215,13 @@ that is classified is never also read as something else.
 2. **A conflict marker**: the line's first seven characters are seven
    `<`, seven `=`, seven `>` or seven `|`. Refused as
    `conflict-marker`.
-3. **A directive**: the line holds `%%{` anywhere, in a comment or a
-   label included. Refused as `not-admitted` (§4.10). Mermaid reads
-   `%%{` as the start of a directive wherever it stands and removes the
-   text up to the next `}%%`, across lines: a comment `%% see %%{x`
-   above an edge statement removes the edge.
+3. **A directive, class shorthand or shape data**: the line holds
+   `%%{`, `:::` or `@{` anywhere, in a comment or a label included.
+   Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner,
+   2026-10-20). Mermaid reads `%%{` as the start of a directive
+   wherever it stands and removes the text up to the next `}%%`, across
+   lines: a comment `%% see %%{x` above an edge statement removes the
+   edge.
 4. **A blank line** matches `blank`. It is allowed anywhere.
 5. **A comment** matches `comment`. It is allowed anywhere, inside a
    block included **(provisional, as are blank lines in a block)**, and
@@ -282,7 +288,7 @@ A statement line is classified by the first rule below that applies:
    level, `declaration-in-edge`.
 10. Matches `member-line`: in a block, a member line (§6); at the top
     level, `malformed-line`.
-11. Holds `:::` or `@{`, or a `"` directly followed by `` ` ``:
+11. Holds a `"` directly followed by `` ` ``, a Markdown string:
     `not-admitted`.
 12. Anything else: `malformed-line`.
 
@@ -588,8 +594,12 @@ the words swallows the line as a space does. The text may stand
 anywhere in the line: in a label, a title, a style, an id
 (`xdirection LRX` matches). `stray-direction` applies whatever else
 applies to the line. Comment lines are exempt because Mermaid removes
-them before it lexes. **Front matter lines are exempt too**:
-Mermaid removes front matter before it lexes, so
+them before it lexes. That includes a line that matches `comment` but
+is refused by §4.2 rule 3 for holding `:::` or `@{`: Mermaid removes it
+all the same, so `%% ::: direction LR` is `not-admitted` alone. A
+line holding `%%{` is a directive line, below, not a comment.
+**Front matter lines are exempt too**: Mermaid removes front matter
+before it lexes, so
 `title: go direction LR` in it swallows nothing (the file is still
 `not-admitted`, §4.2). **A directive line is not exempt**:
 Mermaid removes only the text its directive pattern
@@ -632,36 +642,32 @@ Refused as `not-admitted`:
 - **`click`**, which attaches a link or a callback to a node; the
   spike's model carried it only as text (0001 names it open).
 - **`accTitle` and `accDescr`**, which are not in the spike's subset.
-- **`:::`**, a class given inside a node or edge statement. A class
-  has one form, the `class` statement, which D4 orders; `a:::c --> b`
-  would give a class from an edge statement, which D1 says names and
-  declares nothing.
-- **`@{ … }`**, Mermaid's newer shape and edge data form.
-  Its body is a YAML mapping that the grammar would
+- **`:::`**, Mermaid's class shorthand, in any line (§4.2 rule 3). A
+  class has one form, the `class` statement, which D4 orders;
+  `a:::c --> b` would give a class from an edge statement, which D1
+  says names and declares nothing.
+- **`@{ … }`**, Mermaid's newer shape and edge data form, in any line
+  (§4.2 rule 3). Its body is a YAML mapping that the grammar would
   have to pin, and on an edge id it changes that edge.
 - **Markdown strings**, `` "`…`" `` in a node or edge label, which the
   spike's
   subset left out.
 
-A line is `not-admitted` only as §4.2 and §4.3 say. So `:::`, `@{` and
-a Markdown string are `not-admitted` only where §4.3 rule 11 reaches
-them: in a line that matches none of §4.3's earlier rules, at the top
-level or in a block, for example where a label does not match its
-production. **Label text in a line that matches its production is just
-text (provisional)**: `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`,
-`subgraph s [a:::b]` and `subgraph s ["a@{b"]` each match, are
-accepted, and Mermaid reads each as a label or title holding those
-characters. The rule is about the line, not the characters:
-`a[x:::y] q` matches no production, so rule 11 reaches it and it is
-`not-admitted`, though its `:::` is label text. A Markdown string never
-matches a node or edge label (§4.5), so in a node or edge statement it
-is always `not-admitted`. Where an earlier
-rule of §4.3 decides a line that does not match, the text gets that
-rule's refusal **(provisional)**:
-for example, in a line whose first word is `subgraph`, `end`,
-`direction`, `classDef`, `class` or `style` it is `malformed-line` (a
-subgraph title in Markdown included), and in a `linkStyle` line it is
-`link-style`. Other forms
+A line is `not-admitted` only as §4.2 and §4.3 say. **A line that
+holds `:::` or `@{` is `not-admitted` wherever the characters stand**,
+label text included (the owner, 2026-10-20): `a[x:::y]`,
+`a["x@{y"]`, `a -->|x:::y| b`, `subgraph s [a:::b]`,
+`subgraph s ["a@{b"]`, `style a fill:#f00 :::x`, `linkStyle 0 :::x`
+and a comment `%% use ::: here` are each `not-admitted`, although
+Mermaid reads the characters in a label as text. §4.2 rule 3 decides
+this before any rule of §4.3, so no first word changes it. A Markdown
+string never matches a node or edge label (§4.5), so in a node or edge
+statement it is always `not-admitted` (§4.3 rule 11). Where an earlier
+rule of §4.3 decides a line holding a Markdown string, the line gets
+that rule's refusal: for example, in a line whose first word is
+`subgraph`, `end`, `direction`, `classDef`, `class` or `style` it is
+`malformed-line` (a subgraph title in Markdown included), and in a
+`linkStyle` line it is `link-style`. Other forms
 Mermaid accepts and this grammar does not, such as `;`, `-- text -->`,
 the other links, other ids, `classDef c1,c2` and `class a c1,c2`, are
 `malformed-line`.
@@ -866,13 +872,14 @@ A checker MUST refuse:
    (§4.3)
 6. `malformed-line`: a statement line §4.3 sends to no other entry
    (§4.3)
-7. `not-admitted`: front matter, `%%{`, `click`, `accTitle`,
-   `accDescr`, or `:::`, `@{` or a Markdown string where §4.3 rule 11
-   reaches it (§4.10)
+7. `not-admitted`: front matter, `%%{`, `:::` or `@{` in any line,
+   `click`, `accTitle`, `accDescr`, or a Markdown string where §4.3
+   rule 11 reaches it (§4.10)
 8. `reserved-id`: an id that is reserved, or a class named `node`
    (§4.4)
-9. `stray-direction`: text matching §4.9's pattern, outside comments,
-   front matter and direction statements (§4.9)
+9. `stray-direction`: text matching §4.9's pattern, outside comments
+   (those refused for `:::` or `@{` included), front matter and
+   direction statements (§4.9)
 10. `subgraph-without-id`: a subgraph line with no explicit id (§4.7,
     D1)
 11. `declaration-in-edge`: a node declared inside an edge statement
@@ -923,7 +930,8 @@ A checker MUST refuse:
   `direction-outside-block`, `direction-twice` (for each direction
   statement in a block after the first) and `link-style`.
   `stray-direction` applies to a line whatever else applies to it,
-  except to front matter lines, which §4.9 exempts; `reserved-id`
+  except to front matter lines and to comments refused for `:::` or
+  `@{`, which §4.9 exempts; `reserved-id`
   applies only to a line that nothing else refuses (§4.4).
 - Every other rule (`duplicate-declaration`, `undeclared-id`,
   `wrong-kind`, `kind-clash`, `duplicate-edge`, `too-many-edges`, the
@@ -1034,19 +1042,13 @@ waits for the owner.
 
 - Comments and blank lines may stand inside a block (§4.2, §6).
 - How `duplicate-edge` compares labels (§4.6).
-- `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3
-  rule 11 reaches them; label text in a line that matches its
-  production is just text; and where an earlier rule of §4.3 decides a
-  line that does not match, the text gets that rule's refusal, for
-  example `malformed-line` in a line whose first word is `subgraph`,
-  `end`, `direction`, `classDef`, `class` or `style`, and `link-style`
-  in a `linkStyle` line (§4.10).
 - After `subgraph`, the whole run of `WSP` is skipped before the
   `subgraph-without-id` test (§4.7).
 
 **Settled by the owner, 2026-10-20.** These readings were provisional
 and are now final; the text above no longer marks them. Each bullet is
-kept as it was written.
+kept as it was written, except the last, which states the owner's
+ruling against the provisional reading it replaces.
 
 - A Markdown fence is outside draft 0 (§2).
 - UTF-8 is required; a leading BOM and a lone CR are refused (§3).
@@ -1087,6 +1089,12 @@ kept as it was written.
   (§7).
 - Which refusals apply once a line is refused, and that refusals of a
   line or a file carry no id (§9).
+- `:::` and `@{` are `not-admitted` in any line, label text and
+  comments included; a Markdown string is `not-admitted` where §4.3
+  rule 11 reaches it, and where an earlier rule of §4.3 decides its
+  line, that rule's refusal applies (§4.2, §4.10). This replaces the
+  provisional reading that label text matching its production was just
+  text.
 
 **Decided by the owner, 2026-10-19**: an edge may end at a subgraph,
 with the cross-kind reuse it allows named in §11; `duplicate-edge`;
