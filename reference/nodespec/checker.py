@@ -375,12 +375,13 @@ def check(data):
     for i, line in enumerate(lines):
         # §4.9: stray-direction applies whatever else applies, to any line
         # but a comment, a front matter line or a line that matches
-        # `direction-stmt`. A line §4.2 rule 3 refuses is not a comment,
-        # since rule 3 classifies it before rule 5 is tried.
+        # `direction-stmt`. A comment refused by §4.2 rule 3 for `:::` or
+        # `@{` stays exempt, since Mermaid removes it before lexing; a line
+        # holding `%%{` is a directive line, not a comment, and is not.
         rule_3 = _rule_3_text(line)
         stray = (
             i >= front
-            and not (g.is_comment(line) and rule_3 is None)
+            and not (g.is_comment(line) and "%%{" not in line)
             and not g.is_direction_stmt(line)
             and is_stray_direction(line)
         )

@@ -56,6 +56,12 @@ MUTANTS = [
         '_RULE_3 = ("%%{", ":::", "@{")',
         '_RULE_3 = ("%%{{", ":::", "@{")',
     ),
+    (
+        "directive-comment-exempt",
+        CHECKER,
+        'g.is_comment(line) and "%%{" not in line)',
+        'g.is_comment(line) and "%%{{" not in line)',
+    ),
     ("comment-may-hold-eq-quote", GRAMMAR, "'=\"' not in line", "'==\"' not in line"),
     ("comment-may-hold-eq", GRAMMAR, "'=\"' not in line", "'=' not in line"),
     ("comment-may-start-with-brace", GRAMMAR, r"\x20-\x7a\x7c-\x7e", r"\x20-\x7a\x7b-\x7e"),
@@ -382,10 +388,10 @@ MUTANTS = [
     ),
     # --- review fixes --------------------------------------------------------
     (
-        "rule-3-comment-exempt",
+        "rule-3-comment-not-exempt",
         CHECKER,
+        'g.is_comment(line) and "%%{" not in line)',
         "g.is_comment(line) and rule_3 is None)",
-        "g.is_comment(line) and True)",
     ),
     (
         "runner-floor-inverted",

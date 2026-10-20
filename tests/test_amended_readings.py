@@ -261,8 +261,36 @@ def test_rule_3_does_not_move_the_header():
     assert got("%% a:::b\n" + H + "  a[A]\n") == {("not-admitted", None)}
 
 
-def test_a_comment_holding_it_is_not_exempt_from_stray_direction():
-    assert got(H + "%% x::: direction LR\n") == {
+@pytest.mark.parametrize(
+    "line",
+    [
+        "%% ::: direction LR",  # SPEC.md §4.9's own example
+        "%% x::: direction LR",
+        "  %% @{ direction TB",
+        "%% a::: b ends in direction",
+        "%% @{x} direction",
+    ],
+)
+def test_a_comment_refused_for_syntax_like_text_is_exempt_from_stray_direction(line):
+    # §4.9: Mermaid removes the comment before lexing, so nothing is swallowed.
+    assert got(H + line + "\n  a[A]\n") == {("not-admitted", None)}
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "%% ::: %%{ direction LR",
+        "%% @{ %%{x}%% direction",
+        "%%{x}%% ::: direction LR",
+    ],
+)
+def test_a_comment_shaped_line_holding_a_directive_is_not_exempt(line):
+    # §4.9: a line holding `%%{` is a directive line, not a comment.
+    assert got(H + line + "\n  a[A]\n") == {("not-admitted", None), ("stray-direction", None)}
+
+
+def test_a_non_comment_line_holding_syntax_like_text_is_not_exempt():
+    assert got(H + "  a[go direction LR:::x]\n") == {
         ("not-admitted", None),
         ("stray-direction", None),
     }
