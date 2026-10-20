@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+name: check
+# Pushes to main only, so a pull request's branch produces each check once,
+# from its pull_request run.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # pyproject.toml says `requires-python = ">=3.11"`, so 3.11 is a leg, not a
+  # promise. fail-fast is off so one leg going red cannot hide the other's.
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: ${{ matrix.python }}
+      # A leg that silently fell back to the runner's own interpreter would be
+      # green and measure nothing.
+      - name: the matrix interpreter is the one in use
+        run: |
+          uv run --exact python -c "import sys; v = '%d.%d' % sys.version_info[:2]; \
+            print(sys.version); \
+            sys.exit(f'running {v}, expected ${{ matrix.python }}') \
+            if v != '${{ matrix.python }}' else None"
+      # `just` is not on the runner image; without it the job dies at its first
+      # command, before any check has run.
+      - name: install just
+        run: |
+          uv tool install rust-just
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: just is on PATH
+        run: just --version
+      # Each step reports on its own, so a failing `check` cannot hide whether
+      # the tests ran.
+      - name: lint and format
+        if: always()
+        run: just check
+      - name: tests
+        if: always()
+        run: just test
+
+  # One name for the matrix, green only when every leg is, for a ruleset to
+  # require if one is turned on.
+  check-all:
+    name: check
+    if: always()
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: every Python leg passed
+        run: test "${{ needs.check.result }}" = success
