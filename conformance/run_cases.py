@@ -24,9 +24,10 @@ at least one finding, every one of which is among the case's.
 
 Exit codes, so that "every case passed" and "no case ran" never look alike:
 
-    0   every case passed, or there is no tree at ROOT (it says so)
+    0   every case passed, or there is no tree at a ROOT given (it says so)
     1   at least one case failed
-    2   no verdict: the tree holds no case, or a case is malformed
+    2   no verdict: the tree holds no case, a case is malformed, or the
+        default tree is missing or holds fewer than MIN_CASES cases
 """
 
 import json
@@ -39,6 +40,9 @@ sys.path.insert(0, os.path.join(HERE, "..", "reference"))
 from nodespec import ID_ENTRIES, IDENTIFIERS, check  # noqa: E402
 
 DEFAULT_ROOT = os.path.join(HERE, "cases")
+# conformance/cases may grow but never shrink unnoticed: a tree that lost
+# cases, or went missing, is no verdict.
+MIN_CASES = 270
 INPUT, EXPECT, WHY = "input.mmd", "expect.json", "WHY.md"
 
 
@@ -121,6 +125,9 @@ def main(argv=None):
         return 2
     root = args[0] if args else DEFAULT_ROOT
     if not os.path.isdir(root):
+        if not args:
+            print(f"no case tree at {root}: no verdict")
+            return 2
         print(f"no case tree at {root}: nothing to run")
         return 0
     passed, failed, malformed, provisional = [], [], [], []
@@ -158,6 +165,9 @@ def main(argv=None):
         return 2
     if failed:
         return 1
+    if not args and total < MIN_CASES:
+        print(f"{total} case(s) in {root}, fewer than its floor of {MIN_CASES}: no verdict")
+        return 2
     return 2 if malformed else 0
 
 

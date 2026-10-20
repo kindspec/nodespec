@@ -16,8 +16,9 @@ format is decided: `docs/adjudications/0001-mermaid-profile.md`.
 named, not positional — alongside [rowspec](https://github.com/kindspec/rowspec) and [blockspec](https://github.com/kindspec/blockspec).
 
 `reference/nodespec/` is a reference checker written from `SPEC.md`.
-There is no conformance suite yet, and saying so is cheaper than being
-asked.
+`conformance/cases/` holds its conformance cases, written from
+`SPEC.md` alone by an author who read no checker, and the checker passes
+them unchanged.
 
 ## Commands
 

@@ -32,8 +32,8 @@ check: fmt-check lint
 test:
     uv run --exact pytest -q
 
-# A conformance case tree against the reference checker. With no tree at
-# conformance/cases it says so and exits 0.
+# A conformance case tree against the reference checker: conformance/cases
+# by default, which must hold at least run_cases.py's MIN_CASES cases.
 conform *ARGS:
     uv run --exact python conformance/run_cases.py {{ARGS}}
 

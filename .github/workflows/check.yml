@@ -48,6 +48,9 @@ jobs:
       - name: tests
         if: always()
         run: just test
+      - name: conformance cases
+        if: always()
+        run: just conform
 
   # One name for the matrix, green only when every leg is, for a ruleset to
   # require if one is turned on.

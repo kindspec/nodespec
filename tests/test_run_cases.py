@@ -157,3 +157,21 @@ def test_missing_why_is_noted(tmp_path, capsys):
 
 def test_usage(capsys):
     assert run_cases.main(["a", "b"]) == 2
+
+
+def test_missing_default_tree_is_no_verdict(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(run_cases, "DEFAULT_ROOT", str(tmp_path / "absent"))
+    rc = run_cases.main([])
+    assert rc == 2
+    assert "no verdict" in capsys.readouterr().out
+
+
+def test_the_committed_tree_meets_its_floor(capsys):
+    assert run_cases.main([]) == 0
+    assert "fewer than its floor" not in capsys.readouterr().out
+
+
+def test_a_default_tree_below_its_floor_is_no_verdict(capsys, monkeypatch):
+    monkeypatch.setattr(run_cases, "MIN_CASES", 10**6)
+    assert run_cases.main([]) == 2
+    assert "fewer than its floor" in capsys.readouterr().out
