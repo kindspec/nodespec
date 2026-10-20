@@ -181,8 +181,9 @@ line that breaks one does not match:
 
 Two more are refusals of their own: an `id` that is reserved, in a line
 that matches, is `reserved-id` (§4.4); and text that Mermaid reads as a
-direction statement, in any line but a comment, a front matter line or
-a direction statement, is `stray-direction` (§4.9). And a line that
+direction statement, in any line but a comment (one refused for `:::`
+or `@{` included), a front matter line or a direction statement, is
+`stray-direction` (§4.9). And a line that
 holds `:::` or `@{` is `not-admitted` before any production is tried
 (§4.2 rule 3), so a label that the grammar admits holding them, such
 as `a[x:::y]`, is still refused.
@@ -215,13 +216,12 @@ that is classified is never also read as something else.
    `<`, seven `=`, seven `>` or seven `|`. Refused as
    `conflict-marker`.
 3. **A directive, class shorthand or shape data**: the line holds
-   `%%{` anywhere, in a comment or a label included. Refused as
-   `not-admitted` (§4.10). Mermaid reads
-   `%%{` as the start of a directive wherever it stands and removes the
-   text up to the next `}%%`, across lines: a comment `%% see %%{x`
-   above an edge statement removes the edge. A line that holds `:::`
-   or `@{` anywhere, in a comment or a label included, is refused the
-   same way, as `not-admitted` (§4.10; the owner, 2026-10-20).
+   `%%{`, `:::` or `@{` anywhere, in a comment or a label included.
+   Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner,
+   2026-10-20). Mermaid reads `%%{` as the start of a directive
+   wherever it stands and removes the text up to the next `}%%`, across
+   lines: a comment `%% see %%{x` above an edge statement removes the
+   edge.
 4. **A blank line** matches `blank`. It is allowed anywhere.
 5. **A comment** matches `comment`. It is allowed anywhere, inside a
    block included **(provisional, as are blank lines in a block)**, and
@@ -594,8 +594,12 @@ the words swallows the line as a space does. The text may stand
 anywhere in the line: in a label, a title, a style, an id
 (`xdirection LRX` matches). `stray-direction` applies whatever else
 applies to the line. Comment lines are exempt because Mermaid removes
-them before it lexes. **Front matter lines are exempt too**:
-Mermaid removes front matter before it lexes, so
+them before it lexes. That includes a line that matches `comment` but
+is refused by §4.2 rule 3 for holding `:::` or `@{`: Mermaid removes it
+all the same, so `%% ::: direction LR` is `not-admitted` alone. A
+line holding `%%{` is a directive line, below, not a comment.
+**Front matter lines are exempt too**: Mermaid removes front matter
+before it lexes, so
 `title: go direction LR` in it swallows nothing (the file is still
 `not-admitted`, §4.2). **A directive line is not exempt**:
 Mermaid removes only the text its directive pattern
@@ -659,8 +663,8 @@ Mermaid reads the characters in a label as text. §4.2 rule 3 decides
 this before any rule of §4.3, so no first word changes it. A Markdown
 string never matches a node or edge label (§4.5), so in a node or edge
 statement it is always `not-admitted` (§4.3 rule 11). Where an earlier
-rule of §4.3 decides a line holding one, the line gets that rule's
-refusal: for example, in a line whose first word is `subgraph`,
+rule of §4.3 decides a line holding a Markdown string, the line gets
+that rule's refusal: for example, in a line whose first word is `subgraph`,
 `end`, `direction`, `classDef`, `class` or `style` it is
 `malformed-line` (a subgraph title in Markdown included), and in a
 `linkStyle` line it is `link-style`. Other forms
@@ -873,8 +877,9 @@ A checker MUST refuse:
    rule 11 reaches it (§4.10)
 8. `reserved-id`: an id that is reserved, or a class named `node`
    (§4.4)
-9. `stray-direction`: text matching §4.9's pattern, outside comments,
-   front matter and direction statements (§4.9)
+9. `stray-direction`: text matching §4.9's pattern, outside comments
+   (those refused for `:::` or `@{` included), front matter and
+   direction statements (§4.9)
 10. `subgraph-without-id`: a subgraph line with no explicit id (§4.7,
     D1)
 11. `declaration-in-edge`: a node declared inside an edge statement
@@ -925,7 +930,8 @@ A checker MUST refuse:
   `direction-outside-block`, `direction-twice` (for each direction
   statement in a block after the first) and `link-style`.
   `stray-direction` applies to a line whatever else applies to it,
-  except to front matter lines, which §4.9 exempts; `reserved-id`
+  except to front matter lines and to comments refused for `:::` or
+  `@{`, which §4.9 exempts; `reserved-id`
   applies only to a line that nothing else refuses (§4.4).
 - Every other rule (`duplicate-declaration`, `undeclared-id`,
   `wrong-kind`, `kind-clash`, `duplicate-edge`, `too-many-edges`, the
