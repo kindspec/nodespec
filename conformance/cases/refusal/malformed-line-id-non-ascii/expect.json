@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "malformed-line"
+  ],
+  "provisional": "Ids are ASCII letters, digits and `_` (§4.4)."
+}

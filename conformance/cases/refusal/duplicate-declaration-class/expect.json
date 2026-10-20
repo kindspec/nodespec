@@ -1,0 +1,10 @@
+{
+  "refusal": [
+    "duplicate-declaration"
+  ],
+  "ids": {
+    "duplicate-declaration": [
+      "c"
+    ]
+  }
+}

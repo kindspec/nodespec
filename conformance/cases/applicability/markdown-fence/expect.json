@@ -1,0 +1,7 @@
+{
+  "refusal": [
+    "no-header",
+    "malformed-line"
+  ],
+  "provisional": "A Markdown fence is outside draft 0 (§2)."
+}

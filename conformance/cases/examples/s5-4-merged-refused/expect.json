@@ -1,0 +1,10 @@
+{
+  "refusal": [
+    "undeclared-id"
+  ],
+  "ids": {
+    "undeclared-id": [
+      "c"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "lone-cr"
+  ],
+  "provisional": "When `bad-encoding` or `lone-cr` applies, both are reported where both apply, and `leading-bom` is not (§9)."
+}

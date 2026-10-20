@@ -1,0 +1,10 @@
+{
+  "refusal": [
+    "membership-cycle"
+  ],
+  "ids": {
+    "membership-cycle": [
+      "s"
+    ]
+  }
+}

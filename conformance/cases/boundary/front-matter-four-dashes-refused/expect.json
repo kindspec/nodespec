@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "no-header",
+    "malformed-line"
+  ]
+}

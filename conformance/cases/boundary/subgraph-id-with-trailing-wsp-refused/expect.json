@@ -1,0 +1,7 @@
+{
+  "refusal": [
+    "subgraph-without-id",
+    "malformed-line",
+    "unbalanced-block"
+  ]
+}

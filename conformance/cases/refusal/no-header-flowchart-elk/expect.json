@@ -1,0 +1,6 @@
+{
+  "refusal": [
+    "no-header"
+  ],
+  "provisional": "After a `no-header` line, the lines that follow are read as if a header stood there; the header's direction is optional; and `flowchart-elk` is not admitted (§4.3)."
+}

@@ -1,0 +1,7 @@
+{
+  "refusal": [
+    "malformed-line",
+    "unbalanced-block"
+  ],
+  "provisional": "`:::`, `@{` and a Markdown string are `not-admitted` only where §4.3 rule 11 reaches them; label text in a line that matches its production is just text; and where an earlier rule of §4.3 decides a line that does not match, the text gets that rule's refusal, for example `malformed-line` in a line whose first word is `subgraph`, `end`, `direction`, `classDef`, `class` or `style`, and `link-style` in a `linkStyle` line (§4.10)."
+}
