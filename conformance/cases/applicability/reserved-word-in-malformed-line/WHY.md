@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** Which refusals apply once a line is refused, and that refusals of a line or a file carry no id (§9).
-
 ## Input
 
 ````text

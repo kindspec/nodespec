@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `reserved-id` (id `hasOwnProperty`).
 
-**Pins the provisional reading (§12):** `default`, `direction` and `hasOwnProperty` are reserved, ids of the form `L_…_…_N` are reserved, and a class may not be `node` (§4.4).
-
 ## Input
 
 ````text
@@ -17,7 +15,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.4:
 
-> `hasOwnProperty` is reserved too (provisional).
+> `hasOwnProperty` is reserved too.
 
 ## Reasoning
 

@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `styled-twice` (id `a`).
 
-**Pins the provisional reading (§12):** An id is the target of at most one `style` line and one `class` line, so with one class per `class` line an id carries at most one class (§7).
-
 ## Input
 
 ````text
@@ -19,7 +17,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §7:
 
-> An id is the target of at most one `style` line and at most one `class` line (provisional). A second is refused as `styled-twice`.
+> An id is the target of at most one `style` line and at most one `class` line. A second is refused as `styled-twice`.
 
 ## Reasoning
 

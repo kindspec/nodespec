@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `not-admitted`.
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 ## Input
 
 ````text
@@ -24,11 +22,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> Front matter lines are exempt too (provisional): Mermaid removes front matter before it lexes, so `title: go direction LR` in it swallows nothing (the file is still `not-admitted`, §4.2).
+> Front matter lines are exempt too: Mermaid removes front matter before it lexes, so `title: go direction LR` in it swallows nothing (the file is still `not-admitted`, §4.2).
 
 §9:
 
-> `stray-direction` applies to a line whatever else applies to it, except to front matter lines, which §4.9 exempts; `reserved-id` applies only to a line that nothing else refuses (§4.4).
+> `stray-direction` applies to a line whatever else applies to it, except to front matter lines and to comments refused for `:::` or `@{`, which §4.9 exempts; `reserved-id` applies only to a line that nothing else refuses (§4.4).
 
 ## Reasoning
 

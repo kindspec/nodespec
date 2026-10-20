@@ -23,7 +23,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §3:
 
-> A CR that is not followed by LF, that is a byte 0x0D not followed by a byte 0x0A, is refused as `lone-cr` (provisional).
+> A CR that is not followed by LF, that is a byte 0x0D not followed by a byte 0x0A, is refused as `lone-cr`.
 
 ## Reasoning
 

@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** A direction statement only in a block, at most one per block (§4.9).
-
 ## Input
 
 ````text
@@ -26,11 +24,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> A block holds at most one direction statement (provisional): every direction statement in a block after its first is refused as `direction-twice`, the third and later ones included (provisional).
+> A block holds at most one direction statement: every direction statement in a block after its first is refused as `direction-twice`, the third and later ones included.
 
 §4.9:
 
-> A direction statement, `direction LR`, sets a block's direction. It stands only in a block (provisional): at the top level it is refused as `direction-outside-block`.
+> A direction statement, `direction LR`, sets a block's direction. It stands only in a block: at the top level it is refused as `direction-outside-block`.
 
 ## Reasoning
 

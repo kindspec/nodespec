@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** A Markdown fence is outside draft 0 (§2).
-
 ## Input
 
 ````text
@@ -21,11 +19,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §2:
 
-> A Mermaid fence inside a Markdown file is outside draft 0 (provisional).
+> A Mermaid fence inside a Markdown file is outside draft 0.
 
 §4.3:
 
-> A file with no statement line is refused as `no-header`. A first statement line that does not match `header` is refused as `no-header`, and the lines after it are classified as if a header stood in its place (provisional).
+> A file with no statement line is refused as `no-header`. A first statement line that does not match `header` is refused as `no-header`, and the lines after it are classified as if a header stood in its place.
 
 ## Reasoning
 

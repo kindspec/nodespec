@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** Trailing whitespace in `stray-direction`'s second clause uses §4.9's whitespace set, not `WSP` (§4.9).
-
 ## Input
 
 ````text
@@ -25,7 +23,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> Here, in both clauses (provisional for the second), a whitespace character is any of U+0009 to U+000D, U+0020, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF, which is what Mermaid's lexer counts; U+00A0 between the words swallows the line as a space does.
+> Here, in both clauses, a whitespace character is any of U+0009 to U+000D, U+0020, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 and U+FEFF, which is what Mermaid's lexer counts; U+00A0 between the words swallows the line as a space does.
 
 §3:
 

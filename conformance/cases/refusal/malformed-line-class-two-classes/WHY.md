@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** One class per `classDef` and per `class` line, and one target per `style` line (§4.8).
-
 ## Input
 
 ````text

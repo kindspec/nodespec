@@ -39,7 +39,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §7:
 
-> Every `class` line comes after every other statement line (provisional). That is 0001's "with class lines last", read literally. A `class` line that has, anywhere after it, a statement line that is not a `class` line is refused as `class-not-last`; only blank lines, comments and other `class` lines may follow one.
+> Every `class` line comes after every other statement line. That is 0001's "with class lines last", read literally. A `class` line that has, anywhere after it, a statement line that is not a `class` line is refused as `class-not-last`; only blank lines, comments and other `class` lines may follow one.
 
 ## Reasoning
 

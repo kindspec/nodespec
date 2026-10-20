@@ -1,12 +1,12 @@
 # boundary/label-text-at-brace-in-quoted-node-label-accepted
 
-**Expected:** accepted.
-
-**Pins the provisional reading (§12):** `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3 rule 11 reaches them; label text in a line that matches its production is just text; and where an earlier rule of §4.3 decides a line that does not match, the text gets that rule's refusal, for example `malformed-line` in a line whose first word is `subgraph`, `end`, `direction`, `classDef`, `class` or `style`, and `link-style` in a `linkStyle` line (§4.10).
+**Expected:** refused. Identifiers that apply: `not-admitted`.
 
 **Twin:** `boundary/label-text-at-brace-in-quoted-node-label-unclosed-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 **Twin:** `boundary/label-text-at-brace-in-unquoted-node-label-refused`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
+
+**Twin:** `boundary/label-text-at-space-brace-in-quoted-node-label-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input
 
@@ -19,14 +19,22 @@ c["x@{y"]
 
 Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold markers dropped.
 
+§4.2:
+
+> A directive, class shorthand or shape data: the line holds `%%{`, `:::` or `@{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner, 2026-10-20).
+
 §4.10:
 
-> Label text in a line that matches its production is just text (provisional): `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`, `subgraph s [a:::b]` and `subgraph s ["a@{b"]` each match, are accepted, and Mermaid reads each as a label or title holding those characters. The rule is about the line, not the characters: `a[x:::y] q` matches no production, so rule 11 reaches it and it is `not-admitted`, though its `:::` is label text. A Markdown string never matches a node or edge label (§4.5), so in a node or edge statement it is always `not-admitted`.
+> A line that holds `:::` or `@{` is `not-admitted` wherever the characters stand, label text included (the owner, 2026-10-20): `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`, `subgraph s [a:::b]`, `subgraph s ["a@{b"]`, `style a fill:#f00 :::x`, `linkStyle 0 :::x` and a comment `%% use ::: here` are each `not-admitted`, although Mermaid reads the characters in a label as text. §4.2 rule 3 decides this before any rule of §4.3, so no first word changes it.
 
-§4.10:
+§4.1:
 
-> So `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3 rule 11 reaches them: in a line that matches none of §4.3's earlier rules, at the top level or in a block, for example where a label does not match its production.
+> And a line that holds `:::` or `@{` is `not-admitted` before any production is tried (§4.2 rule 3), so a label that the grammar admits holding them, such as `a[x:::y]`, is still refused.
 
 ## Reasoning
 
-§4.10 names `a["x@{y"]` as accepted: a quoted label may hold `@` and `{`.
+Changed at 374b8a9 from accepted. §4.10's own example `a["x@{y"]`: the line holds `@{`. §4.2 rule 3 refuses a line holding `:::` or `@{` anywhere, label text included, before any production is tried.
+
+## Other identifiers
+
+- `malformed-line`: §4.2 rule 3 classifies the line before it could be a statement line, and a classified line is never read as something else.

@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `lone-cr`.
 
-**Pins the provisional reading (§12):** When `bad-encoding` or `lone-cr` applies, both are reported where both apply, and `leading-bom` is not (§9).
-
 ## Input
 
 ````text
@@ -18,11 +16,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §9:
 
-> `bad-encoding` and `lone-cr` are about the whole file, and when either applies, nothing else is checked: both are reported when both apply, and `leading-bom` is not reported (provisional).
+> `bad-encoding` and `lone-cr` are about the whole file, and when either applies, nothing else is checked: both are reported when both apply, and `leading-bom` is not reported.
 
 §3:
 
-> A file that begins with a byte-order mark is refused as `leading-bom` (provisional).
+> A file that begins with a byte-order mark is refused as `leading-bom`.
 
 ## Reasoning
 

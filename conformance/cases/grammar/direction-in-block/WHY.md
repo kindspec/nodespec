@@ -19,7 +19,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> A direction statement, `direction LR`, sets a block's direction. It stands only in a block (provisional): at the top level it is refused as `direction-outside-block`.
+> A direction statement, `direction LR`, sets a block's direction. It stands only in a block: at the top level it is refused as `direction-outside-block`.
 
 §4.1:
 
@@ -31,7 +31,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.9:
 
-> So a line other than a comment, a front matter line or a line that matches `direction-stmt` is refused as `stray-direction` when (provisional, in this exact form):
+> So a line other than a comment, a front matter line or a line that matches `direction-stmt` is refused as `stray-direction` when:
 
 ## Reasoning
 

@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** The exact form of the `stray-direction` rule, including that front matter is exempt, that directive lines are not, and that its words compare exactly (§4.9).
-
 ## Input
 
 ````text
@@ -24,11 +22,11 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.2:
 
-> A directive: the line holds `%%{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10).
+> A directive, class shorthand or shape data: the line holds `%%{`, `:::` or `@{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner, 2026-10-20).
 
 §4.9:
 
-> A directive line is not exempt (provisional): Mermaid removes only the text its directive pattern matches and lexes the rest.
+> A directive line is not exempt: Mermaid removes only the text its directive pattern matches and lexes the rest.
 
 §4.9:
 

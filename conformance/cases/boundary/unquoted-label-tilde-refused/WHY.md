@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** An unquoted label holds no `~~~` (§4.5).
-
 **Twin:** `boundary/quoted-label-tilde-accepted`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
 
 **Twin:** `boundary/unquoted-label-double-tilde-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
@@ -21,7 +19,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §4.5:
 
-> the profile refuses `~~~` anywhere in an unquoted label, which is simpler to check (provisional). A quoted label may hold it.
+> the profile refuses `~~~` anywhere in an unquoted label, which is simpler to check. A quoted label may hold it.
 
 §4.1:
 

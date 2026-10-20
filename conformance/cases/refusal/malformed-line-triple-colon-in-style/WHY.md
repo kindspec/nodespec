@@ -1,8 +1,6 @@
 # refusal/malformed-line-triple-colon-in-style
 
-**Expected:** refused. Identifiers that apply: `malformed-line`.
-
-**Pins the provisional reading (§12):** `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3 rule 11 reaches them; label text in a line that matches its production is just text; and where an earlier rule of §4.3 decides a line that does not match, the text gets that rule's refusal, for example `malformed-line` in a line whose first word is `subgraph`, `end`, `direction`, `classDef`, `class` or `style`, and `link-style` in a `linkStyle` line (§4.10).
+**Expected:** refused. Identifiers that apply: `not-admitted`.
 
 ## Input
 
@@ -16,26 +14,22 @@ style a:::c fill:#f9f
 
 Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold markers dropped.
 
+§4.2:
+
+> A directive, class shorthand or shape data: the line holds `%%{`, `:::` or `@{` anywhere, in a comment or a label included. Refused as `not-admitted` (§4.10; for `:::` and `@{`, the owner, 2026-10-20).
+
 §4.10:
 
-> So `:::`, `@{` and a Markdown string are `not-admitted` only where §4.3 rule 11 reaches them: in a line that matches none of §4.3's earlier rules, at the top level or in a block, for example where a label does not match its production.
-
-§4.10:
-
-> Where an earlier rule of §4.3 decides a line that does not match, the text gets that rule's refusal (provisional): for example, in a line whose first word is `subgraph`, `end`, `direction`, `classDef`, `class` or `style` it is `malformed-line` (a subgraph title in Markdown included), and in a `linkStyle` line it is `link-style`.
+> A line that holds `:::` or `@{` is `not-admitted` wherever the characters stand, label text included (the owner, 2026-10-20): `a[x:::y]`, `a["x@{y"]`, `a -->|x:::y| b`, `subgraph s [a:::b]`, `subgraph s ["a@{b"]`, `style a fill:#f00 :::x`, `linkStyle 0 :::x` and a comment `%% use ::: here` are each `not-admitted`, although Mermaid reads the characters in a label as text. §4.2 rule 3 decides this before any rule of §4.3, so no first word changes it.
 
 §4.3:
 
 > First word `classDef`, `class` or `style`: in a block, `statement-in-block`. At the top level, if the line matches `classdef-stmt`, `class-stmt` or `style-stmt` for its first word, it is that statement (§4.8); otherwise `malformed-line`.
 
-§4.1:
-
-> style-stmt = *WSP "style" 1*WSP id 1*WSP style-list *WSP
-
 ## Reasoning
 
-The first word is `style`, so rule 4 decides the line, and `a:::c` is not an id, so `style-stmt` does not match.
+Changed at 374b8a9 from `malformed-line`. The line holds `:::`, and §4.2 rule 3 decides it before §4.3 rule 4: "no first word changes it".
 
 ## Other identifiers
 
-- `not-admitted`: Rule 4 decides the line before rule 11.
+- `malformed-line`: Rule 4 of §4.3 never sees the line: §4.2 rule 3 classified it first.

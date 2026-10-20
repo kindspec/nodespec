@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** Style lists are narrower than Mermaid's (§4.8).
-
 **Twin:** `boundary/style-unit-v-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input

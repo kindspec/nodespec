@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `leading-bom`.
 
-**Pins the provisional reading (§12):** UTF-8 is required; a leading BOM and a lone CR are refused (§3).
-
 ## Input
 
 ````text
@@ -19,7 +17,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 §3:
 
-> A file that begins with a byte-order mark is refused as `leading-bom` (provisional).
+> A file that begins with a byte-order mark is refused as `leading-bom`.
 
 §3:
 

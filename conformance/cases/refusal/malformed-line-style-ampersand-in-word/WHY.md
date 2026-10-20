@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `malformed-line`.
 
-**Pins the provisional reading (§12):** Style lists are narrower than Mermaid's (§4.8).
-
 ## Input
 
 ````text
@@ -30,4 +28,4 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 ## Other identifiers
 
-- `not-admitted`: §4.8's "not admitted" is prose; the line is refused by rule 4 because `classdef-stmt` does not match. Rule 11 looks for `:::`, `@{` and `"` then a backtick; none is here.
+- `not-admitted`: §4.8's "not admitted" is prose; the line is refused by rule 4 because `classdef-stmt` does not match. §4.2 rule 3 looks for `:::` and `@{`, and §4.3 rule 11 for `"` then a backtick; none is here.
