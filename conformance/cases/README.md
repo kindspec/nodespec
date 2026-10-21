@@ -57,7 +57,10 @@ Exactly one of these forms:
 Either form may also carry `"provisional": "<§12 item>"`: the text of the
 §12 bullet whose provisional reading the case pins, verbatim (SPEC.md's line
 breaks folded to spaces). Search for it to find every case that a change to
-that reading would touch.
+that reading would touch. The runner refuses a case whose tag is not one of
+those bullets, and reads them only as plain `- ` bullets, each continued on
+lines indented by two spaces, between §12's heading and its first bold
+paragraph or next heading; §12's list must stay in that shape.
 
 - `refusal` lists **every** §9 identifier that applies to the file under
   SPEC.md §9's applicability rule. It is never empty.
