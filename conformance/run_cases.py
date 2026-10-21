@@ -12,9 +12,11 @@ ROOT defaults to conformance/cases, laid out as
                                     "ids": {identifier: [id, ...]}}
     <group>/<case>/WHY.md       what the case is for
 
-`expect.json` may also carry a "provisional" tag, a non-empty string naming
-the reading SPEC.md marks provisional that the case rests on. Such a case is
-judged like any other and counted apart.
+`expect.json` may also carry a "provisional" tag: the text of a bullet in
+SPEC.md §12's list of provisional readings, its line breaks folded to spaces,
+naming the reading the case rests on. A tag that is not one of those bullets,
+such as one naming a reading since settled, makes the case malformed. Such a
+case is judged like any other and counted apart.
 
 A case is judged as SPEC.md §9 judges a refusal: a report passes if its
 identifier, and its id where the entry has one, are among those the case
@@ -34,8 +36,8 @@ Exit codes, so that "every case passed" and "no case ran" never look alike:
     0   every case passed
     1   at least one case failed
     2   no verdict: there is no tree at ROOT, the tree holds no case, a case
-        is malformed or stands at the wrong depth, or the default tree holds
-        fewer than MIN_CASES cases
+        is malformed or stands at the wrong depth, SPEC.md has no §12, or the
+        default tree holds fewer than MIN_CASES cases
 """
 
 import json
@@ -48,6 +50,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "reference"))
 from nodespec import ID_ENTRIES, IDENTIFIERS, check  # noqa: E402
 
 DEFAULT_ROOT = os.path.join(HERE, "cases")
+SPEC = os.path.join(HERE, "..", "SPEC.md")
 # conformance/cases may grow but never shrink unnoticed: a tree that lost
 # cases, or went missing, is no verdict.
 MIN_CASES = 322
@@ -58,7 +61,30 @@ class Malformed(Exception):
     """The case cannot be judged."""
 
 
-def load_expect(path):
+def provisional_readings(path):
+    """The bullets of SPEC.md §12's provisional list, each with its line
+    breaks folded to spaces: those after the §12 heading and before the next
+    bold paragraph or heading. None when SPEC.md or its §12 is missing."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines()
+    except (OSError, UnicodeDecodeError):
+        return None
+    starts = [i for i, ln in enumerate(lines) if ln.startswith("## 12.")]
+    if not starts:
+        return None
+    readings = []
+    for ln in lines[starts[0] + 1 :]:
+        if ln.startswith(("**", "#")):
+            break
+        if ln.startswith("- "):
+            readings.append(ln[2:].strip())
+        elif ln.startswith("  ") and ln.strip() and readings:
+            readings[-1] += " " + ln.strip()
+    return set(readings)
+
+
+def load_expect(path, readings=frozenset()):
     try:
         with open(path, "rb") as fh:
             exp = json.loads(fh.read().decode("utf-8"))
@@ -69,10 +95,12 @@ def load_expect(path):
     extra = set(exp) - {"accept", "refusal", "ids", "provisional"}
     if extra:
         raise Malformed(f"{EXPECT} has unknown keys: {', '.join(sorted(extra))}")
-    if "provisional" in exp and not (
-        isinstance(exp["provisional"], str) and exp["provisional"].strip()
-    ):
-        raise Malformed(f"{EXPECT}'s provisional tag is not a non-empty string")
+    if "provisional" in exp and not isinstance(exp["provisional"], str):
+        raise Malformed(f"{EXPECT}'s provisional tag is not a string")
+    if "provisional" in exp and exp["provisional"] not in readings:
+        raise Malformed(
+            f"{EXPECT}'s provisional tag is not a reading SPEC.md §12 lists as provisional"
+        )
     if "accept" in exp:
         if exp["accept"] is not True or "refusal" in exp or "ids" in exp:
             raise Malformed(f'{EXPECT} must be {{"accept": true}} or a refusal')
@@ -161,6 +189,10 @@ def main(argv=None):
     if not os.path.isdir(root):
         print(f"no case tree at {root}: no verdict")
         return 2
+    readings = provisional_readings(SPEC)
+    if readings is None:
+        print(f"no §12 in {SPEC} to check provisional tags against: no verdict")
+        return 2
     passed, failed, malformed, provisional = [], [], [], []
     for name, cdir, misplaced in cases(root):
         try:
@@ -168,7 +200,7 @@ def main(argv=None):
                 raise Malformed("holds a case's files but is not two levels below ROOT")
             if not os.path.isfile(os.path.join(cdir, INPUT)):
                 raise Malformed(f"has no {INPUT}")
-            exp = load_expect(os.path.join(cdir, EXPECT))
+            exp = load_expect(os.path.join(cdir, EXPECT), readings)
             with open(os.path.join(cdir, INPUT), "rb") as fh:
                 data = fh.read()
         except Malformed as e:

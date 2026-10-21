@@ -412,12 +412,6 @@ MUTANTS = [
         '        print(f"no case tree at {root}: no verdict")\n        return 0\n',
     ),
     (
-        "runner-provisional-any-string",
-        RUNNER,
-        'and exp["provisional"].strip()',
-        'and exp["provisional"] is not None',
-    ),
-    (
         "runner-provisional-any-type",
         RUNNER,
         'isinstance(exp["provisional"], str)',
@@ -443,6 +437,36 @@ MUTANTS = [
         "sorted(have - have, key=str)",
     ),
     ("runner-exact-off", RUNNER, 'exact = "--exact" in args', 'exact = "--exact" not in args'),
+    (
+        "runner-provisional-tag-unchecked",
+        RUNNER,
+        'exp["provisional"] not in readings:',
+        'exp["provisional"] not in readings | {exp["provisional"]}:',
+    ),
+    (
+        "runner-settled-list-read-as-provisional",
+        RUNNER,
+        'if ln.startswith(("**", "#")):',
+        'if ln.startswith("#"):',
+    ),
+    (
+        "runner-provisional-bullet-not-folded",
+        RUNNER,
+        'readings[-1] += " " + ln.strip()',
+        "readings[-1] += ln.strip()",
+    ),
+    (
+        "runner-provisional-continuation-dropped",
+        RUNNER,
+        'elif ln.startswith("  ") and ln.strip() and readings:',
+        'elif ln.startswith("   ") and ln.strip() and readings:',
+    ),
+    (
+        "runner-no-section-12-is-a-pass",
+        RUNNER,
+        'provisional tags against: no verdict")\n        return 2\n',
+        'provisional tags against: no verdict")\n        return 0\n',
+    ),
     (
         "runner-no-tree-is-a-pass",
         RUNNER,
