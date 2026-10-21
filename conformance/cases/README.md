@@ -27,8 +27,10 @@ a filing convention, not an input.
   chains and `&` groups, subgraph lines, member lines, nesting by member line,
   `direction`, `classDef`, `class`, `style`, comments, blank lines, line endings).
 - `refusal`: files in which one §9 identifier applies and nothing else.
-- `boundary`: twin files on either side of a sharp rule, named `…-accepted`
-  and `…-refused`. Where a case has a twin, its `WHY.md` names it with the
+- `boundary`: twin files on either side of a sharp rule, each named
+  `…-accepted` or `…-refused` for its own outcome (since §4.2 rule 3
+  refuses any line holding `:::` or `@{`, both twins of some pairs are
+  refused). Where a case has a twin, its `WHY.md` names it with the
   measured byte distance; most twins differ by one byte. The pairs that
   cannot are explained below. The group also holds lone boundary cases
   around front matter, conflict markers, edge ids and `styled-twice`.
