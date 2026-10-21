@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** After `subgraph`, the whole run of `WSP` is skipped before the `subgraph-without-id` test (§4.7).
-
 ## Input
 
 ````text

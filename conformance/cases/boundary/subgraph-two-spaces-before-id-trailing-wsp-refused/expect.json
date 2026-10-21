@@ -3,6 +3,5 @@
     "subgraph-without-id",
     "malformed-line",
     "unbalanced-block"
-  ],
-  "provisional": "After `subgraph`, the whole run of `WSP` is skipped before the `subgraph-without-id` test (§4.7)."
+  ]
 }

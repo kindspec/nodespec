@@ -4,8 +4,6 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Pins the provisional reading (§12):** After `subgraph`, the whole run of `WSP` is skipped before the `subgraph-without-id` test (§4.7).
-
 **Twin:** `boundary/subgraph-two-spaces-before-id-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input

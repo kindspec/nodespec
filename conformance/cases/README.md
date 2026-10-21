@@ -27,8 +27,10 @@ a filing convention, not an input.
   chains and `&` groups, subgraph lines, member lines, nesting by member line,
   `direction`, `classDef`, `class`, `style`, comments, blank lines, line endings).
 - `refusal`: files in which one §9 identifier applies and nothing else.
-- `boundary`: twin files on either side of a sharp rule, named `…-accepted`
-  and `…-refused`. Where a case has a twin, its `WHY.md` names it with the
+- `boundary`: twin files on either side of a sharp rule, each named
+  `…-accepted` or `…-refused` for its own outcome (since §4.2 rule 3
+  refuses any line holding `:::` or `@{`, both twins of some pairs are
+  refused). Where a case has a twin, its `WHY.md` names it with the
   measured byte distance; most twins differ by one byte. The pairs that
   cannot are explained below. The group also holds lone boundary cases
   around front matter, conflict markers, edge ids and `styled-twice`.
@@ -161,6 +163,11 @@ A comment refused by §4.2 rule 3 for `:::` or `@{` is still exempt from
 `stray-direction` (§4.9). No existing outcome changed; four quoted sentences
 were brought up to 055509e's text, and cases for the ruling were added.
 
+When the owner then settled the last three provisional readings (nodespec
+#22), the last seven `provisional` tags and their seven "Pins the
+provisional reading" lines in `WHY.md` were removed, as #19 had removed the
+tags of the other 23; no input, outcome or quote changed.
+
 No Mermaid was run, no checker was run or written, and no other file of the
 nodespec repository, its reviews or its probes was read. The tree was written
 by a generator in which every outcome is hand-written data, and checked by a
@@ -237,12 +244,6 @@ Identifiers without a sole case: none. Every identifier has at least one case in
 
 ## Provisional readings pinned
 
-| §12 item | cases |
-| --- | --- |
-| Comments and blank lines may stand inside a block (§4.2, §6). | `grammar/comments-and-blanks-in-block` |
-| How `duplicate-edge` compares labels (§4.6). | `boundary/duplicate-edge-quoted-label-accepted`<br>`boundary/duplicate-edge-label-padding-refused`<br>`boundary/duplicate-edge-label-tab-padding-refused` |
-| After `subgraph`, the whole run of `WSP` is skipped before the `subgraph-without-id` test (§4.7). | `boundary/subgraph-two-spaces-before-id-accepted`<br>`boundary/subgraph-tab-and-space-before-id-accepted`<br>`boundary/subgraph-two-spaces-before-id-trailing-wsp-refused` |
-
-The owner settled the other readings on 2026-10-20 (SPEC.md §12,
-*Settled by the owner*), and their cases no longer carry a tag. The
-label-text reading was replaced by the owner's ruling on `:::` and `@{`.
+None. The owner settled every provisional reading on 2026-10-20 (SPEC.md
+§12, *Settled by the owner*), and no case carries a tag. The label-text
+reading was replaced by the owner's ruling on `:::` and `@{`.
