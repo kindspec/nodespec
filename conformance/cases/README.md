@@ -236,12 +236,6 @@ Identifiers without a sole case: none. Every identifier has at least one case in
 
 ## Provisional readings pinned
 
-| §12 item | cases |
-| --- | --- |
-| Comments and blank lines may stand inside a block (§4.2, §6). | `grammar/comments-and-blanks-in-block` |
-| How `duplicate-edge` compares labels (§4.6). | `boundary/duplicate-edge-quoted-label-accepted`<br>`boundary/duplicate-edge-label-padding-refused`<br>`boundary/duplicate-edge-label-tab-padding-refused` |
-| After `subgraph`, the whole run of `WSP` is skipped before the `subgraph-without-id` test (§4.7). | `boundary/subgraph-two-spaces-before-id-accepted`<br>`boundary/subgraph-tab-and-space-before-id-accepted`<br>`boundary/subgraph-two-spaces-before-id-trailing-wsp-refused` |
-
-The owner settled the other readings on 2026-10-20 (SPEC.md §12,
-*Settled by the owner*), and their cases no longer carry a tag. The
-label-text reading was replaced by the owner's ruling on `:::` and `@{`.
+None. The owner settled every provisional reading on 2026-10-20 (SPEC.md
+§12, *Settled by the owner*), and no case carries a tag. The label-text
+reading was replaced by the owner's ruling on `:::` and `@{`.

@@ -2,8 +2,6 @@
 
 **Expected:** accepted.
 
-**Pins the provisional reading (§12):** Comments and blank lines may stand inside a block (§4.2, §6).
-
 ## Input
 
 ````text

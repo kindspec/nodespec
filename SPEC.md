@@ -6,9 +6,9 @@ Status: draft. This document writes up the profile that
 under its rules D1 to D5. **Where this document and 0001 disagree,
 0001 wins and this document is in error.** Where 0001 is silent on
 something the grammar has to decide, the text takes a reading, marks
-it **(provisional)**, and lists it in §12. Each provisional reading
-waits for the owner; §12 also lists the readings the owner has
-settled.
+it **(provisional)**, and lists it in §12, where it waits for the
+owner. No reading is provisional now: §12 lists the readings the
+owner has settled.
 
 The conformance suite is `conformance/cases/` (§10). Its cases were
 written from this text alone, by someone who had not written a
@@ -224,11 +224,10 @@ that is classified is never also read as something else.
    edge.
 4. **A blank line** matches `blank`. It is allowed anywhere.
 5. **A comment** matches `comment`. It is allowed anywhere, inside a
-   block included **(provisional, as are blank lines in a block)**, and
-   is otherwise ignored. A comment has its own line: Mermaid refuses
-   `%%` after a statement on the same line. A line holding only `%%`,
-   with nothing after it, is not a comment; Mermaid reads it as a node
-   named `%%`. A comment holding `="` is not a comment either, because
+   block included, and is otherwise ignored. A comment has its own
+   line: Mermaid refuses `%%` after a statement on the same line. A
+   line holding only `%%`, with nothing after it, is not a comment;
+   Mermaid reads it as a node named `%%`. A comment holding `="` is not a comment either, because
    Mermaid rewrites quotes before it removes comments (§4.5), so `="`
    in a comment changes a later label; such a line is a statement line.
    After the header it is `malformed-line`; before the header it is the
@@ -459,7 +458,7 @@ the same link and the same label are refused as `duplicate-edge`**
 (the owner, 2026-10-19). The same link means the same characters
 (`-->` and `--->` differ); the same label means both have none, or both
 have one whose text between the `|`s is the same once leading and
-trailing `WSP` is removed **(provisional)**. Labels are compared as
+trailing `WSP` is removed. Labels are compared as
 bytes, not as what they render, so `|x|` and `|"x"|` are different
 labels and those two edges are not duplicates; that is deliberate,
 since deciding which spellings render alike would need Mermaid's label
@@ -503,7 +502,7 @@ reads `subgraph s` followed by a space as a subgraph with no id, titled
 **A subgraph line with no explicit id is refused as
 `subgraph-without-id`** (D1). It is a line whose first word is
 `subgraph` and in which, after `subgraph` and the whole run of `WSP`
-that follows it **(provisional)**, the text is empty, or begins with
+that follows it, the text is empty, or begins with
 `"`, or holds `WSP` before its first `[` (or anywhere, if it has none)
 that is not followed, after any more `WSP`, by that `[`. Skipping the
 whole run is how Mermaid reads it: `subgraph  s` with two spaces, and
@@ -770,8 +769,7 @@ refused as `undeclared-id` for `c`.
 
 **D3. Membership is a member line.** Every block stands at the top
 level. A block holds only member lines, direction statements, comments
-and blank lines (§4.3; the comments and blank lines are
-**(provisional)**):
+and blank lines (§4.3):
 
 - a node statement in a block is refused as `declaration-in-block`;
 - an edge statement, or a `classDef`, `class` or `style` statement, in
@@ -985,7 +983,8 @@ A checker conforms when every case passes.
 A case whose outcome depends on a provisional reading carries a
 `provisional` tag: the text of the §12 bullet it pins, so a change to
 that reading can be traced to the cases it touches. The tag does not
-change how a case is judged.
+change how a case is judged. With no reading provisional, no case
+carries one now.
 
 Every input a case accepts is a Mermaid flowchart that parses in
 Mermaid as §2 pins it.
@@ -1036,14 +1035,9 @@ admits both.
 
 ## 12. Provisional, settled, and not decided
 
-Each reading still marked **(provisional)** above is listed here. Each
-is where 0001 is silent and the grammar had to say something; each
-waits for the owner.
-
-- Comments and blank lines may stand inside a block (§4.2, §6).
-- How `duplicate-edge` compares labels (§4.6).
-- After `subgraph`, the whole run of `WSP` is skipped before the
-  `subgraph-without-id` test (§4.7).
+No reading above is marked **(provisional)** now. A reading the text
+takes where 0001 is silent and the grammar has to say something is
+marked so and listed here, and waits for the owner.
 
 **Settled by the owner, 2026-10-20.** These readings were provisional
 and are now final; the text above no longer marks them. Each bullet is
@@ -1055,6 +1049,7 @@ ruling against the provisional reading it replaces.
 - After a `no-header` line, the lines that follow are read as if a
   header stood there; the header's direction is optional; and
   `flowchart-elk` is not admitted (§4.3).
+- Comments and blank lines may stand inside a block (§4.2, §6).
 - Ids are ASCII letters, digits and `_` (§4.4).
 - `default`, `direction` and `hasOwnProperty` are reserved, ids of the
   form `L_…_…_N` are reserved, and a class may not be `node` (§4.4).
@@ -1062,6 +1057,7 @@ ruling against the provisional reading it replaces.
 - Links and `&` have `WSP` on both sides, and only the spike's links
   are admitted (§4.6).
 - An edge id on a link with `&` on either side is refused (§4.6).
+- How `duplicate-edge` compares labels (§4.6).
 - One class per `classDef` and per `class` line, and one target per
   `style` line (§4.8).
 - Style lists are narrower than Mermaid's (§4.8).
@@ -1081,6 +1077,8 @@ ruling against the provisional reading it replaces.
   `direction-twice` (§4.9).
 - When `bad-encoding` or `lone-cr` applies, both are reported where
   both apply, and `leading-bom` is not (§9).
+- After `subgraph`, the whole run of `WSP` is skipped before the
+  `subgraph-without-id` test (§4.7).
 - `@{ … }` is not admitted (§4.10).
 - Two member lines naming one id in one block are refused (§6).
 - Every `class` line comes last (§7).

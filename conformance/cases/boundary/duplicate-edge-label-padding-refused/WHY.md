@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `duplicate-edge`.
 
-**Pins the provisional reading (§12):** How `duplicate-edge` compares labels (§4.6).
-
 **Twin:** `boundary/duplicate-edge-quoted-label-accepted`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
 
 ## Input
