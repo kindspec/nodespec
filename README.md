@@ -22,7 +22,8 @@ pre-registration predicted (`spike/mermaid/PRE-REGISTRATION.md` §1.5).
 nodespec is the **node kind** in [kindspec](https://github.com/kindspec) — a
 specification and conformance suite for canvases and diagrams that must survive
 version control, alongside [rowspec](https://github.com/kindspec/rowspec) (the
-row kind).
+row kind) and [blockspec](https://github.com/kindspec/blockspec) (the block
+kind).
 
 Each kind is named after its **unit of identity**, because identity is the hard
 part of every one of them:
@@ -48,5 +49,5 @@ not addressing. See `DESIGN-BRIEF.md`.
 ## Before writing anything
 
 Read `DESIGN-BRIEF.md`. It carries what is already decided and measured, what is
-still open, and — most importantly — the one process question that must be
-settled first.
+still open, and the one process question that had to be settled first, which
+`docs/adjudications/0001-mermaid-profile.md` settles.
