@@ -13,10 +13,11 @@ ROOT defaults to conformance/cases, laid out as
     <group>/<case>/WHY.md       what the case is for
 
 `expect.json` may also carry a "provisional" tag: the text of a bullet in
-SPEC.md §12's list of provisional readings, its line breaks folded to spaces,
-naming the reading the case rests on. A tag that is not one of those bullets,
-such as one naming a reading since settled, makes the case malformed. Such a
-case is judged like any other and counted apart.
+the list of provisional readings in SPEC.md's "Provisional" section (§12),
+its line breaks folded to spaces, naming the reading the case rests on. A
+tagged case is judged like any other and counted apart. A tag that is not a
+non-empty string, or not one of those bullets, such as one naming a reading
+since settled, makes the case malformed.
 
 A case is judged as SPEC.md §9 judges a refusal: a report passes if its
 identifier, and its id where the entry has one, are among those the case
@@ -36,12 +37,14 @@ Exit codes, so that "every case passed" and "no case ran" never look alike:
     0   every case passed
     1   at least one case failed
     2   no verdict: there is no tree at ROOT, the tree holds no case, a case
-        is malformed or stands at the wrong depth, SPEC.md has no §12, or the
-        default tree holds fewer than MIN_CASES cases
+        is malformed or stands at the wrong depth, SPEC.md has not exactly
+        one Provisional section, or the default tree holds fewer than
+        MIN_CASES cases
 """
 
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -62,16 +65,19 @@ class Malformed(Exception):
 
 
 def provisional_readings(path):
-    """The bullets of SPEC.md §12's provisional list, each with its line
-    breaks folded to spaces: those after the §12 heading and before the next
-    bold paragraph or heading. None when SPEC.md or its §12 is missing."""
+    """The non-empty bullets of SPEC.md's provisional list, each with its line
+    breaks folded to spaces: those after the one `## <n>. Provisional…`
+    heading and before the next bold paragraph or heading. The heading is
+    found by its title, not its number, so renumbering cannot point it at
+    another section. None when SPEC.md is missing, or holds no such heading
+    or more than one."""
     try:
         with open(path, encoding="utf-8") as fh:
             lines = fh.read().splitlines()
     except (OSError, UnicodeDecodeError):
         return None
-    starts = [i for i, ln in enumerate(lines) if ln.startswith("## 12.")]
-    if not starts:
+    starts = [i for i, ln in enumerate(lines) if re.match(r"## [0-9]+\. Provisional\b", ln)]
+    if len(starts) != 1:
         return None
     readings = []
     for ln in lines[starts[0] + 1 :]:
@@ -81,7 +87,7 @@ def provisional_readings(path):
             readings.append(ln[2:].strip())
         elif ln.startswith("  ") and ln.strip() and readings:
             readings[-1] += " " + ln.strip()
-    return set(readings)
+    return {r for r in readings if r}
 
 
 def load_expect(path, readings=frozenset()):
@@ -95,8 +101,10 @@ def load_expect(path, readings=frozenset()):
     extra = set(exp) - {"accept", "refusal", "ids", "provisional"}
     if extra:
         raise Malformed(f"{EXPECT} has unknown keys: {', '.join(sorted(extra))}")
-    if "provisional" in exp and not isinstance(exp["provisional"], str):
-        raise Malformed(f"{EXPECT}'s provisional tag is not a string")
+    if "provisional" in exp and not (
+        isinstance(exp["provisional"], str) and exp["provisional"].strip()
+    ):
+        raise Malformed(f"{EXPECT}'s provisional tag is not a non-empty string")
     if "provisional" in exp and exp["provisional"] not in readings:
         raise Malformed(
             f"{EXPECT}'s provisional tag is not a reading SPEC.md §12 lists as provisional"
@@ -191,7 +199,7 @@ def main(argv=None):
         return 2
     readings = provisional_readings(SPEC)
     if readings is None:
-        print(f"no §12 in {SPEC} to check provisional tags against: no verdict")
+        print(f"not exactly one Provisional section in {SPEC} to check tags against: no verdict")
         return 2
     passed, failed, malformed, provisional = [], [], [], []
     for name, cdir, misplaced in cases(root):

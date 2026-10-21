@@ -464,8 +464,44 @@ MUTANTS = [
     (
         "runner-no-section-12-is-a-pass",
         RUNNER,
-        'provisional tags against: no verdict")\n        return 2\n',
-        'provisional tags against: no verdict")\n        return 0\n',
+        'to check tags against: no verdict")\n        return 2\n',
+        'to check tags against: no verdict")\n        return 0\n',
+    ),
+    (
+        "runner-provisional-any-string",
+        RUNNER,
+        'and exp["provisional"].strip()',
+        'and exp["provisional"] is not None',
+    ),
+    (
+        "runner-list-ends-only-at-bold",
+        RUNNER,
+        'if ln.startswith(("**", "#")):',
+        'if ln.startswith("**"):',
+    ),
+    (
+        "runner-provisional-bullet-not-stripped",
+        RUNNER,
+        "readings.append(ln[2:].strip())",
+        "readings.append(ln[2:])",
+    ),
+    (
+        "runner-empty-bullet-is-a-reading",
+        RUNNER,
+        "return {r for r in readings if r}",
+        "return set(readings)",
+    ),
+    (
+        "runner-provisional-heading-by-number",
+        RUNNER,
+        'r"## [0-9]+\\. Provisional\\b"',
+        'r"## 12\\."',
+    ),
+    (
+        "runner-two-provisional-sections-allowed",
+        RUNNER,
+        "if len(starts) != 1:",
+        "if not starts:",
     ),
     (
         "runner-no-tree-is-a-pass",

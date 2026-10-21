@@ -282,11 +282,13 @@ def test_exact_usage(capsys):
 
 
 @pytest.mark.parametrize("tag", [True, "", "   ", 1, ["§4"], None])
-def test_provisional_must_be_a_non_empty_string(tmp_path, capsys, tag):
-    case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True, "provisional": tag})
-    rc, out = run(tmp_path, capsys)
-    assert rc == 2
-    assert "MALFORMED g/c" in out
+def test_provisional_must_be_a_non_empty_string(tmp_path, tag):
+    # Refused even where the readings would admit it, so the guarantee does
+    # not rest on what SPEC.md holds.
+    path = tmp_path / "expect.json"
+    path.write_text(json.dumps({"accept": True, "provisional": tag}))
+    with pytest.raises(run_cases.Malformed, match="non-empty string"):
+        run_cases.load_expect(str(path), {"", "   "})
 
 
 def test_a_tag_naming_a_settled_reading_is_malformed(tmp_path, capsys):
@@ -335,6 +337,56 @@ def test_a_spec_without_section_12_is_no_verdict(tmp_path, capsys, monkeypatch, 
     monkeypatch.setattr(run_cases, "SPEC", str(path))
     root = tmp_path / "cases"
     case(root, "g/c", H + "  a[A]\n", {"accept": True})
+    rc, out = run(root, capsys)
+    assert rc == 2
+    assert "no verdict" in out
+
+
+def readings_of(tmp_path, text):
+    path = tmp_path / "SPEC.md"
+    path.write_text(text)
+    return run_cases.provisional_readings(str(path))
+
+
+TITLE = "## 12. Provisional, settled, and not decided\n\n"
+
+
+def test_an_empty_bullet_is_no_reading(tmp_path):
+    assert readings_of(tmp_path, TITLE + "Intro.\n\n- \n- A (§3).\n\n**Settled.**\n") == {"A (§3)."}
+
+
+def test_a_bullet_is_stripped(tmp_path):
+    text = TITLE + "Intro.\n\n-  A (§3).  \n\n**Settled.**\n"
+    assert readings_of(tmp_path, text) == {"A (§3)."}
+
+
+def test_the_list_ends_at_the_next_heading(tmp_path):
+    text = TITLE + "Intro.\n\n- A (§3).\n\n## 13. Next\n\n- B (§13).\n"
+    assert readings_of(tmp_path, text) == {"A (§3)."}
+
+
+def test_the_list_is_found_by_its_title_not_its_number(tmp_path):
+    text = (
+        "# spec\n\n## 12. Merge\n\n- Some merge rule (§12).\n\n"
+        "## 13. Provisional, settled, and not decided\n\nIntro.\n\n- A (§3).\n\n"
+        "**Settled.**\n\n- X (§3).\n"
+    )
+    assert readings_of(tmp_path, text) == {"A (§3)."}
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "# spec\n\n## 12. Merge\n\n- Some merge rule (§12).\n",
+        TITLE + "- A (§3).\n\n" + TITLE + "- B (§4).\n",
+    ],
+)
+def test_no_single_provisional_section_is_no_verdict(tmp_path, capsys, monkeypatch, text):
+    path = tmp_path / "SPEC.md"
+    path.write_text(text)
+    monkeypatch.setattr(run_cases, "SPEC", str(path))
+    root = tmp_path / "cases"
+    case(root, "g/c", H + "  a[A]\n", {"accept": True, "provisional": "Some merge rule (§12)."})
     rc, out = run(root, capsys)
     assert rc == 2
     assert "no verdict" in out
