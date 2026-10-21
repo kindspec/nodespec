@@ -1,4 +1,4 @@
-# boundary/label-text-triple-colon-in-unquoted-node-label-accepted
+# boundary/label-text-triple-colon-in-unquoted-node-label-refused
 
 **Expected:** refused. Identifiers that apply: `not-admitted`.
 

@@ -2,7 +2,7 @@
 
 **Expected:** refused. Identifiers that apply: `not-admitted`.
 
-**Twin:** `boundary/label-text-at-brace-in-quoted-edge-label-accepted`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
+**Twin:** `boundary/label-text-at-brace-in-quoted-edge-label-refused`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
 
 ## Input
 

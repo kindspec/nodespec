@@ -1,4 +1,4 @@
-# boundary/label-text-triple-colon-in-unquoted-title-accepted
+# boundary/label-text-triple-colon-in-unquoted-title-refused
 
 **Expected:** refused. Identifiers that apply: `not-admitted`; `malformed-line`; `unbalanced-block`.
 
