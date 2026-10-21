@@ -79,7 +79,10 @@ valuable outcome — the same standard applied to rowspec, whose own README says
 *"if your table is a list of facts, you probably do not need this."*
 
 **What is a node's identity?** "Named, not positional" is the working answer and
-is barely more than a slogan at this stage.
+is barely more than a slogan at this stage. No longer open for named-node
+diagrams: `docs/adjudications/0001-mermaid-profile.md` D1 declares every id
+exactly once and has everything else only name it, and D4 refuses what
+depends on position.
 
 **2-D structure has no long-form equivalent.** The earlier work flagged matrix
 layouts as *"probably out of scope forever — say so"*, and saying so explicitly
