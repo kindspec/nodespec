@@ -160,6 +160,11 @@ A comment refused by §4.2 rule 3 for `:::` or `@{` is still exempt from
 `stray-direction` (§4.9). No existing outcome changed; four quoted sentences
 were brought up to 055509e's text, and cases for the ruling were added.
 
+When the owner then settled the last three provisional readings (nodespec
+#22), the last seven `provisional` tags and their seven "Pins the
+provisional reading" lines in `WHY.md` were removed, as #19 had removed the
+tags of the other 23; no input, outcome or quote changed.
+
 No Mermaid was run, no checker was run or written, and no other file of the
 nodespec repository, its reviews or its probes was read. The tree was written
 by a generator in which every outcome is hand-written data, and checked by a
