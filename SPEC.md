@@ -227,9 +227,10 @@ that is classified is never also read as something else.
    block included, and is otherwise ignored. A comment has its own
    line: Mermaid refuses `%%` after a statement on the same line. A
    line holding only `%%`, with nothing after it, is not a comment;
-   Mermaid reads it as a node named `%%`. A comment holding `="` is not a comment either, because
-   Mermaid rewrites quotes before it removes comments (§4.5), so `="`
-   in a comment changes a later label; such a line is a statement line.
+   Mermaid reads it as a node named `%%`. A comment holding `="` is
+   not a comment either, because Mermaid rewrites quotes before it
+   removes comments (§4.5), so `="` in a comment changes a later label;
+   such a line is a statement line.
    After the header it is `malformed-line`; before the header it is the
    first statement line, and §4.3's header rule makes it `no-header`.
 6. Every other line is a **statement line**. The first statement line
