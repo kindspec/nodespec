@@ -1,4 +1,4 @@
-# boundary/label-text-at-brace-in-quoted-title-accepted
+# boundary/label-text-at-brace-in-quoted-title-refused
 
 **Expected:** refused. Identifiers that apply: `not-admitted`; `malformed-line`; `unbalanced-block`.
 

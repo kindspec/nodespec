@@ -2,8 +2,6 @@
 
 **Expected:** refused. Identifiers that apply: `duplicate-edge`.
 
-**Pins the provisional reading (§12):** How `duplicate-edge` compares labels (§4.6).
-
 ## Input
 
 ````text
