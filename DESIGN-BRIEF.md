@@ -21,7 +21,11 @@ discipline cannot be retrofitted: rowspec's second implementation drifted 117
 cases behind the moment nothing ran it.
 
 So the first decision is a *process* decision: **how does this format get an
-adversary from day one?**
+adversary from day one?** Settled by the owner on 2026-10-19
+(`docs/adjudications/0001-mermaid-profile.md`, *What is decided already*):
+nodespec's adversary is blockspec's, conformance cases written blind from
+the specification, then a reference checker run against them unchanged,
+under a mutation gate.
 
 ## 1. The finding that should stop the obvious design
 
@@ -79,7 +83,12 @@ valuable outcome — the same standard applied to rowspec, whose own README says
 *"if your table is a list of facts, you probably do not need this."*
 
 **What is a node's identity?** "Named, not positional" is the working answer and
-is barely more than a slogan at this stage.
+is barely more than a slogan at this stage. For named-node diagrams,
+`docs/adjudications/0001-mermaid-profile.md` gives the answer: a node is
+its declared id (D1). Still open is whether an identity error beyond those
+0001 names passes D1 to D5 with one ordinary edit per leg. Among the merges
+0001 names is a delete against a move, and the canonical statement order
+that would close that case is not decided (`SPEC.md` §12).
 
 **2-D structure has no long-form equivalent.** The earlier work flagged matrix
 layouts as *"probably out of scope forever — say so"*, and saying so explicitly

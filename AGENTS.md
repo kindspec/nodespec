@@ -37,8 +37,9 @@ test under `tests/` must fail on each mutant.
 
 **Read `DESIGN-BRIEF.md` completely.** It carries what is already decided *with
 the measurement that decided it*, what is genuinely open, and the one process
-question that must be settled first. It exists so this design pass argues about
-the open questions rather than rediscovering the settled ones.
+question that had to be settled first, which
+`docs/adjudications/0001-mermaid-profile.md` settles. It exists so this design
+pass argues about the open questions rather than rediscovering the settled ones.
 
 The evidence it cites lives in
 [kindspec/research](https://github.com/kindspec/research) —
