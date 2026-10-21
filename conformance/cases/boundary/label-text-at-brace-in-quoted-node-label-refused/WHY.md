@@ -1,12 +1,18 @@
-# boundary/label-text-triple-colon-in-quoted-node-label-accepted
+# boundary/label-text-at-brace-in-quoted-node-label-refused
 
 **Expected:** refused. Identifiers that apply: `not-admitted`.
+
+**Twin:** `boundary/label-text-at-brace-in-quoted-node-label-unclosed-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+
+**Twin:** `boundary/label-text-at-brace-in-unquoted-node-label-refused`, which differs from this file by 2 byte edits (Levenshtein distance over bytes).
+
+**Twin:** `boundary/label-text-at-space-brace-in-quoted-node-label-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input
 
 ````text
 flowchart TD
-c["x:::y"]
+c["x@{y"]
 ````
 
 ## What SPEC.md says
@@ -27,7 +33,7 @@ Quoted verbatim, with SPEC.md's line breaks folded into spaces and its bold mark
 
 ## Reasoning
 
-Changed at 374b8a9 from accepted. The quoted label holds `:::`, so the line does. §4.2 rule 3 refuses a line holding `:::` or `@{` anywhere, label text included, before any production is tried.
+Changed at 374b8a9 from accepted. §4.10's own example `a["x@{y"]`: the line holds `@{`. §4.2 rule 3 refuses a line holding `:::` or `@{` anywhere, label text included, before any production is tried.
 
 ## Other identifiers
 
