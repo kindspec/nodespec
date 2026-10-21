@@ -4,7 +4,7 @@
 
 A report of any one of these passes, with one of its ids where it has them (§9).
 
-**Twin:** `boundary/label-text-triple-colon-in-unquoted-title-accepted`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
+**Twin:** `boundary/label-text-triple-colon-in-unquoted-title-refused`, which differs from this file by 1 byte edit (Levenshtein distance over bytes).
 
 ## Input
 
