@@ -10,8 +10,8 @@ draft 0, written from it. `reference/nodespec/` is a checker for it
 cases, written from `SPEC.md` alone, which the checker passes
 unchanged (`just conform`). `existence/RESULT.md` records that stock git merges a
 Mermaid flowchart silently wrong in constructed cases that meet a criterion
-fixed before they ran (`existence/CRITERION.md`), which meets the bar set
-for this kind. The first surface is named-node
+fixed before they ran (`existence/CRITERION.md`), the constructed half of
+the bar that document sets for this kind. The first surface is named-node
 diagrams. A pre-registered spike, `spike/mermaid/`, asked whether
 stock git merges a Mermaid flowchart silently wrong. It has run, and both of
 its questions ended NO VERDICT (`spike/mermaid/LOG.md` §15). Real merged

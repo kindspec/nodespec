@@ -45,6 +45,7 @@ From a clone, with [uv](https://docs.astral.sh/uv/) and
 git clone https://github.com/kindspec/nodespec
 cd nodespec
 just setup
+# save the example above as diagram.mmd, then:
 just run diagram.mmd    # exit 0 if accepted, 1 if refused
 ```
 
