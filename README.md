@@ -1,53 +1,67 @@
 # nodespec
 
-**Status: earned its existence; its specification is drafted, and
-read by a reference checker.**
-`docs/adjudications/0001-mermaid-profile.md` fixes the format, a profile
-of Mermaid flowchart syntax with declared names, and `SPEC.md` is
-draft 0, written from it. `reference/nodespec/` is a checker for it
-(`just run FILE...`), and `conformance/cases/` holds its conformance
-cases, written from `SPEC.md` alone, which the checker passes
-unchanged (`just conform`). `existence/RESULT.md` records that stock git merges a
-Mermaid flowchart silently wrong in constructed cases that meet a criterion
-fixed before they ran (`existence/CRITERION.md`), which with the product
-need meets the bar set for this kind. The first surface is named-node
-diagrams. A pre-registered spike, `spike/mermaid/`, asked whether
-stock git merges a Mermaid flowchart silently wrong. It has run, and both of
-its questions ended NO VERDICT (`spike/mermaid/LOG.md` §15). Real merged
-history put identity at risk once, and git refused that merge, so nothing went
-wrong silently. Structure decided 9 cases against a floor of 60. The spike is
-closed, and identity in real history is parked: public history rarely exposes it, as the
-pre-registration predicted (`spike/mermaid/PRE-REGISTRATION.md` §1.5).
+A file format and test suite for diagrams that must survive version control.
 
-nodespec is the **node kind** in [kindspec](https://github.com/kindspec) — a
-specification and conformance suite for canvases and diagrams that must survive
-version control, alongside [rowspec](https://github.com/kindspec/rowspec) (the
-row kind) and [blockspec](https://github.com/kindspec/blockspec) (the block
-kind).
+Every nodespec file is a [Mermaid](https://mermaid.js.org/) flowchart. nodespec
+adds no syntax, only rules: each node is declared by name, and an edge may only
+use a declared name.
 
-Each kind is named after its **unit of identity**, because identity is the hard
-part of every one of them:
+```mermaid
+flowchart TB
+api[API]
+db[Database]
+api --> db
+```
 
-| | unit | identity | status |
-|---|---|---|---|
-| [rowspec](https://github.com/kindspec/rowspec) | rows | opaque row ids | draft 0, published |
-| [blockspec](https://github.com/kindspec/blockspec) | blocks | deliberately no minted ids | specification draft 0, conformance cases and reference implementation |
-| **nodespec** | nodes | **named, not positional** | specification draft 0, conformance cases and reference checker |
+The rule exists because of a silent wrong merge. One branch renames or deletes
+a node and the other still uses it. Git merges both cleanly, and Mermaid quietly
+draws a new node for the old name. Under nodespec, that merged file is refused:
 
-## The thing that makes this different from rowspec
+```text
+`db` is named by an edge and declared nowhere [undeclared-id]
+```
 
-The prior research reached a conclusion here that runs against the obvious
-analogy, and it should be read before anything is designed:
+Coordinates aren't the problem in a diagram, unlike cell references in a
+spreadsheet: a clean merge of two moves gives exactly both moves. What decides
+whether a diagram survives git is how it is written down.
+[`DESIGN-BRIEF.md`](DESIGN-BRIEF.md) has the reasoning.
 
-> Absolute coordinates are **not** the spatial A1. The A1 defect is silent
-> semantic corruption on clean merge; coordinates do not have it — a clean
-> coordinate merge gives exactly both authors' moves.
+## Status
 
-What actually decides whether spatial data survives git is **serialization**,
-not addressing. See `DESIGN-BRIEF.md`.
+Draft 0. [`SPEC.md`](SPEC.md) is the format, `conformance/cases/` encodes it, and
+`reference/nodespec/` is a checker for it. It is not on PyPI. The first surface
+is flowcharts with named nodes.
 
-## Before writing anything
+The wrong merge above was shown in constructed cases that met a criterion fixed
+before they ran. An experiment on real history ended with no verdict.
+[The status page](docs/status.md) has the detail.
 
-Read `DESIGN-BRIEF.md`. It carries what is already decided and measured, what is
-still open, and the one process question that had to be settled first, which
-`docs/adjudications/0001-mermaid-profile.md` settles.
+## Try it
+
+From a clone, with [uv](https://docs.astral.sh/uv/) and
+[just](https://just.systems/):
+
+```sh
+git clone https://github.com/kindspec/nodespec
+cd nodespec
+just setup
+# save the example above as diagram.mmd, then:
+just run diagram.mmd    # exit 0 if accepted, 1 if refused
+```
+
+## Develop
+
+```sh
+just check      # format and lint
+just conform    # the conformance cases against the checker
+just mutants    # break the checker; the tests must notice
+```
+
+## More
+
+- [`DESIGN-BRIEF.md`](DESIGN-BRIEF.md): what was decided and measured before the
+  format was written.
+- [`docs/adjudications/0001-mermaid-profile.md`](docs/adjudications/0001-mermaid-profile.md):
+  the decision that defines draft 0.
+- [`existence/RESULT.md`](existence/RESULT.md): the constructed wrong merges.
+- [kindspec](https://github.com/kindspec): the other formats.

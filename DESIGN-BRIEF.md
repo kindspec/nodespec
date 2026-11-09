@@ -77,8 +77,7 @@ most likely place a genuine silent-wrong-merge lives.
 **Does this kind justify existing?** See §1. No longer open for named-node
 diagrams: `existence/RESULT.md` gives three constructed merges of a
 Mermaid flowchart that stock git makes cleanly and wrongly, with no lint
-failing newly, which meets the owner's bar of product need plus a
-constructed case. A finding that canvases do not need a new format is a legitimate and
+failing newly, which meets the bar in `existence/CRITERION.md`. A finding that canvases do not need a new format is a legitimate and
 valuable outcome — the same standard applied to rowspec, whose own README says
 *"if your table is a list of facts, you probably do not need this."*
 
