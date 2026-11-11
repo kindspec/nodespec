@@ -990,8 +990,9 @@ carries one now.
 Every input a case accepts is a Mermaid flowchart that parses in
 Mermaid as §2 pins it.
 
-Merge cases, if the suite has them, check the merged file as one file
-(D5): stock git's result is checked, not git's exit status.
+Merge cases check the merged file as one file (D5): stock git's result
+is checked, not git's exit status. Each branch of a merge case is in the
+profile on its own, so a refusal is one the merge produced.
 
 ## 11. What this does not prevent (not normative)
 

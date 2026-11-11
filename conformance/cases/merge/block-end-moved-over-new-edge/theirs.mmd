@@ -1,0 +1,10 @@
+flowchart LR
+    a[A]
+    b[B]
+
+    subgraph s
+        a
+    end
+    %% s holds the front end
+    a --> b
+    %% b stays outside s

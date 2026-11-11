@@ -1,0 +1,14 @@
+flowchart LR
+    api[API]
+    redis[(Redis)]
+    db[(Orders DB)]
+    cache[Cache]
+
+    api --> redis
+    api --> db
+
+    subgraph backend [Backend]
+        api
+        db
+        cache
+    end

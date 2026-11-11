@@ -1,0 +1,17 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Worker]
+    cache[Cache]
+
+    user --> api
+    api --> db
+    api --> auth
+    api --> cache
+    worker --> db
+
+    subgraph cache[Cache tier]
+        db
+    end

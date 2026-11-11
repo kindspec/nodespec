@@ -12,6 +12,23 @@ ROOT defaults to conformance/cases, laid out as
                                     "ids": {identifier: [id, ...]}}
     <group>/<case>/WHY.md       what the case is for
 
+A merge case holds, in place of input.mmd, three versions of one file:
+
+    <group>/<case>/base.mmd     the common ancestor
+    <group>/<case>/ours.mmd     one branch
+    <group>/<case>/theirs.mmd   the other branch
+    <group>/<case>/merged.mmd   the file stock git produces, for a clean merge
+
+and its expect.json also carries {"merge": "clean"} or {"merge": "conflict"}.
+The runner commits base.mmd, then ours.mmd and theirs.mmd on two branches,
+merges them in that order with unconfigured git (kindkit.gitmerge), and
+checks that git reports what the case says. A clean merge's text must equal
+merged.mmd byte for byte, and is then judged as an input.mmd would be:
+SPEC.md §10, stock git's result is checked, not its exit status. A conflict
+carries no other verdict. The three versions and merged.mmd are UTF-8,
+and each version must be accepted on its own, so that a refusal of the
+merged file is one the merge produced.
+
 `expect.json` may also carry a "provisional" tag: the text of a bullet in
 the list of provisional readings in SPEC.md's "Provisional" section (§12),
 its line breaks folded to spaces, naming the reading the case rests on. A
@@ -56,8 +73,11 @@ DEFAULT_ROOT = os.path.join(HERE, "cases")
 SPEC = os.path.join(HERE, "..", "SPEC.md")
 # conformance/cases may grow but never shrink unnoticed: a tree that lost
 # cases, or went missing, is no verdict.
-MIN_CASES = 322
+MIN_CASES = 393
 INPUT, EXPECT, WHY = "input.mmd", "expect.json", "WHY.md"
+BASE, OURS, THEIRS, MERGED = "base.mmd", "ours.mmd", "theirs.mmd", "merged.mmd"
+MERGE_INPUTS = (BASE, OURS, THEIRS)
+CLEAN, CONFLICT = "clean", "conflict"
 
 
 class Malformed(Exception):
@@ -90,7 +110,9 @@ def provisional_readings(path):
     return {r for r in readings if r}
 
 
-def load_expect(path, readings=frozenset()):
+def load_expect(path, readings=frozenset(), merge=False):
+    """A case's expect.json, checked. For a merge case it must carry
+    "merge"; a single-file case must not."""
     try:
         with open(path, "rb") as fh:
             exp = json.loads(fh.read().decode("utf-8"))
@@ -98,7 +120,16 @@ def load_expect(path, readings=frozenset()):
         raise Malformed(f"{EXPECT} cannot be read: {e}") from e
     if not isinstance(exp, dict):
         raise Malformed(f"{EXPECT} is not an object")
-    extra = set(exp) - {"accept", "refusal", "ids", "provisional"}
+    if merge:
+        if exp.get("merge") not in (CLEAN, CONFLICT):
+            raise Malformed(f'{EXPECT} of a merge case must give "merge": "clean" or "conflict"')
+        if exp["merge"] == CONFLICT:
+            if set(exp) != {"merge"}:
+                raise Malformed(f"{EXPECT} of a conflicted merge carries no other verdict")
+            return exp
+    elif "merge" in exp:
+        raise Malformed(f'{EXPECT} gives "merge", but the case has no {BASE}')
+    extra = set(exp) - {"accept", "refusal", "ids", "provisional"} - ({"merge"} if merge else set())
     if extra:
         raise Malformed(f"{EXPECT} has unknown keys: {', '.join(sorted(extra))}")
     if "provisional" in exp and not (
@@ -181,9 +212,72 @@ def cases(root):
         depth = 0 if rel == "." else rel.count(os.sep) + 1
         if depth == 2:
             out.append((rel.replace(os.sep, "/"), dirpath, False))
-        elif {INPUT, EXPECT} & set(files):
+        elif {INPUT, EXPECT, *MERGE_INPUTS, MERGED} & set(files):
             out.append((rel.replace(os.sep, "/"), dirpath, True))
     return sorted(out)
+
+
+def read_text(path, name):
+    try:
+        with open(path, encoding="utf-8", newline="") as fh:
+            return fh.read()
+    except UnicodeDecodeError as e:
+        raise Malformed(f"{name} is not UTF-8: {e}") from e
+    except OSError as e:
+        raise Malformed(f"{name} cannot be read: {e}") from e
+
+
+def git_merge(base, ours, theirs):
+    """(outcome, text): stock git merging ours, then theirs, onto base."""
+    from kindkit.gitmerge import merge
+
+    return merge(base, [ours, theirs], "flowchart.mmd")
+
+
+def load_case(cdir, readings):
+    """(expect, bytes to check or None): None for a conflicted merge that
+    behaved as its case says. Raises Malformed for a case that cannot be
+    judged, and returns the reasons it fails as a list in place of bytes when
+    git did not do what the case says."""
+    present = set(os.listdir(cdir))
+    merge = bool(present & {*MERGE_INPUTS, MERGED})
+    if merge and INPUT in present:
+        raise Malformed(f"holds both {INPUT} and a merge case's files")
+    if not merge:
+        if INPUT not in present:
+            raise Malformed(f"has no {INPUT}")
+        exp = load_expect(os.path.join(cdir, EXPECT), readings)
+        with open(os.path.join(cdir, INPUT), "rb") as fh:
+            return exp, fh.read()
+    missing = [n for n in MERGE_INPUTS if n not in present]
+    if missing:
+        raise Malformed(f"is a merge case with no {', '.join(missing)}")
+    exp = load_expect(os.path.join(cdir, EXPECT), readings, merge=True)
+    clean = exp["merge"] == CLEAN
+    if clean != (MERGED in present):
+        raise Malformed(
+            f"a clean merge needs {MERGED}" if clean else f"a conflicted merge has no {MERGED}"
+        )
+    base, ours, theirs = (read_text(os.path.join(cdir, n), n) for n in MERGE_INPUTS)
+    for name, text in zip(MERGE_INPUTS, (base, ours, theirs), strict=True):
+        found = check(text.encode("utf-8"))
+        if found:
+            raise Malformed(
+                f"{name} is refused on its own ({found[0].identifier}), "
+                "so a refusal of the merge would not be the merge's"
+            )
+    merged = read_text(os.path.join(cdir, MERGED), MERGED) if clean else None
+    try:
+        outcome, text = git_merge(base, ours, theirs)
+    except (RuntimeError, OSError) as e:
+        raise Malformed(f"stock git could not run the merge: {e}") from e
+    if outcome != exp["merge"]:
+        return exp, [f"expected stock git to report {exp['merge']}, it reported {outcome}"]
+    if not clean:
+        return exp, None
+    if text != merged:
+        return exp, [f"stock git's merged text is not the case's {MERGED}"]
+    return exp, text.encode("utf-8")
 
 
 def main(argv=None):
@@ -206,11 +300,7 @@ def main(argv=None):
         try:
             if misplaced:
                 raise Malformed("holds a case's files but is not two levels below ROOT")
-            if not os.path.isfile(os.path.join(cdir, INPUT)):
-                raise Malformed(f"has no {INPUT}")
-            exp = load_expect(os.path.join(cdir, EXPECT), readings)
-            with open(os.path.join(cdir, INPUT), "rb") as fh:
-                data = fh.read()
+            exp, data = load_case(cdir, readings)
         except Malformed as e:
             malformed.append(name)
             print(f"MALFORMED {name}: {e}")
@@ -219,7 +309,12 @@ def main(argv=None):
             print(f"note: {name} has no {WHY}")
         if "provisional" in exp:
             provisional.append(name)
-        reasons = judge(check(data), exp, exact)
+        if isinstance(data, list):
+            reasons = data
+        elif data is None:
+            reasons = []
+        else:
+            reasons = judge(check(data), exp, exact)
         if reasons:
             failed.append(name)
             tag = " (provisional)" if "provisional" in exp else ""

@@ -1,0 +1,13 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Worker]
+
+    user --> api
+    worker -->|retry| api
+    api --> db
+    api --> auth
+    worker --> db
+    worker -->|"retry"| api

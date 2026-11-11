@@ -412,3 +412,238 @@ def test_case_files_at_the_root_are_malformed(tmp_path, capsys):
     case(tmp_path, "g/c", H + "  a[A]\n", {"accept": True})
     (tmp_path / "expect.json").write_text('{"accept": true}')
     assert run(tmp_path, capsys)[0] == 2
+
+
+# Merge cases: three versions of a file merged by stock git, then the result
+# checked as one file (SPEC.md §10).
+
+BASE = H + "    a[A]\n    b[B]\n    c[C]\n    a --> c\n"
+ADD_EDGE = BASE + "    b --> c\n"
+DROP_B = H + "    a[A]\n    c[C]\n    a --> c\n"
+DROP_B_ADD_EDGE = DROP_B + "    b --> c\n"
+
+
+def merge_case(root, name, base, ours, theirs, expect, merged=None, why=True):
+    d = root / name
+    d.mkdir(parents=True)
+    for fname, text in (("base.mmd", base), ("ours.mmd", ours), ("theirs.mmd", theirs)):
+        if text is not None:
+            (d / fname).write_bytes(text.encode() if isinstance(text, str) else text)
+    if merged is not None:
+        (d / "merged.mmd").write_bytes(merged.encode() if isinstance(merged, str) else merged)
+    if expect is not None:
+        (d / "expect.json").write_text(
+            json.dumps(expect) if not isinstance(expect, str) else expect
+        )
+    if why:
+        (d / "WHY.md").write_text("why\n")
+    return d
+
+
+def test_a_clean_merge_is_checked_as_one_file(tmp_path, capsys):
+    merge_case(
+        tmp_path,
+        "m/refused",
+        BASE,
+        DROP_B,
+        ADD_EDGE,
+        {"merge": "clean", "refusal": ["undeclared-id"], "ids": {"undeclared-id": ["b"]}},
+        merged=DROP_B_ADD_EDGE,
+    )
+    merge_case(
+        tmp_path,
+        "m/accepted",
+        BASE,
+        BASE.replace("[A]", "[Alpha]"),
+        ADD_EDGE,
+        {"merge": "clean", "accept": True},
+        merged=ADD_EDGE.replace("[A]", "[Alpha]"),
+    )
+    rc, out = run(tmp_path, capsys)
+    assert rc == 0, out
+    assert "2 case(s): 2 passed" in out
+
+
+def test_a_clean_merge_judged_wrongly_fails(tmp_path, capsys):
+    merge_case(
+        tmp_path,
+        "m/c",
+        BASE,
+        DROP_B,
+        ADD_EDGE,
+        {"merge": "clean", "accept": True},
+        merged=DROP_B_ADD_EDGE,
+    )
+    rc, out = run(tmp_path, capsys)
+    assert rc == 1
+    assert "FAIL m/c: expected accept, got" in out
+
+
+def test_merged_text_must_match_byte_for_byte(tmp_path, capsys):
+    merge_case(
+        tmp_path,
+        "m/c",
+        BASE,
+        DROP_B,
+        ADD_EDGE,
+        {"merge": "clean", "refusal": ["undeclared-id"], "ids": {"undeclared-id": ["b"]}},
+        merged=DROP_B_ADD_EDGE + "\n",
+    )
+    rc, out = run(tmp_path, capsys)
+    assert rc == 1
+    assert "stock git's merged text is not the case's merged.mmd" in out
+
+
+def test_a_conflict_passes_when_the_case_expects_one(tmp_path, capsys):
+    merge_case(
+        tmp_path,
+        "m/c",
+        BASE,
+        BASE.replace("[A]", "[One]"),
+        BASE.replace("[A]", "[Two]"),
+        {"merge": "conflict"},
+    )
+    rc, out = run(tmp_path, capsys)
+    assert rc == 0, out
+    assert "1 case(s): 1 passed" in out
+
+
+@pytest.mark.parametrize(
+    ("ours", "expect", "merged", "said"),
+    [
+        (
+            BASE.replace("[A]", "[One]"),
+            {"merge": "clean", "accept": True},
+            BASE,
+            "clean, it reported conflict",
+        ),
+        (DROP_B, {"merge": "conflict"}, None, "conflict, it reported clean"),
+    ],
+)
+def test_git_reporting_otherwise_fails(tmp_path, capsys, ours, expect, merged, said):
+    theirs = BASE.replace("[A]", "[Two]") if expect["merge"] == "clean" else ADD_EDGE
+    merge_case(tmp_path, "m/c", BASE, ours, theirs, expect, merged=merged)
+    rc, out = run(tmp_path, capsys)
+    assert rc == 1
+    assert f"FAIL m/c: expected stock git to report {said}" in out
+
+
+def test_ours_is_merged_before_theirs(tmp_path, capsys):
+    # Git writes the first branch merged as HEAD's side: the order is what
+    # makes a conflicted text, and so the case, reproducible.
+    seen = {}
+
+    def fake(base, branches, filename):
+        seen["branches"] = branches
+        return "conflict", ""
+
+    import kindkit.gitmerge
+
+    ours, theirs = BASE.replace("[A]", "[One]"), BASE.replace("[A]", "[Two]")
+    merge_case(tmp_path, "m/c", BASE, ours, theirs, {"merge": "conflict"})
+    old = kindkit.gitmerge.merge
+    kindkit.gitmerge.merge = fake
+    try:
+        rc, _ = run(tmp_path, capsys)
+    finally:
+        kindkit.gitmerge.merge = old
+    assert rc == 0
+    assert seen["branches"] == [ours, theirs]
+
+
+@pytest.mark.parametrize(
+    ("files", "expect", "said"),
+    [
+        ({"ours": None}, {"merge": "conflict"}, "is a merge case with no ours.mmd"),
+        ({"theirs": None}, {"merge": "conflict"}, "is a merge case with no theirs.mmd"),
+        ({"base": None}, {"merge": "conflict"}, "is a merge case with no base.mmd"),
+        ({}, {"merge": "clean", "accept": True}, "a clean merge needs merged.mmd"),
+        ({"merged": BASE}, {"merge": "conflict"}, "a conflicted merge has no merged.mmd"),
+        ({}, {"accept": True}, 'must give "merge": "clean" or "conflict"'),
+        ({}, {"merge": "maybe"}, 'must give "merge": "clean" or "conflict"'),
+        ({}, {"merge": "conflict", "accept": True}, "carries no other verdict"),
+        ({"merged": BASE}, {"merge": "clean", "note": 1}, "has unknown keys: note"),
+        ({"merged": BASE}, {"merge": "clean"}, "names no refusal"),
+        ({"ours": b"\xff\n"}, {"merge": "conflict"}, "ours.mmd is not UTF-8"),
+        ({"merged": b"\xff\n"}, {"merge": "clean", "accept": True}, "merged.mmd is not UTF-8"),
+        (
+            {"base": DROP_B_ADD_EDGE},
+            {"merge": "conflict"},
+            "base.mmd is refused on its own (undeclared-id)",
+        ),
+        ({"ours": H + "  a --> b\n"}, {"merge": "conflict"}, "ours.mmd is refused on its own"),
+        ({"theirs": DROP_B_ADD_EDGE}, {"merge": "conflict"}, "theirs.mmd is refused on its own"),
+    ],
+)
+def test_malformed_merge_cases(tmp_path, capsys, files, expect, said):
+    texts = {"base": BASE, "ours": BASE.replace("[A]", "[One]"), "theirs": ADD_EDGE, "merged": None}
+    texts.update(files)
+    merge_case(
+        tmp_path,
+        "m/c",
+        texts["base"],
+        texts["ours"],
+        texts["theirs"],
+        expect,
+        merged=texts["merged"],
+    )
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    line = next(ln for ln in out.splitlines() if ln.startswith("MALFORMED m/c: "))
+    assert said in line
+
+
+def test_a_merge_case_with_an_input_is_malformed(tmp_path, capsys):
+    d = merge_case(tmp_path, "m/c", BASE, DROP_B, ADD_EDGE, {"merge": "conflict"})
+    (d / "input.mmd").write_text(BASE)
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: holds both input.mmd and a merge case's files" in out
+
+
+def test_a_single_file_case_giving_merge_is_malformed(tmp_path, capsys):
+    case(tmp_path, "g/c", BASE, {"merge": "clean", "accept": True})
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert 'MALFORMED g/c: expect.json gives "merge", but the case has no base.mmd' in out
+
+
+@pytest.mark.parametrize("fname", ["base.mmd", "ours.mmd", "theirs.mmd", "merged.mmd"])
+def test_a_merge_file_one_level_down_is_malformed(tmp_path, capsys, fname):
+    d = tmp_path / "g"
+    d.mkdir()
+    (d / fname).write_text(BASE)
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED g: holds a case's files" in out
+
+
+def test_git_failing_is_malformed_not_a_crash(tmp_path, capsys):
+    # A branch identical to the base has nothing to commit, and git refuses.
+    merge_case(tmp_path, "m/c", BASE, BASE, ADD_EDGE, {"merge": "clean", "accept": True}, ADD_EDGE)
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: stock git could not run the merge" in out
+
+
+def test_git_missing_is_malformed_not_a_crash(tmp_path, capsys, monkeypatch):
+    merge_case(
+        tmp_path,
+        "m/c",
+        BASE,
+        BASE.replace("[A]", "[One]"),
+        BASE.replace("[A]", "[Two]"),
+        {"merge": "conflict"},
+    )
+    monkeypatch.setenv("PATH", str(tmp_path / "no-bin"))
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: stock git could not run the merge" in out
+
+
+def test_an_unreadable_merge_file_is_malformed_not_a_crash(tmp_path, capsys):
+    d = merge_case(tmp_path, "m/c", BASE, DROP_B, ADD_EDGE, {"merge": "clean", "accept": True})
+    (d / "merged.mmd").mkdir()
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: merged.mmd cannot be read" in out

@@ -1,8 +1,10 @@
 # nodespec conformance cases: the blind batch
 
-322 cases: 105 accepted, 217 refused. Each expected outcome was derived
-by hand from SPEC.md and is argued in the case's `WHY.md`. No case was run
-through Mermaid or through any checker.
+393 cases. 322 check one file: 105 accepted, 217 refused. 71 merge two
+branches with stock git and check the merged file: 29 accepted, 36 refused,
+and 6 where git conflicts. Each expected outcome was derived by hand from
+SPEC.md and is argued in the case's `WHY.md`. No case was run through
+Mermaid or through any checker.
 
 ## Layout
 
@@ -10,6 +12,25 @@ through Mermaid or through any checker.
         input.mmd      the file under test, as exact bytes
         expect.json    what a checker must report
         WHY.md         the SPEC.md sentences that decide it, and the reasoning; ignored by a runner
+
+A merge case, in `merge/`, holds three versions of one file in place of
+`input.mmd`:
+
+    cases/merge/<case-name>/
+        base.mmd       the common ancestor
+        ours.mmd       one branch
+        theirs.mmd     the other branch
+        merged.mmd     only when the merge is clean: the file stock git produces
+        expect.json    as below, with "merge"
+        WHY.md         what each branch does, and why git and SPEC.md treat the result as they do
+
+The runner commits `base.mmd`, puts `ours.mmd` and `theirs.mmd` on two
+branches, and merges them in that order with unconfigured git. Git must
+report what the case says, a clean merge's text must equal `merged.mmd` byte
+for byte, and that text is then judged as an `input.mmd` would be (SPEC.md
+§10). Each of the three versions must be accepted on its own, so a refusal is
+one the merge produced. The four files are UTF-8 with LF line endings.
+`merge/INDEX.md` lists every merge case with its verdict.
 
 A directory is a case if and only if it holds `expect.json`. The group name is
 a filing convention, not an input.
@@ -21,6 +42,7 @@ a filing convention, not an input.
 | `boundary` | 130 |
 | `applicability` | 37 |
 | `examples` | 7 |
+| `merge` | 71 |
 
 - `grammar`: one accepted file per grammar construct (header forms, each of the
   fourteen shapes, each row of the link table, labels, edge labels, edge ids,
@@ -43,6 +65,12 @@ a filing convention, not an input.
 U+00A0 and U+2028 occur only where a case means them, as the structure
 script checked. A copy of this tree must not
 normalise line endings (`* -text` in `.gitattributes`).
+
+- `merge`: two branches merged by stock git. The ten constructed wrong
+  merges in `existence/`, rewritten so that every version is in the profile;
+  the merges a rule exists to make loud, each with an accepted control where
+  SPEC.md allows one; the merges §11 says it does not prevent, accepted;
+  ordinary merges that stay accepted; and conflicts.
 
 ## expect.json
 
@@ -71,6 +99,10 @@ paragraph or next heading; §12's list must stay in that shape.
   identifier it lists every id the entry applies to. Other identifiers carry
   no id (§9) and have no `ids` key.
 
+A merge case's `expect.json` adds `"merge": "clean"` to one of the forms
+above, or is exactly `{"merge": "conflict"}`: a conflict carries no other
+verdict, since git stopped.
+
 ## How a case passes
 
 SPEC.md §9: "a report passes if its identifier, and its id where the entry has
@@ -89,6 +121,21 @@ one, are among them", and "which one is reported is not specified".
 - `provisional` changes nothing about how a case is judged.
 
 ## Provenance
+
+The merge cases were written from SPEC.md at nodespec 4ec1702 by an author
+who did not read a checker, its tests, or this runner, from these files and
+nothing else: `SPEC.md` (sha256 `005eb2c97de44516bcccabb32277545aafb9bfc86b6884e010705ed18313691d`),
+`0001-mermaid-profile.md` (`d36989c622cebf87d7491505a5980d2ae64fde28da3ab2ae3651167999ec8a55`),
+the single-file cases and this README, `existence/`, and `merge/BRIEF.md`
+(`10abafb03a2e84f05ca0567b0b717e0b3f19c677cb18bd53b200c1d6639f3278`). Git was
+run only to produce each `merged.mmd` and to see whether a merge conflicts.
+The brief was named `MERGE-CASES.md` when the author read it, which is the
+name `merge/INDEX.md` first cited. The author set no case aside as
+ambiguous, so the batch has no `AMBIGUITIES.md`. The checker then passed all
+70 unchanged. One case was added in review, by a reviewer who had the checker
+in reach: `member-line-left-outside-block`, whose `WHY.md` says so.
+
+The single-file cases:
 
 Written from SPEC.md at nodespec 055509e alone, by an author who has not
 written a checker and did not read one. Every expected outcome and every

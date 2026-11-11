@@ -36,6 +36,7 @@ packages = ["reference/nodespec"]
 
 [dependency-groups]
 dev = [
+  "kindkit==0.2.0",
   "pytest>=8",
   "ruff>=0.6",
 ]

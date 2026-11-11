@@ -1,0 +1,9 @@
+flowchart LR
+    api[API]
+    db[(Orders DB)]
+    worker[Worker]
+
+    api --> db
+    worker --> cache
+    worker --> db
+    classDef cache fill:#eef

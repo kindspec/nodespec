@@ -1,0 +1,13 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Worker]
+    style user fill:#eee
+
+    user --> api
+    api --> db
+    api --> auth
+    worker --> db
+    style db fill:#ddd,stroke-width:2px

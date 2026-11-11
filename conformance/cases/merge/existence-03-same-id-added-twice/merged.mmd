@@ -1,0 +1,15 @@
+flowchart LR
+    user[User]
+    api[API]
+    q[Queue]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Worker]
+    q[Quota]
+
+    user --> api
+    api --> q
+    api --> db
+    api --> auth
+    worker --> db
+    auth --> q
