@@ -1,0 +1,6 @@
+{
+  "merge": "clean",
+  "refusal": [
+    "malformed-line"
+  ]
+}

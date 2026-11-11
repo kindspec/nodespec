@@ -73,7 +73,7 @@ DEFAULT_ROOT = os.path.join(HERE, "cases")
 SPEC = os.path.join(HERE, "..", "SPEC.md")
 # conformance/cases may grow but never shrink unnoticed: a tree that lost
 # cases, or went missing, is no verdict.
-MIN_CASES = 392
+MIN_CASES = 393
 INPUT, EXPECT, WHY = "input.mmd", "expect.json", "WHY.md"
 BASE, OURS, THEIRS, MERGED = "base.mmd", "ours.mmd", "theirs.mmd", "merged.mmd"
 MERGE_INPUTS = (BASE, OURS, THEIRS)
@@ -223,6 +223,8 @@ def read_text(path, name):
             return fh.read()
     except UnicodeDecodeError as e:
         raise Malformed(f"{name} is not UTF-8: {e}") from e
+    except OSError as e:
+        raise Malformed(f"{name} cannot be read: {e}") from e
 
 
 def git_merge(base, ours, theirs):
@@ -267,7 +269,7 @@ def load_case(cdir, readings):
     merged = read_text(os.path.join(cdir, MERGED), MERGED) if clean else None
     try:
         outcome, text = git_merge(base, ours, theirs)
-    except RuntimeError as e:
+    except (RuntimeError, OSError) as e:
         raise Malformed(f"stock git could not run the merge: {e}") from e
     if outcome != exp["merge"]:
         return exp, [f"expected stock git to report {exp['merge']}, it reported {outcome}"]

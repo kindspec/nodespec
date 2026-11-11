@@ -608,8 +608,20 @@ MUTANTS = [
     (
         "runner-git-failure-crashes",
         RUNNER,
+        "    except (RuntimeError, OSError) as e:\n        raise Malformed",
+        "    except OSError as e:\n        raise Malformed",
+    ),
+    (
+        "runner-git-missing-crashes",
+        RUNNER,
+        "    except (RuntimeError, OSError) as e:\n        raise Malformed",
         "    except RuntimeError as e:\n        raise Malformed",
-        "    except KeyError as e:\n        raise Malformed",
+    ),
+    (
+        "runner-unreadable-merge-file-crashes",
+        RUNNER,
+        '    except OSError as e:\n        raise Malformed(f"{name} cannot be read',
+        '    except KeyError as e:\n        raise Malformed(f"{name} cannot be read',
     ),
     (
         "runner-merge-text-not-utf8-checked",

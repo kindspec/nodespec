@@ -624,3 +624,26 @@ def test_git_failing_is_malformed_not_a_crash(tmp_path, capsys):
     rc, out = run(tmp_path, capsys)
     assert rc == 2
     assert "MALFORMED m/c: stock git could not run the merge" in out
+
+
+def test_git_missing_is_malformed_not_a_crash(tmp_path, capsys, monkeypatch):
+    merge_case(
+        tmp_path,
+        "m/c",
+        BASE,
+        BASE.replace("[A]", "[One]"),
+        BASE.replace("[A]", "[Two]"),
+        {"merge": "conflict"},
+    )
+    monkeypatch.setenv("PATH", str(tmp_path / "no-bin"))
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: stock git could not run the merge" in out
+
+
+def test_an_unreadable_merge_file_is_malformed_not_a_crash(tmp_path, capsys):
+    d = merge_case(tmp_path, "m/c", BASE, DROP_B, ADD_EDGE, {"merge": "clean", "accept": True})
+    (d / "merged.mmd").mkdir()
+    rc, out = run(tmp_path, capsys)
+    assert rc == 2
+    assert "MALFORMED m/c: merged.mmd cannot be read" in out

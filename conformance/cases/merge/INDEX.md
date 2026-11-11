@@ -7,9 +7,9 @@ Each case is `base.mmd`, `ours.mmd`, `theirs.mmd`, `expect.json`, `WHY.md`, and 
 | verdict | cases |
 | --- | --- |
 | clean, accepted | 29 |
-| clean, refused | 35 |
+| clean, refused | 36 |
 | conflict | 6 |
-| total | 70 |
+| total | 71 |
 
 Refusal identifiers among the refused cases:
 
@@ -18,6 +18,7 @@ Refusal identifiers among the refused cases:
 - `duplicate-declaration`: 5
 - `duplicate-edge`: 4
 - `kind-clash`: 3
+- `malformed-line`: 1
 - `member-twice`: 2
 - `membership-cycle`: 1
 - `statement-in-block`: 1
@@ -26,7 +27,7 @@ Refusal identifiers among the refused cases:
 - `undeclared-id`: 12
 - `wrong-kind`: 1
 
-## Existence cases rewritten into the profile (MERGE-CASES.md item 1)
+## Existence cases rewritten into the profile (`BRIEF.md` item 1)
 
 - `existence-01-rename-vs-new-edge`: clean, refused: `undeclared-id` (`undeclared-id`: `api`)
 - `existence-02-delete-vs-new-edge`: clean, refused: `undeclared-id` (`undeclared-id`: `auth`)
@@ -106,6 +107,10 @@ Refusal identifiers among the refused cases:
 - `member-lines-added-to-different-blocks-accepted`: clean, accepted
 - `relabel-vs-new-edge-accepted`: clean, accepted
 
+## Added in review
+
+- `member-line-left-outside-block`: clean, refused: `malformed-line`
+
 ## Further conflicts (item 5)
 
 - `different-styles-same-place-conflict`: conflict
@@ -113,4 +118,6 @@ Refusal identifiers among the refused cases:
 
 ## Rules no clean merge of in-profile inputs can reach
 
-A clean merge keeps whole lines from its inputs, so a refusal that depends on one line alone cannot appear in a clean merge of three in-profile files: `bad-encoding`, `leading-bom`, `lone-cr`, `conflict-marker`, `no-header`, `malformed-line`, `not-admitted`, `reserved-id`, `stray-direction`, `subgraph-without-id`, `declaration-in-edge`, `edge-id-on-group` and `link-style`. Some of these state a merge as their purpose (`lone-cr` in §3, `declaration-in-edge` in §5.1, `link-style` in §7); the rule acts on the inputs, and there is no clean refused merge to write for it. `no-header` is here too: a statement line above the header would have to come from one side, which would then be `no-header` itself. A conflicted merge leaves `conflict-marker` lines, but carries no verdict here. The line refusals that depend on block context (`statement-in-block`, and in the same way `declaration-in-block`, `nested-block`, `unbalanced-block`, `direction-outside-block` and `direction-twice`) can be reached, and `block-end-moved-over-new-edge` shows one.
+A clean merge keeps whole lines from its inputs, so a refusal that depends on one line alone cannot appear in a clean merge of three in-profile files: `bad-encoding`, `leading-bom`, `lone-cr`, `conflict-marker`, `no-header`, `not-admitted`, `reserved-id`, `stray-direction`, `subgraph-without-id`, `declaration-in-edge`, `edge-id-on-group` and `link-style`. Some of these state a merge as their purpose (`lone-cr` in §3, `declaration-in-edge` in §5.1, `link-style` in §7); the rule acts on the inputs, and there is no clean refused merge to write for it. `no-header` is here too: a statement line above the header would have to come from one side, which would then be `no-header` itself. A conflicted merge leaves `conflict-marker` lines, but carries no verdict here. The line refusals that depend on block context (`statement-in-block`, and in the same way `declaration-in-block`, `nested-block`, `unbalanced-block`, `direction-outside-block` and `direction-twice`) can be reached, and `block-end-moved-over-new-edge` shows one.
+
+`malformed-line` was listed here when the batch was written, and is not one of these: §4.3 rule 10 makes a member line at the top level `malformed-line`, so it depends on block context too. `member-line-left-outside-block`, added in review, is a clean merge refused that way.

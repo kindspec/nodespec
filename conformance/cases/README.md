@@ -1,7 +1,7 @@
 # nodespec conformance cases: the blind batch
 
-392 cases. 322 check one file: 105 accepted, 217 refused. 70 merge two
-branches with stock git and check the merged file: 29 accepted, 35 refused,
+393 cases. 322 check one file: 105 accepted, 217 refused. 71 merge two
+branches with stock git and check the merged file: 29 accepted, 36 refused,
 and 6 where git conflicts. Each expected outcome was derived by hand from
 SPEC.md and is argued in the case's `WHY.md`. No case was run through
 Mermaid or through any checker.
@@ -42,7 +42,7 @@ a filing convention, not an input.
 | `boundary` | 130 |
 | `applicability` | 37 |
 | `examples` | 7 |
-| `merge` | 70 |
+| `merge` | 71 |
 
 - `grammar`: one accepted file per grammar construct (header forms, each of the
   fourteen shapes, each row of the link table, labels, edge labels, edge ids,
@@ -129,7 +129,11 @@ nothing else: `SPEC.md` (sha256 `005eb2c97de44516bcccabb32277545aafb9bfc86b6884e
 the single-file cases and this README, `existence/`, and `merge/BRIEF.md`
 (`10abafb03a2e84f05ca0567b0b717e0b3f19c677cb18bd53b200c1d6639f3278`). Git was
 run only to produce each `merged.mmd` and to see whether a merge conflicts.
-The checker then passed all 70 unchanged.
+The brief was named `MERGE-CASES.md` when the author read it, which is the
+name `merge/INDEX.md` first cited. The author set no case aside as
+ambiguous, so the batch has no `AMBIGUITIES.md`. The checker then passed all
+70 unchanged. One case was added in review, by a reviewer who had the checker
+in reach: `member-line-left-outside-block`, whose `WHY.md` says so.
 
 The single-file cases:
 
