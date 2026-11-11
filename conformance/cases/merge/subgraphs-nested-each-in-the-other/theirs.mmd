@@ -1,0 +1,13 @@
+flowchart LR
+    a[A]
+    b[B]
+    a --> b
+
+    subgraph s
+        a
+    end
+
+    subgraph t
+        b
+        s
+    end

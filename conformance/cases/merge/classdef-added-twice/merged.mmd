@@ -1,0 +1,13 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Worker]
+    classDef warm fill:#fd0
+
+    user --> api
+    api --> db
+    api --> auth
+    worker --> db
+    classDef warm fill:#f80

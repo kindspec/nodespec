@@ -1,0 +1,14 @@
+flowchart LR
+    api[API]
+    db[(Orders DB)]
+    worker[Worker]
+    redis[(Redis)]
+
+    api --> cache
+    api --> db
+    worker --> cache
+    worker --> db
+
+    subgraph cache [Cache tier]
+        redis
+    end

@@ -1,0 +1,13 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+    auth[Auth service]
+    worker[Batch worker]
+
+    user --> api
+    api --> auth
+
+    api --> db
+
+    worker --> db

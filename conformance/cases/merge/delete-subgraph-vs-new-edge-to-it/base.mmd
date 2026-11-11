@@ -1,0 +1,12 @@
+flowchart LR
+    user[User]
+    api[API]
+    db[(Orders DB)]
+
+    subgraph backend [Backend]
+        api
+        db
+    end
+
+    user --> api
+    api --> db
